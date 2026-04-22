@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動進程｜萬壽社區</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; }
+
+  .header {
+    background: #1a6b4a;
+    color: white;
+    padding: 20px 16px 16px;
+    text-align: center;
+  }
+  .header h1 { font-size: 20px; margin-bottom: 4px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+
+  .date-bar {
+    background: #155c3e;
+    color: #a8e6c8;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .container { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* 安全燈號 */
+  .safety-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .safety-card.green  { background: #dcfce7; border: 1.5px solid #16a34a; }
+  .safety-card.yellow { background: #fef9c3; border: 1.5px solid #ca8a04; }
+  .safety-card.red    { background: #fee2e2; border: 1.5px solid #dc2626; }
+  .safety-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  }
+  .safety-card.green  .safety-dot { background: #16a34a; }
+  .safety-card.yellow .safety-dot { background: #ca8a04; }
+  .safety-card.red    .safety-dot { background: #dc2626; }
+  .safety-text strong { font-size: 15px; display: block; margin-bottom: 2px; }
+  .safety-text span   { font-size: 12px; color: #555; }
+
+  /* 時間軸 */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: #d1fae5;
+  }
+
+  .step {
+    position: relative;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid #e5e7eb;
+    transition: border-color 0.2s;
+  }
+  .step.done    { border-color: #86efac; background: #f0fdf4; }
+  .step.current { border-color: #1a6b4a; background: #ecfdf5; box-shadow: 0 2px 8px #1a6b4a22; }
+  .step.upcoming{ border-color: #e5e7eb; opacity: 0.7; }
+
+  .step-dot {
+    position: absolute;
+    left: -26px; top: 14px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+  .step.done     .step-dot { background: #16a34a; }
+  .step.current  .step-dot { background: #1a6b4a; box-shadow: 0 0 0 3px #bbf7d0; }
+  .step.upcoming .step-dot { background: #d1d5db; }
+
+  .step-time { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .step-desc  { font-size: 12px; color: #555; line-height: 1.5; }
+
+  .step.current .step-title { color: #1a6b4a; }
+
+  .current-badge {
+    display: inline-block;
+    background: #1a6b4a;
+    color: white;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    margin-bottom: 4px;
+  }
+
+  /* 緊急聯絡 */
+  .emergency {
+    margin-top: 20px;
+    background: #fff7ed;
+    border: 1.5px solid #fb923c;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .emergency h3 { font-size: 13px; color: #c2410c; margin-bottom: 8px; }
+  .emergency a {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #c2410c;
+    text-decoration: none;
+    margin-bottom: 4px;
+  }
+
+  /* 更新時間 */
+  .update-bar {
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    padding: 16px 0 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🐚 中角灣笠螺採集體驗</h1>
+  <p>萬壽社區發展協會 · 活動進程追蹤</p>
+</div>
+
+<div class="date-bar" id="dateBar">載入中...</div>
+
+<div class="container">
+
+  <!-- 安全燈號 -->
+  <div class="safety-card" id="safetyCard">
+    <div class="safety-dot"></div>
+    <div class="safety-text">
+      <strong id="safetyTitle">確認海況中...</strong>
+      <span id="safetyDesc">請稍候</span>
+    </div>
+  </div>
+
+  <!-- 活動時間軸 -->
+  <div class="timeline" id="timeline">
+    <!-- 由 JavaScript 產生 -->
+  </div>
+
+  <!-- 緊急聯絡 -->
+  <div class="emergency">
+    <h3>緊急聯絡</h3>
+    <a href="tel:118">海巡署 118</a>
+    <a href="tel:0912345678">活動負責人：趙理事長 0912-345-678</a>
+  </div>
+
+</div>
+
+<div class="update-bar" id="updateBar">載入中...</div>
+
+<script>
+// ═══════════════════════════════════════════
+// ★ 講師修改區：活動時間表
+// 修改 steps 裡的內容，儲存後網頁自動更新
+// ═══════════════════════════════════════════
+const ACTIVITY_DATE = '2026-07-20'; // 活動日期（年-月-日）
+
+const steps = [
+  {
+    time: '13:00 - 13:30',
+    title: '報到 · 掃碼進入活動頁面',
+    desc: '領取名牌，工作人員協助長者操作手機',
+    startHour: 13, startMin: 0,
+    endHour: 13,   endMin: 30,
+  },
+  {
+    time: '13:30 - 14:00',
+    title: '笠螺文化介紹 · 海洋安全教育',
+    desc: '江淑珍講師主講，說明潮汐安全燈號使用方式',
+    startHour: 13, startMin: 30,
+    endHour: 14,   endMin: 0,
+  },
+  {
+    time: '14:00 - 15:30',
+    title: '🌊 中角灣潮間帶採集體驗',
+    desc: '低潮黃金採集時段！長者文化嚮導帶領，請穿防滑鞋',
+    startHour: 14, startMin: 0,
+    endHour: 15,   endMin: 30,
+  },
+  {
+    time: '15:30 - 16:00',
+    title: '淨灘行動',
+    desc: '廢棄物分類統計，用手機填寫淨灘回報表',
+    startHour: 15, startMin: 30,
+    endHour: 16,   endMin: 0,
+  },
+  {
+    time: '16:00 - 16:30',
+    title: '笠螺料理 DIY',
+    desc: '社區志工媽媽示範傳統醃漬作法，現場試吃',
+    startHour: 16, startMin: 0,
+    endHour: 16,   endMin: 30,
+  },
+  {
+    time: '16:30 - 17:00',
+    title: '成果分享 · 填寫回饋問卷',
+    desc: '個人採集記錄表填寫，生成你的體驗成果卡',
+    startHour: 16, startMin: 30,
+    endHour: 17,   endMin: 0,
+  },
+  {
+    time: '17:00 - 17:30',
+    title: '回饋與展望',
+    desc: '感謝參與！宣傳下一場活動資訊',
+    startHour: 17, startMin: 0,
+    endHour: 17,   endMin: 30,
+  },
+];
+
+// ═══════════════════════════════════════════
+// ★ 安全燈號設定（講師每天活動前更新）
+// 'green'  = 採集條件良好
+// 'yellow' = 請注意，聽從講師指示
+// 'red'    = 暫停採集，請回到岸上
+// ═══════════════════════════════════════════
+const SAFETY = {
+  level: 'green',
+  title: '採集條件良好',
+  desc: '今日潮位適合，浪況平穩，請跟隨講師進行採集',
+};
+
+// ───────────────────────────────────────────
+// 以下不需要修改
+// ───────────────────────────────────────────
+function render() {
+  const now = new Date();
+
+  // 日期列
+  document.getElementById('dateBar').textContent =
+    `${ACTIVITY_DATE}（${['日','一','二','三','四','五','六'][now.getDay()]}）· 中角灣 · 萬壽社區`;
+
+  // 安全燈號
+  const card = document.getElementById('safetyCard');
+  card.className = 'safety-card ' + SAFETY.level;
+  document.getElementById('safetyTitle').textContent = SAFETY.title;
+  document.getElementById('safetyDesc').textContent  = SAFETY.desc;
+
+  // 時間軸
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+
+  steps.forEach(s => {
+    const startMin = s.startHour * 60 + s.startMin;
+    const endMin   = s.endHour   * 60 + s.endMin;
+    let state = nowMin < startMin ? 'upcoming'
+              : nowMin < endMin   ? 'current'
+              : 'done';
+
+    const div = document.createElement('div');
+    div.className = 'step ' + state;
+    div.innerHTML = `
+      <div class="step-dot"></div>
+      ${state === 'current' ? '<span class="current-badge">▶ 進行中</span>' : ''}
+      <div class="step-time">${s.time}</div>
+      <div class="step-title">${s.title}</div>
+      <div class="step-desc">${s.desc}</div>
+    `;
+    tl.appendChild(div);
+  });
+
+  // 更新時間
+  document.getElementById('updateBar').textContent =
+    `最後更新：${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} · 每分鐘自動更新`;
+}
+
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
