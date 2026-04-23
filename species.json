@@ -1,19 +1,32 @@
 [
   {
     "id": 1,
-    "name": "台灣笠螺",
+    "name": "花笠螺",
     "latinName": "Cellana toreuma",
     "category": "貝類",
     "canHarvest": true,
     "minSize": 3,
     "image": "images/species/limpet-taiwan.jpg",
-    "habitat": "岩礁潮間帶中低潮線",
-    "desc": "萬壽社區最具代表性的採集物種，在地人稱「丕仔」。殼口橢圓形，表面有放射狀肋紋。以礁石上的藻類為食，生長緩慢，從幼螺到3cm約需2-3年。",
-    "rule": "採集殼徑3cm以上，建議4-6cm品質最佳。春季3-5月繁殖期禁止採集。",
+    "habitat": "岩礁潮間帶中低潮線，緊貼附著礁石表面",
+    "desc": "萬壽社區具代表性的採集物種，在地稱「苦丕仔」。殼面較圓潤平滑，顏色偏黃綠褐色，無明顯放射條紋。風味特色是內臟帶有微苦感，苦後回甘層次豐富，是行家最愛的「大人味」。",
+    "rule": "採集殼徑3cm以上，建議4-6cm品質最佳。春季3-5月繁殖期禁止採集。以薄鐵片側向快速插入，避免硬撬破壞礁面。",
     "danger": false
   },
   {
     "id": 2,
+    "name": "斗笠螺",
+    "latinName": "Cellana grata",
+    "category": "貝類",
+    "canHarvest": true,
+    "minSize": 3,
+    "image": "images/species/limpet-oriental.jpg",
+    "habitat": "岩礁中低潮線，常見於礁石較平滑的表面",
+    "desc": "萬壽社區最具代表性的採集物種，在地俗稱「丕仔」，殼面有明顯放射狀條紋，顏色偏灰褐。肉質紮實Q脆，風味鮮甜無苦澀，藻香淡雅清爽，是最受遊客歡迎、初次體驗最容易接受的味道。",
+    "rule": "採集殼徑3cm以上。與花笠螺採集方式相同，春季3-5月繁殖期禁止採集。",
+    "danger": false
+  },
+  {
+    "id": 3,
     "name": "滑圓蜑螺",
     "latinName": "Nerita ocellata",
     "category": "貝類",
@@ -26,7 +39,7 @@
     "danger": false
   },
   {
-    "id": 3,
+    "id": 4,
     "name": "花斑蜑螺",
     "latinName": "Nerita japonica",
     "category": "貝類",
@@ -39,7 +52,7 @@
     "danger": false
   },
   {
-    "id": 4,
+    "id": 5,
     "name": "釋迦黑鐘螺",
     "latinName": "Omphalius nigerrimus",
     "category": "貝類",
@@ -47,12 +60,12 @@
     "minSize": 0,
     "image": "images/species/turbo-black.jpg",
     "habitat": "岩礁中低潮線，附著於礁石表面",
-    "desc": "殼色黑褐，表面具有顆粒狀突起，口蓋為石灰質圓形。是台灣北部礁岸鐘螺科中最常見的種類，以礁石上的藻類為食。活體口蓋內側帶有美麗的珍珠光澤。",
+    "desc": "殼色黑褐，表面具有顆粒狀突起如釋迦果皮，口蓋為石灰質圓形。是台灣北部礁岸鐘螺科中最常見的種類，以礁石上的藻類為食。活體口蓋內側帶有美麗的珍珠光澤。",
     "rule": "請勿採集。觀察時注意礁石濕滑，請穿防滑鞋。",
     "danger": false
   },
   {
-    "id": 5,
+    "id": 6,
     "name": "草蓆鐘螺",
     "latinName": "Tegula nigerrima",
     "category": "貝類",
@@ -65,7 +78,7 @@
     "danger": false
   },
   {
-    "id": 6,
+    "id": 7,
     "name": "珠螺",
     "latinName": "Turbo bruneus",
     "category": "貝類",
@@ -73,12 +86,12 @@
     "minSize": 0,
     "image": "images/species/turbo-pearl.jpg",
     "habitat": "岩礁低潮線，水坑及礁石縫隙",
-    "desc": "殼口內側具有美麗的珍珠光澤，呈藍綠色，是台灣礁岸最亮眼的螺類之一。口蓋為石灰質，厚重圓滑。退潮後常躲於水坑或陰暗縫隙中保持濕潤。",
+    "desc": "殼口內側具有美麗的藍綠色珍珠光澤，是台灣礁岸最亮眼的螺類之一。口蓋為石灰質，厚重圓滑。退潮後常躲於水坑或陰暗縫隙中保持濕潤。",
     "rule": "請勿採集。發現時可輕輕拿起觀察口蓋光澤，再放回原處。",
     "danger": false
   },
   {
-    "id": 7,
+    "id": 8,
     "name": "黃寶螺",
     "latinName": "Cypraea moneta",
     "category": "貝類",
@@ -91,7 +104,7 @@
     "danger": false
   },
   {
-    "id": 8,
+    "id": 9,
     "name": "貨幣寶螺",
     "latinName": "Cypraea moneta",
     "category": "貝類",
@@ -104,7 +117,7 @@
     "danger": false
   },
   {
-    "id": 9,
+    "id": 10,
     "name": "疣岩螺",
     "latinName": "Thais clavigera",
     "category": "貝類",
@@ -117,7 +130,7 @@
     "danger": false
   },
   {
-    "id": 10,
+    "id": 11,
     "name": "桃羅螺",
     "latinName": "Purpura persica",
     "category": "貝類",
@@ -130,7 +143,7 @@
     "danger": false
   },
   {
-    "id": 11,
+    "id": 12,
     "name": "織錦芋螺",
     "latinName": "Conus textile",
     "category": "貝類",
@@ -143,7 +156,7 @@
     "danger": true
   },
   {
-    "id": 12,
+    "id": 13,
     "name": "藤壺",
     "latinName": "Balanus sp.",
     "category": "甲殼類",
@@ -156,7 +169,7 @@
     "danger": true
   },
   {
-    "id": 13,
+    "id": 14,
     "name": "石蟳",
     "latinName": "Charybdis sp.",
     "category": "甲殼類",
