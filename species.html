@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>潮間帶生物圖鑑｜萬壽社區</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; }
+
+  .header {
+    background: #1a6b4a;
+    color: white;
+    padding: 20px 16px 16px;
+    text-align: center;
+  }
+  .header h1 { font-size: 20px; margin-bottom: 4px; }
+  .header p  { font-size: 13px; opacity: 0.85; }
+
+  .search-bar {
+    background: #155c3e;
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+  }
+  .search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #d1d5db;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #374151;
+  }
+  .filter-btn.active {
+    background: #1a6b4a;
+    color: white;
+    border-color: #1a6b4a;
+  }
+
+  .stats {
+    text-align: center;
+    padding: 8px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 12px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:active { transform: scale(0.97); }
+  .card.danger { border-color: #fca5a5; }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-body { padding: 10px; }
+  .card-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .card-latin { font-size: 10px; color: #9ca3af; font-style: italic; margin-bottom: 6px; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 4px;
+  }
+  .badge-harvest { background: #dcfce7; color: #166534; }
+  .badge-no      { background: #f3f4f6; color: #6b7280; }
+  .badge-danger  { background: #fee2e2; color: #991b1b; }
+
+  /* 詳細頁 Modal */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+
+  .modal-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+  }
+  .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  .modal-body { padding: 20px; }
+  .modal-name { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+  .modal-latin { font-size: 13px; color: #9ca3af; font-style: italic; margin-bottom: 12px; }
+
+  .modal-section { margin-bottom: 14px; }
+  .modal-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .modal-text { font-size: 14px; line-height: 1.6; color: #374151; }
+
+  .modal-rule {
+    background: #fef9c3;
+    border: 1.5px solid #fde047;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #713f12;
+  }
+  .modal-rule.danger-rule {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #7f1d1d;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    display: block;
+    width: calc(100% - 40px);
+    margin: 0 20px 24px;
+    padding: 14px;
+    background: #1a6b4a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .no-img { font-size: 48px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔍 潮間帶生物圖鑑</h1>
+  <p>中角灣常見物種 · 萬壽社區發展協會</p>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="搜尋物種名稱..." oninput="filterSpecies()">
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="setFilter('全部', this)">全部</button>
+  <button class="filter-btn" onclick="setFilter('貝類', this)">🐚 貝類</button>
+  <button class="filter-btn" onclick="setFilter('甲殼類', this)">🦀 甲殼類</button>
+  <button class="filter-btn" onclick="setFilter('棘皮動物', this)">⭐ 棘皮</button>
+  <button class="filter-btn" onclick="setFilter('可採集', this)">✅ 可採集</button>
+  <button class="filter-btn" onclick="setFilter('注意危險', this)">⚠️ 注意</button>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="grid" id="grid"></div>
+
+<!-- 詳細頁 -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-body">
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-latin" id="modalLatin"></div>
+      <div class="modal-section">
+        <div class="modal-label">棲息環境</div>
+        <div class="modal-text" id="modalHabitat"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">物種介紹</div>
+        <div class="modal-text" id="modalDesc"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">採集守則</div>
+        <div id="modalRule"></div>
+      </div>
+    </div>
+    <button class="close-btn" onclick="closeModal()">關閉</button>
+  </div>
+</div>
+
+<script>
+let allSpecies = [];
+let currentFilter = '全部';
+
+const categoryEmoji = {
+  '貝類': '🐚',
+  '甲殼類': '🦀',
+  '棘皮動物': '⭐',
+};
+
+fetch('species.json')
+  .then(r => r.json())
+  .then(data => {
+    allSpecies = data;
+    renderGrid(data);
+  });
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterSpecies();
+}
+
+function filterSpecies() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let list = allSpecies;
+
+  if (currentFilter === '可採集') list = list.filter(s => s.canHarvest);
+  else if (currentFilter === '注意危險') list = list.filter(s => s.danger);
+  else if (currentFilter !== '全部') list = list.filter(s => s.category === currentFilter);
+
+  if (q) list = list.filter(s =>
+    s.name.includes(q) || s.latinName.toLowerCase().includes(q)
+  );
+
+  renderGrid(list);
+}
+
+function renderGrid(list) {
+  document.getElementById('stats').textContent = `共 ${list.length} 種`;
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  list.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'card' + (s.danger ? ' danger' : '');
+    card.onclick = () => openModal(s);
+
+    const harvestBadge = s.canHarvest
+      ? `<span class="badge badge-harvest">✅ 可採集</span>`
+      : s.danger
+        ? `<span class="badge badge-danger">⚠️ 注意</span>`
+        : `<span class="badge badge-no">觀察</span>`;
+
+    card.innerHTML = `
+      <div class="card-img">
+        <img src="${s.image}" alt="${s.name}"
+          onerror="this.parentElement.innerHTML='<span class=\\'no-img\\'>${categoryEmoji[s.category]||'🐾'}</span>'">
+      </div>
+      <div class="card-body">
+        <div class="card-name">${s.name}</div>
+        <div class="card-latin">${s.latinName}</div>
+        ${harvestBadge}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openModal(s) {
+  const imgHtml = `<img src="${s.image}" alt="${s.name}"
+    onerror="this.parentElement.innerHTML='<span style=\\'font-size:60px\\'>${categoryEmoji[s.category]||'🐾'}</span>'">`;
+  document.getElementById('modalImg').innerHTML = imgHtml;
+  document.getElementById('modalName').textContent = s.name;
+  document.getElementById('modalLatin').textContent = s.latinName;
+  document.getElementById('modalHabitat').textContent = s.habitat;
+  document.getElementById('modalDesc').textContent = s.desc;
+
+  const ruleDiv = document.getElementById('modalRule');
+  ruleDiv.innerHTML = `<div class="modal-rule ${s.danger ? 'danger-rule' : ''}">${s.rule}</div>`;
+
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalBg')) {
+    document.getElementById('modalBg').classList.remove('open');
+  }
+}
+</script>
+</body>
+</html>
