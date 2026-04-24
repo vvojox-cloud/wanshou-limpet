@@ -15,7 +15,7 @@ CORS(app)
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "gemma3:12b"
-SPECIES_IMG_DIR = "images/species"
+SPECIES_IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "species")
 
 SPECIES_DB = {
     "花笠螺":    {"latinName": "Cellana toreuma",     "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱篦仔。",     "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
