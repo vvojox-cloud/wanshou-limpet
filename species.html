@@ -9,21 +9,16 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding-bottom: 80px; }
-
   .header { background: #1a6b4a; color: white; padding: 20px 16px 16px; text-align: center; }
   .header h1 { font-size: 20px; margin-bottom: 4px; }
   .header p { font-size: 13px; opacity: 0.85; }
-
   .search-bar { background: #155c3e; padding: 12px 16px; display: flex; gap: 8px; }
   .search-bar input { flex: 1; padding: 8px 12px; border-radius: 20px; border: none; font-size: 15px; outline: none; }
-
   .filter-bar { display: flex; gap: 8px; padding: 10px 16px; overflow-x: auto; background: white; border-bottom: 1px solid #e5e7eb; }
   .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px solid #d1d5db; background: white; font-size: 13px; cursor: pointer; white-space: nowrap; color: #374151; }
   .filter-btn.active { background: #1a6b4a; color: white; border-color: #1a6b4a; }
-
   .stats { text-align: center; padding: 8px; font-size: 12px; color: #6b7280; }
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; max-width: 640px; margin: 0 auto; }
-
   .card { background: white; border-radius: 12px; overflow: hidden; border: 1.5px solid #e5e7eb; cursor: pointer; }
   .card.danger { border-color: #fca5a5; }
   .card-img { width: 100%; aspect-ratio: 1; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
@@ -38,7 +33,7 @@
 
   /* 底部導覽列 */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
-  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; text-decoration: none; color: #6b7280; font-size: 11px; padding: 4px 12px; border-radius: 8px; border: none; background: none; }
+  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: #6b7280; font-size: 11px; padding: 4px 8px; border-radius: 8px; border: none; background: none; cursor: pointer; }
   .bnav-item.active { color: #1a6b4a; font-weight: 700; }
   .bnav-icon { font-size: 22px; line-height: 1; }
 
@@ -67,7 +62,6 @@
   .ai-panel { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 20px; max-height: 92vh; overflow-y: auto; }
   .ai-preview { width: 100%; aspect-ratio: 4/3; background: #f3f4f6; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 40px; color: #d1d5db; }
   .ai-preview img { width: 100%; height: 100%; object-fit: cover; }
-
   .ai-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .ai-btn-camera { padding: 14px 8px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
   .ai-btn-gallery { padding: 14px 8px; background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 10px; font-size: 15px; cursor: pointer; }
@@ -75,12 +69,16 @@
   .ai-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
   .ai-btn-close { width: 100%; padding: 12px; background: #f3f4f6; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #374151; }
 
-  /* 模型狀態列 */
+  /* 模型狀態 */
   .model-status { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #166534; display: flex; align-items: center; gap: 6px; }
   .model-dot { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; }
   .model-dot.ready { background: #16a34a; }
   .model-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* AI 網址設定 */
+  .ai-url-bar { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; display: flex; gap: 6px; align-items: center; }
+  .ai-url-bar input { flex: 1; border: none; background: transparent; font-size: 12px; color: #374151; outline: none; }
 
   /* 載入動畫 */
   .ai-loading { display: none; flex-direction: column; align-items: center; padding: 24px 16px; margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; gap: 16px; }
@@ -101,26 +99,41 @@
   .dot-animate::after { content:''; animation: dots 1.5s steps(4,end) infinite; }
   @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
-  /* 辨識結果與 Gemma 解析匡 */
-  .ai-result { display: none; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  /* 辨識結果 */
+  .ai-result { display: none; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
   .ai-result.success { background: #f0fdf4; border: 1.5px solid #86efac; }
   .ai-result.warning { background: #fff7ed; border: 1.5px solid #fb923c; }
   .ai-result.danger-result { background: #fee2e2; border: 1.5px solid #fca5a5; }
-  .ai-result-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
-  .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 8px; }
-  
-  /* Gemma 的對話框樣式 */
-  .gemma-box { background: rgba(255,255,255,0.7); border-left: 4px solid #1a6b4a; border-radius: 0 8px 8px 0; padding: 12px; margin-top: 12px; font-size: 13.5px; line-height: 1.6; color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .gemma-box-title { font-weight: 700; color: #1a6b4a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
+  .ai-result-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+  .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 10px; }
+  .ai-result-desc { font-size: 13px; color: #374151; margin-bottom: 10px; line-height: 1.6; }
+
+  /* 阿超說話框 */
+  .chaoshao-box { background: white; border-radius: 12px; padding: 12px; border: 1.5px solid #d1fae5; margin-bottom: 8px; }
+  .chaoshao-box.danger-box { border-color: #fca5a5; background: #fff5f5; }
+  .chaoshao-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .chaoshao-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a6b4a; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .chaoshao-name { font-size: 12px; font-weight: 700; color: #1a6b4a; }
+  .chaoshao-title { font-size: 10px; color: #6b7280; }
+  .chaoshao-msg { font-size: 14px; line-height: 1.7; color: #1a1a1a; }
+  .chaoshao-msg.danger-msg { color: #991b1b; font-weight: 600; }
 
   /* 信心度條 */
-  .confidence-bar { margin: 8px 0; }
+  .confidence-bar { margin: 8px 0 10px; }
   .confidence-label { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
   .confidence-track { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-  .confidence-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .confidence-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
   .confidence-fill.high { background: #16a34a; }
   .confidence-fill.mid { background: #f59e0b; }
   .confidence-fill.low { background: #ef4444; }
+
+  /* 標籤 */
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; margin-bottom: 4px; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-red { background: #fee2e2; color: #991b1b; }
+  .tag-gray { background: #f3f4f6; color: #6b7280; }
+  .tag-yellow { background: #fef9c3; color: #854d0e; }
+  .tag-blue { background: #e0f2fe; color: #0369a1; }
 </style>
 </head>
 <body>
@@ -146,6 +159,7 @@
 <div class="stats" id="stats"></div>
 <div class="grid" id="grid"></div>
 
+<!-- 底部導覽列 -->
 <nav class="bottom-nav">
   <a href="index.html" class="bnav-item">
     <span class="bnav-icon">🐚</span>首頁
@@ -156,11 +170,15 @@
   <a href="activity.html" class="bnav-item">
     <span class="bnav-icon">📅</span>活動進程
   </a>
+  <a href="guide-volunteer.html" class="bnav-item">
+    <span class="bnav-icon">📖</span>手冊
+  </a>
   <a href="admin.html" class="bnav-item">
     <span class="bnav-icon">🎛️</span>主持人
   </a>
 </nav>
 
+<!-- 生物詳細 Modal -->
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-img" id="modalImg"></div>
@@ -184,33 +202,44 @@
   </div>
 </div>
 
+<!-- AI 浮動按鈕 -->
 <button class="fab" onclick="openAI()">📷</button>
 
+<!-- AI 辨識面板 -->
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
-    <h2 style="font-size:18px;margin-bottom:4px;">📷 AI 生物辨識</h2>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px;">拍照或上傳照片，手機直接辨識，不需要網路</p>
+    <h2 style="font-size:18px;margin-bottom:2px;">📷 AI 生物辨識</h2>
+    <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">拍照辨識，由阿超海洋學家為您解說</p>
 
+    <!-- 模型狀態 -->
     <div class="model-status">
       <div class="model-dot" id="modelDot"></div>
       <span id="modelStatusText">AI 模型載入中...</span>
     </div>
 
+    <!-- AI 網址設定 -->
+    <div class="ai-url-bar">
+      <span style="font-size:11px;color:#6b7280;white-space:nowrap;">🌐 Gemma：</span>
+      <input id="aiUrlInput" type="text"
+        placeholder="貼上 ngrok 網址啟用阿超深度分析（選填）"
+        oninput="saveAiUrl(this.value)">
+      <span id="aiUrlStatus" style="font-size:10px;color:#9ca3af;white-space:nowrap;">未連線</span>
+    </div>
+
+    <!-- 預覽區 -->
     <div class="ai-preview" id="aiPreview">🐚</div>
 
+    <!-- 拍照 / 選圖 -->
     <div class="ai-photo-btns">
-      <button class="ai-btn-camera" onclick="document.getElementById('aiCamera').click()">
-        📷 拍照
-      </button>
-      <button class="ai-btn-gallery" onclick="document.getElementById('aiGallery').click()">
-        🖼️ 從相簿選
-      </button>
+      <button class="ai-btn-camera" onclick="document.getElementById('aiCamera').click()">📷 拍照</button>
+      <button class="ai-btn-gallery" onclick="document.getElementById('aiGallery').click()">🖼️ 從相簿選</button>
     </div>
     <input type="file" id="aiCamera" accept="image/*" capture="environment" style="display:none" onchange="previewImage(this)">
     <input type="file" id="aiGallery" accept="image/*" style="display:none" onchange="previewImage(this)">
 
     <button class="ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>🔍 開始辨識</button>
 
+    <!-- 載入動畫 -->
     <div class="ai-loading" id="aiLoading">
       <div class="loading-shell">🐚</div>
       <div class="wave-container">
@@ -219,10 +248,11 @@
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div>
       </div>
-      <div class="loading-text">萬壽社區 AI 雙引擎分析中<span class="dot-animate"></span></div>
-      <div class="loading-sub">TM 視覺判定 ＋ Gemma 12B 在地解說</div>
+      <div class="loading-text">阿超正在幫您辨識<span class="dot-animate"></span></div>
+      <div class="loading-sub" id="loadingSubText">TM 模型分析中</div>
     </div>
 
+    <!-- 辨識結果 -->
     <div class="ai-result" id="aiResult">
       <div class="ai-result-name" id="aiResultName"></div>
       <div class="ai-result-latin" id="aiResultLatin"></div>
@@ -232,7 +262,18 @@
           <div class="confidence-fill" id="confFill"></div>
         </div>
       </div>
-      <div class="gemma-box" id="gemmaResponse" style="display:none;"></div>
+      <div class="ai-result-desc" id="aiResultDesc"></div>
+      <!-- 阿超說話框 -->
+      <div class="chaoshao-box" id="chaoshaoBox">
+        <div class="chaoshao-header">
+          <div class="chaoshao-avatar">🧑‍🔬</div>
+          <div>
+            <div class="chaoshao-name">阿超海洋學家</div>
+            <div class="chaoshao-title">中角灣潮間帶研究 30 年</div>
+          </div>
+        </div>
+        <div class="chaoshao-msg" id="chaoshaoMsg"></div>
+      </div>
     </div>
 
     <button class="ai-btn-close" onclick="closeAI()">關閉</button>
@@ -240,57 +281,80 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════
-// 物種資料庫（輔助比對用）
-// ═══════════════════════════════════════
-const SPECIES_INFO = {
-  '花笠螺': { latinName: 'Cellana toreuma', canHarvest: true, danger: false },
-  '斗笠螺': { latinName: 'Cellana grata', canHarvest: true, danger: false },
-  '蜑螺':   { latinName: 'Nerita sp.', canHarvest: false, danger: false },
-  '珠螺':   { latinName: 'Turbo bruneus', canHarvest: false, danger: false },
-  '黑鐘螺': { latinName: 'Omphalius nigerrimus', canHarvest: false, danger: false },
-  '草蓆鐘螺': { latinName: 'Tegula nigerrima', canHarvest: false, danger: false },
-  '岩螺':   { latinName: 'Thais sp.', canHarvest: false, danger: false },
-  '織錦芋螺': { latinName: 'Conus textile', canHarvest: false, danger: true },
-  '黃寶螺': { latinName: 'Cypraea moneta', canHarvest: false, danger: false },
-  '阿拉伯寶螺': { latinName: 'Mauritia arabica', canHarvest: false, danger: false },
-};
-
-// ═══════════════════════════════════════
-// 雙 AI 模型架構 (TM 視覺 + Gemma 語言)
-// ═══════════════════════════════════════
-const MODEL_URL = './model/'; // 指向你 Github 的 model 資料夾
+const MODEL_URL = './model/';
 let tmModel = null;
 let selectedImage = null;
 let allSpecies = [];
 let currentFilter = '全部';
 
 const categoryEmoji = {
-  '笠螺類': '🐚', '蜑螺類': '🐌', '鐘螺類': '🐌',
-  '岩螺類': '🐚', '芋螺類': '⚠️', '寶螺類': '✨'
+  '笠螺類':'🐚', '蜑螺類':'🐌', '鐘螺類':'🐌',
+  '岩螺類':'🐚', '芋螺類':'⚠️', '寶螺類':'✨'
 };
 
-// 載入 Teachable Machine 視覺模型
+// 預設阿超說話（TM 本地模型用，沒有 Gemma 時）
+const TM_PERSONALITY = {
+  '花笠螺':    '你看你看！這是我們的「苦丕仔」！黃綠色殼面，沒有放射紋的那種。苦中帶甘，老饕才懂這味道！3公分以上才能採喔！',
+  '斗笠螺':    '這個厲害了！「丕仔」來啦！你看那個放射條紋，多漂亮。肉質Q脆，甜甜的，第一次採集的朋友最適合！',
+  '蜑螺':      '哎呦！這是蜑螺啦，中角灣礁岸到處都是！殼面平滑黑黑的，是我們這邊的老鄰居，請觀察就好，不要採走牠！',
+  '珠螺':      '你看你看！把牠翻過來，殼口有沒有藍綠色的珍珠光澤？漂亮吧！這是大自然送的珠寶，看看就好，放回去讓牠繼續亮！',
+  '黑鐘螺':    '這是黑鐘螺！黑色錐形，表面有小顆粒，感覺像釋迦皮。礁岸很常見，是個低調的好鄰居，請勿採集！',
+  '草蓆鐘螺':  '哎！草蓆鐘螺！你看那個顆粒排列，真的很像草蓆編出來的。牠是礁岸的清道夫，負責吃藻類，很重要！',
+  '岩螺':      '這是岩螺！菱形的殼，有疣狀突起。注意喔，殼口很銳利，不小心會割傷手，觀察就好，保持距離！',
+  '織錦芋螺':  '🚨 這個厲害了，但是要小心！織錦芋螺！有神經毒素！花紋再漂亮也不能碰！立刻告知講師！保持距離！',
+  '黃寶螺':    '哎呦！黃寶螺！古代用來當錢幣的！現在很稀有了，在中角灣看到算你運氣好！好好欣賞，輕輕放回去！',
+  '阿拉伯寶螺': '你看你看！阿拉伯寶螺！殼面的花紋像阿拉伯文字，很神奇吧！中角灣的稀客，觀察後輕輕放回原位喔！',
+};
+
 async function loadModel() {
   try {
     document.getElementById('modelDot').className = 'model-dot loading';
-    document.getElementById('modelStatusText').textContent = 'AI 視覺模型載入中...';
+    document.getElementById('modelStatusText').textContent = 'AI 模型載入中...';
     tmModel = await tmImage.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
     document.getElementById('modelDot').className = 'model-dot ready';
-    document.getElementById('modelStatusText').textContent = `✓ 視覺模型就緒（待連線 Gemma）`;
-    console.log('Teachable Machine 模型載入成功');
-  } catch (e) {
+    document.getElementById('modelStatusText').textContent = '✓ AI 模型就緒，可以開始辨識';
+  } catch(e) {
     document.getElementById('modelDot').className = 'model-dot';
-    document.getElementById('modelStatusText').textContent = '模型載入失敗，請確認 ./model/ 路徑';
+    document.getElementById('modelStatusText').textContent = '模型載入失敗，請重新整理';
     console.error('模型載入失敗：', e);
   }
 }
 
-// 載入圖鑑 JSON 資料
+function initAiUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlParam = params.get('ai');
+  if (urlParam) {
+    const clean = urlParam.trim().replace(/\/$/, '');
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlInput').value = clean;
+    document.getElementById('aiUrlStatus').textContent = '✓ 已連線';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else {
+    const saved = localStorage.getItem('aiServerUrl');
+    if (saved) {
+      document.getElementById('aiUrlInput').value = saved;
+      document.getElementById('aiUrlStatus').textContent = '✓ 已連線';
+      document.getElementById('aiUrlStatus').style.color = '#166534';
+    }
+  }
+}
+
+function saveAiUrl(val) {
+  const clean = val.trim().replace(/\/$/, '');
+  if (clean.startsWith('http')) {
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else if (clean === '') {
+    localStorage.removeItem('aiServerUrl');
+    document.getElementById('aiUrlStatus').textContent = '未連線';
+    document.getElementById('aiUrlStatus').style.color = '#9ca3af';
+  }
+}
+
 fetch('species.json')
   .then(r => r.json())
-  .then(data => { allSpecies = data; renderGrid(data); })
-  .catch(e => console.warn('尚未建立 species.json 檔案', e));
+  .then(data => { allSpecies = data; renderGrid(data); });
 
 function setFilter(f, btn) {
   currentFilter = f;
@@ -360,6 +424,7 @@ function openAI() {
   document.getElementById('aiLoading').style.display = 'none';
   document.getElementById('aiResult').style.display = 'none';
   document.getElementById('aiBg').classList.add('open');
+  initAiUrl();
 }
 
 function closeAI(e) {
@@ -382,126 +447,126 @@ function previewImage(input) {
   input.value = '';
 }
 
-// 核心：雙 AI 引擎執行
+function showResult(name, latinName, confidence, confPct, desc, chaoshaoMsg, isDanger, method, localName, similarity) {
+  const resultEl = document.getElementById('aiResult');
+  resultEl.className = 'ai-result ' + (isDanger ? 'danger-result' : confidence === '低' ? 'warning' : 'success');
+
+  const harvestBadge = name === '無法辨識' ? '' :
+    isDanger
+      ? '<span class="tag tag-red">⚠️ 危險</span>'
+      : allSpecies.find(s => s.name === name)?.canHarvest
+        ? '<span class="tag tag-green">✅ 可採集</span>'
+        : '<span class="tag tag-gray">觀察即可</span>';
+
+  const localTag = localName ? `<span class="tag tag-yellow">🏡 ${localName}</span>` : '';
+  const methodTag = method ? `<span class="tag tag-blue">🤖 ${method}</span>` : '';
+  const simTag = similarity ? `<span class="tag tag-blue">相似度 ${similarity}</span>` : '';
+
+  document.getElementById('aiResultName').innerHTML =
+    `${name}<br><span style="font-size:12px;">${harvestBadge}${localTag}${methodTag}${simTag}</span>`;
+  document.getElementById('aiResultLatin').textContent = latinName || '';
+
+  const fill = document.getElementById('confFill');
+  fill.style.width = confPct + '%';
+  fill.className = 'confidence-fill ' + (confPct >= 80 ? 'high' : confPct >= 50 ? 'mid' : 'low');
+  document.getElementById('confLabel').textContent =
+    `${confidence === '高' ? '高信心度' : confidence === '中' ? '中信心度' : '低信心度'}：${confPct}%`;
+
+  document.getElementById('aiResultDesc').textContent = desc || '';
+
+  const box = document.getElementById('chaoshaoBox');
+  box.className = 'chaoshao-box' + (isDanger ? ' danger-box' : '');
+  const msg = document.getElementById('chaoshaoMsg');
+  msg.className = 'chaoshao-msg' + (isDanger ? ' danger-msg' : '');
+  msg.textContent = chaoshaoMsg || '阿超正在思考中...';
+
+  resultEl.style.display = 'block';
+}
+
 async function submitAI() {
   if (!selectedImage) return;
 
   const btn = document.getElementById('aiSubmitBtn');
-  btn.textContent = '⏳ 分析中...';
+  btn.textContent = '⏳ 辨識中...';
   btn.disabled = true;
   document.getElementById('aiLoading').style.display = 'flex';
   document.getElementById('aiResult').style.display = 'none';
 
+  const aiUrl = localStorage.getItem('aiServerUrl');
+
+  // ── 先嘗試 Gemma 服務（有 ngrok 才用）──
+  if (aiUrl) {
+    try {
+      document.getElementById('loadingSubText').textContent = 'Gemma 深度分析 + 阿超解說中...';
+      const res = await fetch(aiUrl + '/identify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+        body: JSON.stringify({ image: selectedImage }),
+        signal: AbortSignal.timeout(90000)
+      });
+      const data = await res.json();
+      if (data && data.name && data.name !== '辨識失敗') {
+        const confPct = data.confidence === '高' ? 92 : data.confidence === '中' ? 65 : 35;
+        const chaoshaoMsg = data.personality_msg ||
+          TM_PERSONALITY[data.name] ||
+          `這是${data.name}，${data.description}`;
+
+        document.getElementById('aiLoading').style.display = 'none';
+        showResult(
+          data.name, data.latinName, data.confidence, confPct,
+          data.description, chaoshaoMsg, data.danger,
+          data.method, data.local_name, data.similarity
+        );
+        btn.textContent = '🔍 開始辨識';
+        btn.disabled = false;
+        return;
+      }
+    } catch(e) {
+      console.log('Gemma 服務無法連線，改用 TM 本地模型', e);
+      document.getElementById('loadingSubText').textContent = 'TM 本地模型分析中...';
+    }
+  }
+
+  // ── 備用：TM 本地模型 ──
   try {
-    if (!tmModel) throw new Error('視覺模型尚未載入，請確認網路與路徑');
+    document.getElementById('loadingSubText').textContent = 'TM 本地模型分析中...';
+    if (!tmModel) throw new Error('模型尚未載入，請稍候再試');
 
     const imgEl = document.getElementById('previewImg');
     if (!imgEl) throw new Error('找不到圖片');
 
-    // ── 第一階段：Teachable Machine 視覺辨識 ──
     const predictions = await tmModel.predict(imgEl);
-    let best = predictions.reduce((a, b) => a.probability > b.probability ? a : b);
+    const best = predictions.reduce((a, b) => a.probability > b.probability ? a : b);
     const confidence = best.probability;
     const label = best.className.trim();
     const confPct = Math.round(confidence * 100);
+    const confLevel = confidence >= 0.8 ? '高' : confidence >= 0.5 ? '中' : '低';
 
-    // 視覺介面更新
-    const info = SPECIES_INFO[label];
-    const confClass = confidence >= 0.8 ? 'high' : confidence >= 0.5 ? 'mid' : 'low';
-    document.getElementById('confLabel').textContent = `TM 視覺特徵相似度：${confPct}%`;
-    const fill = document.getElementById('confFill');
-    fill.style.width = confPct + '%';
-    fill.className = 'confidence-fill ' + confClass;
+    const speciesData = allSpecies.find(s => s.name === label);
+    const desc = speciesData?.desc || '';
+    const isDanger = speciesData?.danger || false;
+    const chaoshaoMsg = confidence < 0.5
+      ? `哎呦！這張照片讓阿超我有點拿不準。看起來可能是${label}，但信心不足。靠近一點，側面角度拍，我給你更準確的答案！`
+      : TM_PERSONALITY[label] || `這是${label}，請對照圖鑑確認。`;
 
-    const resultEl = document.getElementById('aiResult');
-    const gemmaEl = document.getElementById('gemmaResponse');
-    
-    // 設定外框顏色與標籤
-    if (info) {
-      resultEl.className = 'ai-result ' + (info.danger ? 'danger-result' : confidence >= 0.5 ? 'success' : 'warning');
-      const badge = info.canHarvest
-        ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:12px;">✅ 可採集</span>'
-        : info.danger
-          ? '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:12px;">⚠️ 危險</span>'
-          : '<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:12px;">觀察即可</span>';
-      
-      document.getElementById('aiResultName').innerHTML = `${label} ${badge}`;
-      document.getElementById('aiResultLatin').textContent = info.latinName;
-    } else {
-      resultEl.className = 'ai-result warning';
-      document.getElementById('aiResultName').innerHTML = label;
-      document.getElementById('aiResultLatin').textContent = '';
-    }
-
-    resultEl.style.display = 'block';
-    
-    // 顯示 Gemma 準備中的狀態
-    gemmaEl.style.display = 'block';
-    gemmaEl.innerHTML = `<div style="color:#6b7280; display:flex; align-items:center; gap:8px;">
-      <span class="loading-shell" style="font-size:16px;">🐚</span> 正在呼叫在地大腦 Gemma 12B...</div>`;
-
-    // ── 第二階段：Gemma 12B 語言生成 (動態劇本優化版) ──
-    
-    // 讓 JavaScript 先幫忙做邏輯判斷，再組成最精準的 Prompt
-    let dynamicPrompt = `你現在是台灣金山區萬壽社區的專業潮間帶導覽員。遊客剛剛拍了一張照片，視覺 AI 判斷這有 ${confPct}% 的機率是「${label}」。請以親切、專業的台灣繁體中文，用 150 字以內回覆：\n`;
-
-    if (label === '花笠螺') {
-        dynamicPrompt += `請簡單介紹花笠螺的特徵，並務必提及在地海女的經驗：「花笠螺吃起來會帶有微微的苦味」。最後提醒採集規範（建議採集 4-6cm）。`;
-    } else if (!info) { 
-        // 假設 TM 辨識出沒有在 SPECIES_INFO 名單上的東西（例如其他背景、石頭）
-        dynamicPrompt += `請幽默地告訴遊客，這看起來不像潮間帶生物（可能是美麗的石頭或風景），鼓勵他們靠近一點重新拍攝。`;
-    } else {
-        // 其他正常的生物 (如阿拉伯寶螺、蜑螺等)
-        dynamicPrompt += `請簡單介紹「${label}」的生態特徵，並溫柔地提醒遊客相關的生態保護或採集規範。`;
-    }
-
-    try {
-      const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'gemma3:12b', // 確認本機 Ollama 模型名稱
-          prompt: dynamicPrompt, 
-          stream: false
-        })
-      });
-
-      if (!response.ok) throw new Error('無法連接到本地 Gemma 服務');
-      const data = await response.json();
-      
-      // 將 Gemma 回傳的文字渲染到畫面上
-      gemmaEl.innerHTML = `
-        <div class="gemma-box-title">💡 萬壽導覽員解析：</div>
-        ${data.response.replace(/\n/g, '<br>')}
-      `;
-
-    } catch (gemmaErr) {
-      console.error('Gemma 呼叫失敗:', gemmaErr);
-      gemmaEl.innerHTML = `
-        <div style="color:#991b1b; font-weight:600;">⚠️ 無法連線到大腦 (Gemma 12B)</div>
-        <div style="font-size:12px; margin-top:4px;">請確認您的電腦是否已開啟 Ollama 並執行了「啟動導覽.bat」腳本。</div>
-      `;
-    }
+    document.getElementById('aiLoading').style.display = 'none';
+    showResult(label, speciesData?.latinName || '', confLevel, confPct,
+      desc, chaoshaoMsg, isDanger, 'TM本地模型', '', '');
 
   } catch(err) {
-    const resultEl = document.getElementById('aiResult');
-    resultEl.className = 'ai-result warning';
-    document.getElementById('aiResultName').textContent = '辨識發生錯誤';
-    document.getElementById('aiResultLatin').textContent = '';
-    document.getElementById('confLabel').textContent = '';
-    document.getElementById('confFill').style.width = '0%';
-    document.getElementById('gemmaResponse').style.display = 'block';
-    document.getElementById('gemmaResponse').innerHTML = err.message || '請重新整理頁面後再試';
-    resultEl.style.display = 'block';
+    document.getElementById('aiLoading').style.display = 'none';
+    showResult('辨識失敗', '', '低', 0,
+      err.message || '請重新整理後再試',
+      '哎呦！阿超我也有出錯的時候。請重新拍一張，側面角度，靠近一點！',
+      false, '', '', '');
   }
 
-  document.getElementById('aiLoading').style.display = 'none';
-  btn.textContent = '🔍 重新辨識';
+  btn.textContent = '🔍 開始辨識';
   btn.disabled = false;
 }
 
-// 網頁載入時啟動 TM 模型
-document.addEventListener('DOMContentLoaded', loadModel);
+loadModel();
+initAiUrl();
 </script>
 </body>
 </html>
