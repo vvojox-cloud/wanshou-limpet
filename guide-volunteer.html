@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>志工操作手冊｜萬壽社區笠螺採集體驗</title>
+<style>
+  @media print {
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+    body { font-size: 12pt; }
+    .section { box-shadow: none !important; border: 1px solid #ccc !important; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; }
+
+  /* 封面 */
+  .cover {
+    background: linear-gradient(160deg, #1a6b4a 0%, #0d4a32 100%);
+    color: white; padding: 40px 24px 32px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cover-emoji { font-size: 64px; margin-bottom: 12px; display: block; }
+  .cover h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+  .cover h2 { font-size: 16px; opacity: 0.85; margin-bottom: 20px; font-weight: 400; }
+  .cover-badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .cover-badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 4px 12px; font-size: 13px; }
+
+  /* 導覽列 */
+  .toc { background: white; padding: 16px; margin: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .toc h3 { font-size: 14px; color: #1a6b4a; margin-bottom: 10px; font-weight: 700; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .toc-item { background: #f0fdf4; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1a6b4a; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+  .toc-item:active { background: #dcfce7; }
+
+  /* 區塊通用 */
+  .section { background: white; margin: 12px 16px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .section-header { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; }
+  .section-icon { font-size: 24px; }
+  .section-title { font-size: 17px; font-weight: 700; color: #1a6b4a; }
+  .section-subtitle { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .section-body { padding: 0 16px 16px; }
+
+  /* 步驟卡片 */
+  .step-card {
+    display: flex; gap: 12px; padding: 12px;
+    background: #f8fffe; border-radius: 10px;
+    margin-bottom: 10px; border-left: 4px solid #1a6b4a;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #1a6b4a; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: #374151; line-height: 1.6; }
+  .step-tip { font-size: 12px; color: #1a6b4a; background: #dcfce7; border-radius: 6px; padding: 4px 8px; margin-top: 6px; display: inline-block; }
+
+  /* 警示卡片 */
+  .alert-card { border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; }
+  .alert-card.danger { background: #fee2e2; border-left: 4px solid #dc2626; }
+  .alert-card.warning { background: #fef9c3; border-left: 4px solid #ca8a04; }
+  .alert-card.info { background: #e0f2fe; border-left: 4px solid #0284c7; }
+  .alert-card.success { background: #dcfce7; border-left: 4px solid #16a34a; }
+  .alert-icon { font-size: 20px; flex-shrink: 0; }
+  .alert-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .alert-desc { font-size: 13px; line-height: 1.5; color: #374151; }
+
+  /* 燈號 */
+  .traffic-lights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .light-card { border-radius: 10px; padding: 12px 8px; text-align: center; }
+  .light-card.green { background: #dcfce7; }
+  .light-card.yellow { background: #fef9c3; }
+  .light-card.red { background: #fee2e2; }
+  .light-dot { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto 6px; }
+  .light-card.green .light-dot { background: #16a34a; }
+  .light-card.yellow .light-dot { background: #ca8a04; }
+  .light-card.red .light-dot { background: #dc2626; }
+  .light-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .light-desc { font-size: 11px; color: #555; line-height: 1.4; }
+
+  /* 生物識別卡 */
+  .species-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .species-card { border-radius: 10px; padding: 10px; border: 1.5px solid #e5e7eb; }
+  .species-card.can-harvest { border-color: #86efac; background: #f0fdf4; }
+  .species-card.danger-species { border-color: #fca5a5; background: #fff5f5; }
+  .species-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .species-latin { font-size: 10px; color: #9ca3af; font-style: italic; margin-bottom: 4px; }
+  .species-rule { font-size: 11px; line-height: 1.4; color: #374151; }
+  .species-badge { font-size: 10px; padding: 2px 6px; border-radius: 8px; display: inline-block; margin-bottom: 4px; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-gray { background: #f3f4f6; color: #6b7280; }
+
+  /* 網站使用說明 */
+  .app-card { background: #f8fffe; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1.5px solid #d1fae5; }
+  .app-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .app-icon { font-size: 20px; }
+  .app-name { font-size: 14px; font-weight: 700; color: #1a6b4a; }
+  .app-url { font-size: 11px; color: #6b7280; }
+  .app-desc { font-size: 13px; color: #374151; line-height: 1.5; }
+
+  /* 電腦啟動步驟 */
+  .computer-step { background: #1e1e1e; color: #d4d4d4; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-family: monospace; font-size: 13px; }
+  .computer-step .cmd { color: #4ec9b0; }
+  .computer-step .comment { color: #6a9955; }
+
+  /* 聯絡卡 */
+  .contact-card { background: #fff7ed; border: 1.5px solid #fb923c; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .contact-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .contact-role { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .contact-phone { font-size: 20px; font-weight: 700; color: #c2410c; }
+
+  /* QR Code 區 */
+  .qr-placeholder { width: 100px; height: 100px; background: #f3f4f6; border-radius: 8px; border: 2px dashed #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+
+  /* 底部按鈕 */
+  .bottom-actions { padding: 16px; display: flex; gap: 8px; }
+  .btn-print { flex: 1; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-home { flex: 1; padding: 14px; background: #f0fdf4; color: #1a6b4a; border: 1.5px solid #86efac; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; }
+
+  /* 分隔線 */
+  .divider { height: 1px; background: #e5e7eb; margin: 10px 0; }
+
+  /* 流程圖 */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .flow-box { width: 100%; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 10px 14px; text-align: center; font-size: 14px; font-weight: 600; color: #1a6b4a; }
+  .flow-box.red { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+  .flow-box.yellow { background: #fef9c3; border-color: #fde047; color: #854d0e; }
+  .flow-box.blue { background: #e0f2fe; border-color: #7dd3fc; color: #0369a1; }
+  .flow-arrow { font-size: 20px; color: #6b7280; padding: 2px 0; }
+  .flow-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- 封面 -->
+<div class="cover" id="top">
+  <span class="cover-emoji">🐚</span>
+  <h1>中角灣笠螺採集體驗<br>志工操作手冊</h1>
+  <h2>萬壽社區發展協會 · 金山中角灣</h2>
+  <div class="cover-badges">
+    <span class="cover-badge">📅 115年活動版</span>
+    <span class="cover-badge">👥 志工專用</span>
+    <span class="cover-badge">📱 手機友善</span>
+  </div>
+</div>
+
+<!-- 目錄 -->
+<div class="toc no-print">
+  <h3>📋 目錄</h3>
+  <div class="toc-grid">
+    <a href="#startup" class="toc-item">💻 活動前電腦啟動</a>
+    <a href="#safety" class="toc-item">🌊 潮汐安全判斷</a>
+    <a href="#harvest" class="toc-item">🪨 笠螺採集步驟</a>
+    <a href="#species" class="toc-item">🔍 生物辨識守則</a>
+    <a href="#website" class="toc-item">📱 網站使用說明</a>
+    <a href="#emergency" class="toc-item">🚨 緊急應變</a>
+    <a href="#contact" class="toc-item">📞 緊急聯絡</a>
+    <a href="#checklist" class="toc-item">✅ 活動檢查清單</a>
+  </div>
+</div>
+
+<!-- ① 活動前電腦啟動 -->
+<div class="section" id="startup">
+  <div class="section-header">
+    <span class="section-icon">💻</span>
+    <div>
+      <div class="section-title">① 活動前電腦啟動</div>
+      <div class="section-subtitle">活動開始前 15 分鐘完成</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">雙擊桌面「啟動AI辨識服務」</div>
+        <div class="step-desc">電腦桌面找到這個圖示，雙擊執行，會自動開啟兩個黑色視窗</div>
+        <span class="step-tip">🖥️ 圖示名稱：啟動AI辨識服務.bat</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">等待 ngrok 視窗出現網址</div>
+        <div class="step-desc">黑色視窗出現以下內容代表成功：</div>
+        <div class="computer-step">
+          <div class="comment"># 等待這行出現</div>
+          <div class="cmd">Forwarding  https://xxxx.ngrok-free.dev → localhost:5000</div>
+        </div>
+        <span class="step-tip">⏱️ 約等 10-15 秒</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">複製 ngrok 網址</div>
+        <div class="step-desc">複製「https://xxxx.ngrok-free.dev」這段網址</div>
+        <span class="step-tip">📋 每次啟動網址都不同，需要重新複製</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">開啟主持人工具產生 QR Code</div>
+        <div class="step-desc">在瀏覽器輸入：</div>
+        <div class="computer-step">
+          <span class="cmd">http://127.0.0.1:5500/wanshou-limpet/admin.html</span>
+        </div>
+        <div class="step-desc" style="margin-top:6px;">貼上 ngrok 網址 → 點「產生 QR Code」→ 印出或顯示大螢幕</div>
+        <span class="step-tip">✅ 參與者掃碼即可，不需手動輸入</span>
+      </div>
+    </div>
+
+    <div class="alert-card success">
+      <div class="alert-icon">✅</div>
+      <div>
+        <div class="alert-title">啟動完成確認</div>
+        <div class="alert-desc">
+          • AI辨識服務視窗顯示「萬壽社區 AI 生物辨識服務啟動中」<br>
+          • ngrok 視窗顯示 Forwarding 網址<br>
+          • 主持人工具頁面可以產生 QR Code<br>
+          • 用手機掃碼測試可以開啟圖鑑
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ② 潮汐安全判斷 -->
+<div class="section page-break" id="safety">
+  <div class="section-header">
+    <span class="section-icon">🌊</span>
+    <div>
+      <div class="section-title">② 潮汐安全判斷</div>
+      <div class="section-subtitle">活動前及採集期間持續確認</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="traffic-lights">
+      <div class="light-card green">
+        <div class="light-dot"></div>
+        <div class="light-title">🟢 可採集</div>
+        <div class="light-desc">潮高 &lt; 0.3m<br>退潮後1小時<br>浪況平穩</div>
+      </div>
+      <div class="light-card yellow">
+        <div class="light-dot"></div>
+        <div class="light-title">🟡 注意</div>
+        <div class="light-desc">潮高 0.3-0.6m<br>請聽從講師<br>靠近岸邊</div>
+      </div>
+      <div class="light-card red">
+        <div class="light-dot"></div>
+        <div class="light-title">🔴 禁止</div>
+        <div class="light-desc">潮高 &gt; 0.6m<br>強浪或風大<br>立即回岸上</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p style="font-size:13px;font-weight:700;color:#1a6b4a;margin-bottom:8px;">如何查看即時潮汐：</p>
+
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">打開笠螺採集導覽首頁</div>
+        <div class="step-desc">掃活動 QR Code → 首頁 → 「天氣潮汐」頁籤</div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">確認「採集安全燈號」顯示綠燈</div>
+        <div class="step-desc">綠燈才可帶遊客下礁，黃燈需要請示講師，紅燈立即停止</div>
+      </div>
+    </div>
+
+    <div class="alert-card danger">
+      <div class="alert-icon">⚠️</div>
+      <div>
+        <div class="alert-title">離岸流警告！遇到以下情況立即撤退</div>
+        <div class="alert-desc">
+          • 海水突然變色（深藍色條紋）<br>
+          • 浪花泡沫往外海漂移<br>
+          • 感覺腳被水流拉動<br>
+          • 天氣突然變差、雷聲出現
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ③ 笠螺採集步驟 -->
+<div class="section" id="harvest">
+  <div class="section-header">
+    <span class="section-icon">🪨</span>
+    <div>
+      <div class="section-title">③ 笠螺採集步驟</div>
+      <div class="section-subtitle">帶領遊客時的標準流程</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">確認裝備齊全</div>
+        <div class="step-desc">防滑鞋（必備）、薄鐵片（採集工具）、網袋或小桶、手套（建議）</div>
+        <span class="step-tip">👟 拖鞋和光腳絕對禁止下礁</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">辨識笠螺</div>
+        <div class="step-desc">扁平帽狀、緊貼礁石、殼徑3cm以上才可採集<br>
+        花笠螺（篦仔）：黃綠褐色，無放射紋<br>
+        斗笠螺（海鋼盔）：灰褐色，有放射條紋</div>
+        <span class="step-tip">📏 不確定大小時用手指比較，約成人一指寬 = 2cm</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">正確採集手法</div>
+        <div class="step-desc">
+          ① 將薄鐵片貼緊礁石表面<br>
+          ② 從笠螺側面快速水平插入<br>
+          ③ 輕輕撬起，不要硬撬<br>
+          ④ 放入網袋，繼續前進
+        </div>
+        <span class="step-tip">❌ 禁止從上方垂直用力戳，會破壞礁面</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">採集禁止事項</div>
+        <div class="step-desc">
+          ❌ 殼徑未滿3cm禁採（放回礁石）<br>
+          ❌ 春季3-5月繁殖期禁採<br>
+          ❌ 不可採集其他非笠螺物種<br>
+          ❌ 不可破壞礁石或藻類
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">採集完畢處理</div>
+        <div class="step-desc">放入裝有海水的桶中保鮮 → 回到集合點 → 進行料理示範</div>
+        <span class="step-tip">🍽️ 傳統吃法：汆燙後蒜頭、辣椒、醬油、芝麻油醃漬一夜</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p style="font-size:13px;font-weight:700;color:#1a6b4a;margin-bottom:8px;">採集流程圖：</p>
+    <div class="flow">
+      <div class="flow-box">確認綠燈 ✅ 潮汐安全</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box">帶領遊客穿防滑鞋下礁</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box">找到笠螺 → 確認殼徑 ≥ 3cm</div>
+      <div class="flow-arrow">↓ 未滿3cm</div>
+      <div class="flow-box yellow">放回礁石，繼續尋找</div>
+      <div class="flow-arrow">↓ 符合標準</div>
+      <div class="flow-box">薄鐵片側向插入，輕撬採集</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box">放入網袋，繼續採集</div>
+      <div class="flow-arrow">↓ 時間到或潮位升高</div>
+      <div class="flow-box blue">回到岸上集合，進行料理示範</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ④ 生物辨識守則 -->
+<div class="section page-break" id="species">
+  <div class="section-header">
+    <span class="section-icon">🔍</span>
+    <div>
+      <div class="section-title">④ 中角灣常見生物守則</div>
+      <div class="section-subtitle">帶領遊客認識生物時的說明重點</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="alert-card danger">
+      <div class="alert-icon">🚨</div>
+      <div>
+        <div class="alert-title">最重要！遇到芋螺立即警示</div>
+        <div class="alert-desc">織錦芋螺有毒，曾有致死案例。圓錐形、棕白色網格花紋。發現時大聲告知所有人保持距離，絕對不可觸碰。</div>
+      </div>
+    </div>
+
+    <div class="species-grid">
+      <div class="species-card can-harvest">
+        <span class="species-badge badge-green">✅ 可採集</span>
+        <div class="species-name">花笠螺（篦仔）</div>
+        <div class="species-latin">Cellana toreuma</div>
+        <div class="species-rule">黃綠褐色，無放射紋<br>殼徑≥3cm才可採</div>
+      </div>
+      <div class="species-card can-harvest">
+        <span class="species-badge badge-green">✅ 可採集</span>
+        <div class="species-name">斗笠螺（海鋼盔）</div>
+        <div class="species-latin">Cellana grata</div>
+        <div class="species-rule">灰褐色，有放射條紋<br>殼徑≥3cm才可採</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">蜑螺</div>
+        <div class="species-latin">Nerita sp.</div>
+        <div class="species-rule">黑褐色半球形平滑<br>高潮帶礁石常見</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">珠螺</div>
+        <div class="species-latin">Turbo bruneus</div>
+        <div class="species-rule">殼口有藍綠珍珠光澤<br>低潮線水坑常見</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">黑鐘螺</div>
+        <div class="species-latin">Omphalius nigerrimus</div>
+        <div class="species-rule">黑色錐形有顆粒突起<br>中低潮線礁石</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">草蓆鐘螺</div>
+        <div class="species-latin">Tegula nigerrima</div>
+        <div class="species-rule">墨綠色，顆粒如草蓆<br>礁石藻類覆蓋處</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">岩螺</div>
+        <div class="species-latin">Thais sp.</div>
+        <div class="species-rule">菱形有疣狀突起<br>殼口銳利注意割傷</div>
+      </div>
+      <div class="species-card danger-species">
+        <span class="species-badge badge-red">⚠️ 有毒危險</span>
+        <div class="species-name">織錦芋螺</div>
+        <div class="species-latin">Conus textile</div>
+        <div class="species-rule">棕白網格花紋<br>絕對禁止觸碰！</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">黃寶螺</div>
+        <div class="species-latin">Cypraea moneta</div>
+        <div class="species-rule">光滑瓷器感，淺黃白<br>低潮線礁石背面</div>
+      </div>
+      <div class="species-card">
+        <span class="species-badge badge-gray">觀察即可</span>
+        <div class="species-name">阿拉伯寶螺</div>
+        <div class="species-latin">Mauritia arabica</div>
+        <div class="species-rule">棕色網格花紋<br>腹面有細齒紋路</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑤ 網站使用說明 -->
+<div class="section" id="website">
+  <div class="section-header">
+    <span class="section-icon">📱</span>
+    <div>
+      <div class="section-title">⑤ 網站功能說明</div>
+      <div class="section-subtitle">教導遊客使用手機功能</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="app-card">
+      <div class="app-header">
+        <span class="app-icon">🐚</span>
+        <div>
+          <div class="app-name">笠螺採集導覽（首頁）</div>
+          <div class="app-url">index.html</div>
+        </div>
+      </div>
+      <div class="app-desc">即時天氣、潮汐資訊、採集安全燈號、採集手法圖解、大小規範、離岸流教學。活動前請遊客先閱讀採集手法頁籤。</div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-header">
+        <span class="app-icon">📅</span>
+        <div>
+          <div class="app-name">活動進程追蹤</div>
+          <div class="app-url">activity.html</div>
+        </div>
+      </div>
+      <div class="app-desc">顯示當日活動時間表和目前進行項目。每次活動前由主辦人員更新日期和內容。遊客可隨時查看活動進度。</div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-header">
+        <span class="app-icon">🔍</span>
+        <div>
+          <div class="app-name">潮間帶生物圖鑑 + AI 辨識</div>
+          <div class="app-url">species.html</div>
+        </div>
+      </div>
+      <div class="app-desc">
+        瀏覽10種中角灣常見貝類。右下角 📷 按鈕可開啟 AI 辨識：<br>
+        • 「📷 拍照」：直接用相機拍攝眼前的生物<br>
+        • 「🖼️ 從相簿選」：選擇已拍好的照片<br>
+        AI 會顯示辨識結果和採集守則。
+      </div>
+    </div>
+
+    <div class="alert-card info">
+      <div class="alert-icon">💡</div>
+      <div>
+        <div class="alert-title">AI 辨識拍照技巧</div>
+        <div class="alert-desc">
+          • 靠近生物，讓牠佔畫面一半以上<br>
+          • 從側面45度角拍攝效果最好<br>
+          • 光線充足時準確度更高<br>
+          • 信心度低時請對照圖鑑確認
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑥ 緊急應變 -->
+<div class="section page-break" id="emergency">
+  <div class="section-header">
+    <span class="section-icon">🚨</span>
+    <div>
+      <div class="section-title">⑥ 緊急應變流程</div>
+      <div class="section-subtitle">遇到緊急狀況時的處理步驟</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="alert-card danger">
+      <div class="alert-icon">🌊</div>
+      <div>
+        <div class="alert-title">有人被離岸流捲走</div>
+        <div class="alert-desc">
+          1. 立即大聲呼救，不要跳入水中<br>
+          2. 撥打 118（海巡署）<br>
+          3. 拋救生圈或繩索<br>
+          4. 告訴被帶走的人：不要頂著水流游，斜向游回岸邊
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card danger">
+      <div class="alert-icon">🐚</div>
+      <div>
+        <div class="alert-title">有人觸碰芋螺被刺傷</div>
+        <div class="alert-desc">
+          1. 立即叫救護車（119）<br>
+          2. 保持傷者安靜，不可移動傷肢<br>
+          3. 用冷水沖洗傷口<br>
+          4. 記錄時間，告知醫護人員是芋螺刺傷
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card warning">
+      <div class="alert-icon">🤕</div>
+      <div>
+        <div class="alert-title">有人被礁石割傷</div>
+        <div class="alert-desc">
+          1. 用乾淨毛巾加壓止血<br>
+          2. 傷口用清水沖洗<br>
+          3. 通知趙理事長<br>
+          4. 嚴重時撥打 119
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card warning">
+      <div class="alert-icon">🌤️</div>
+      <div>
+        <div class="alert-title">天氣突然變差、打雷</div>
+        <div class="alert-desc">
+          1. 立即停止採集，所有人回到岸上<br>
+          2. 到中角灣遊客中心避雨<br>
+          3. 啟動雨備方案（室內長者口述歷史活動）
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑦ 緊急聯絡 -->
+<div class="section" id="contact">
+  <div class="section-header">
+    <span class="section-icon">📞</span>
+    <div>
+      <div class="section-title">⑦ 緊急聯絡資訊</div>
+      <div class="section-subtitle">活動當天必備</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="contact-card">
+      <div class="contact-name">海巡署</div>
+      <div class="contact-role">海上救援</div>
+      <div class="contact-phone"><a href="tel:118" style="color:#c2410c;text-decoration:none;">📞 118</a></div>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-name">救護車</div>
+      <div class="contact-role">醫療緊急</div>
+      <div class="contact-phone"><a href="tel:119" style="color:#c2410c;text-decoration:none;">📞 119</a></div>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-name">趙士超 理事長</div>
+      <div class="contact-role">活動總負責人</div>
+      <div class="contact-phone"><a href="tel:0958565930" style="color:#c2410c;text-decoration:none;">📞 0958-565-930</a></div>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-name">金山消防分隊</div>
+      <div class="contact-role">當地救援</div>
+      <div class="contact-phone"><a href="tel:02-24982119" style="color:#c2410c;text-decoration:none;">📞 02-2498-2119</a></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑧ 活動檢查清單 -->
+<div class="section" id="checklist">
+  <div class="section-header">
+    <span class="section-icon">✅</span>
+    <div>
+      <div class="section-title">⑧ 活動當天檢查清單</div>
+      <div class="section-subtitle">出發前逐項確認</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <p style="font-size:13px;font-weight:700;color:#1a6b4a;margin-bottom:8px;">活動前 1 小時</p>
+    <div id="checklistItems">
+      <!-- 動態產生 -->
+    </div>
+
+  </div>
+</div>
+
+<!-- 底部按鈕 -->
+<div class="bottom-actions no-print">
+  <button class="btn-print" onclick="window.print()">🖨️ 列印手冊</button>
+  <a href="index.html" class="btn-home">🐚 回首頁</a>
+</div>
+
+<script>
+// 檢查清單
+const checks = [
+  { group: '電腦設備', items: ['啟動AI辨識服務.bat 已執行', 'ngrok 網址已複製', 'QR Code 已印出或顯示大螢幕', '主持人工具頁面已開啟'] },
+  { group: '採集裝備', items: ['薄鐵片（採集工具）備齊', '網袋或小桶足夠', '手套備用', '遊客防滑鞋確認'] },
+  { group: '安全確認', items: ['網站天氣潮汐已查看', '採集安全燈號為綠燈', '採集區域安全評估完成', '緊急電話已確認可用'] },
+  { group: '活動準備', items: ['名牌備好', '料理材料備齊（醬油、蒜頭、辣椒、芝麻油）', '長者文化導覽員已到場', '活動進程 activity.html 日期已更新'] },
+];
+
+const container = document.getElementById('checklistItems');
+checks.forEach(group => {
+  const groupEl = document.createElement('div');
+  groupEl.style.marginBottom = '12px';
+  groupEl.innerHTML = `<p style="font-size:12px;font-weight:700;color:#6b7280;margin-bottom:6px;">${group.group}</p>`;
+  group.items.forEach((item, i) => {
+    const id = `chk_${group.group}_${i}`;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;background:#f8fafc;border-radius:8px;margin-bottom:4px;cursor:pointer;';
+    div.innerHTML = `
+      <input type="checkbox" id="${id}" style="width:18px;height:18px;cursor:pointer;accent-color:#1a6b4a;">
+      <label for="${id}" style="font-size:13px;cursor:pointer;flex:1;">${item}</label>
+    `;
+    div.querySelector('input').addEventListener('change', function() {
+      div.style.background = this.checked ? '#dcfce7' : '#f8fafc';
+      div.querySelector('label').style.textDecoration = this.checked ? 'line-through' : 'none';
+      div.querySelector('label').style.color = this.checked ? '#6b7280' : '#1a1a1a';
+    });
+    groupEl.appendChild(div);
+  });
+  container.appendChild(groupEl);
+});
+</script>
+</body>
+</html>
