@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>潮間帶生物圖鑑｜萬壽社區</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding-bottom: 80px; }
 
   .header { background: #1a6b4a; color: white; padding: 20px 16px 16px; text-align: center; }
   .header h1 { font-size: 20px; margin-bottom: 4px; }
-  .header p  { font-size: 13px; opacity: 0.85; }
+  .header p { font-size: 13px; opacity: 0.85; }
 
   .search-bar { background: #155c3e; padding: 12px 16px; display: flex; gap: 8px; }
   .search-bar input { flex: 1; padding: 8px 12px; border-radius: 20px; border: none; font-size: 15px; outline: none; }
@@ -35,22 +37,9 @@
   .badge-danger { background: #fee2e2; color: #991b1b; }
 
   /* 底部導覽列 */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: white; border-top: 1px solid #e5e7eb;
-    display: flex; justify-content: space-around; align-items: center;
-    padding: 8px 0 12px; z-index: 90;
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
-  }
-  .bnav-item {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 3px; cursor: pointer; text-decoration: none;
-    color: #6b7280; font-size: 11px; padding: 4px 12px;
-    border-radius: 8px; transition: color 0.15s;
-    border: none; background: none;
-  }
-  .bnav-item.active { color: #1a6b4a; }
-  .bnav-item:active { background: #f0fdf4; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; text-decoration: none; color: #6b7280; font-size: 11px; padding: 4px 12px; border-radius: 8px; border: none; background: none; }
+  .bnav-item.active { color: #1a6b4a; font-weight: 700; }
   .bnav-icon { font-size: 22px; line-height: 1; }
 
   /* 生物詳細 Modal */
@@ -69,7 +58,7 @@
   .modal-rule.danger-rule { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; font-weight: 600; }
   .close-btn { display: block; width: calc(100% - 40px); margin: 0 20px 24px; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
 
-  /* AI 辨識浮動按鈕 */
+  /* AI 浮動按鈕 */
   .fab { position: fixed; bottom: 88px; right: 20px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
 
   /* AI 辨識面板 */
@@ -79,20 +68,22 @@
   .ai-preview { width: 100%; aspect-ratio: 4/3; background: #f3f4f6; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 40px; color: #d1d5db; }
   .ai-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* 拍照/選圖分開按鈕 */
   .ai-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .ai-btn-camera { padding: 14px 8px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; text-align: center; }
-  .ai-btn-gallery { padding: 14px 8px; background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 10px; font-size: 15px; cursor: pointer; text-align: center; }
+  .ai-btn-camera { padding: 14px 8px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+  .ai-btn-gallery { padding: 14px 8px; background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 10px; font-size: 15px; cursor: pointer; }
   .ai-btn-submit { width: 100%; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
   .ai-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
   .ai-btn-close { width: 100%; padding: 12px; background: #f3f4f6; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #374151; }
 
-  /* AI URL 設定列 */
-  .ai-url-bar { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; display: flex; gap: 6px; align-items: center; }
-  .ai-url-bar input { flex: 1; border: none; background: transparent; font-size: 12px; color: #166534; outline: none; }
+  /* 模型狀態列 */
+  .model-status { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #166534; display: flex; align-items: center; gap: 6px; }
+  .model-dot { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; }
+  .model-dot.ready { background: #16a34a; }
+  .model-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
   /* 載入動畫 */
-  .ai-loading { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; gap: 16px; }
+  .ai-loading { display: none; flex-direction: column; align-items: center; padding: 24px 16px; margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; gap: 16px; }
   .wave-container { display: flex; gap: 6px; align-items: flex-end; height: 40px; }
   .wave-bar { width: 8px; border-radius: 4px; background: #1a6b4a; animation: wave 1.2s ease-in-out infinite; }
   .wave-bar:nth-child(1){animation-delay:0s;height:20px}
@@ -111,11 +102,24 @@
   @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
   /* 辨識結果 */
-  .ai-result { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
-  .ai-result-name { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .ai-result { display: none; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .ai-result.success { background: #f0fdf4; border: 1.5px solid #86efac; }
+  .ai-result.warning { background: #fff7ed; border: 1.5px solid #fb923c; }
+  .ai-result.danger-result { background: #fee2e2; border: 1.5px solid #fca5a5; }
+  .ai-result-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
   .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 8px; }
   .ai-result-desc { font-size: 13px; color: #374151; margin-bottom: 8px; line-height: 1.6; }
   .ai-result-advice { font-size: 13px; background: #fef9c3; border-radius: 6px; padding: 8px; color: #713f12; }
+  .ai-result-advice.danger-advice { background: #fee2e2; color: #7f1d1d; font-weight: 700; }
+
+  /* 信心度條 */
+  .confidence-bar { margin: 8px 0; }
+  .confidence-label { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
+  .confidence-track { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .confidence-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .confidence-fill.high { background: #16a34a; }
+  .confidence-fill.mid { background: #f59e0b; }
+  .confidence-fill.low { background: #ef4444; }
 </style>
 </head>
 <body>
@@ -131,9 +135,9 @@
 
 <div class="filter-bar">
   <button class="filter-btn active" onclick="setFilter('全部',this)">全部</button>
-  <button class="filter-btn" onclick="setFilter('貝類',this)">🐚 貝類</button>
-  <button class="filter-btn" onclick="setFilter('甲殼類',this)">🦀 甲殼類</button>
-  <button class="filter-btn" onclick="setFilter('棘皮動物',this)">⭐ 棘皮</button>
+  <button class="filter-btn" onclick="setFilter('笠螺類',this)">🐚 笠螺</button>
+  <button class="filter-btn" onclick="setFilter('鐘螺類',this)">🐌 鐘螺</button>
+  <button class="filter-btn" onclick="setFilter('寶螺類',this)">✨ 寶螺</button>
   <button class="filter-btn" onclick="setFilter('可採集',this)">✅ 可採集</button>
   <button class="filter-btn" onclick="setFilter('注意危險',this)">⚠️ 注意</button>
 </div>
@@ -181,27 +185,25 @@
   </div>
 </div>
 
-<!-- AI 辨識浮動按鈕 -->
+<!-- AI 浮動按鈕 -->
 <button class="fab" onclick="openAI()">📷</button>
 
 <!-- AI 辨識面板 -->
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
     <h2 style="font-size:18px;margin-bottom:4px;">📷 AI 生物辨識</h2>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px;">拍照或上傳照片，AI 自動辨識潮間帶生物</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px;">拍照或上傳照片，手機直接辨識，不需要網路</p>
 
-    <!-- AI 網址設定列 -->
-    <div class="ai-url-bar">
-      <span style="font-size:12px;color:#166534;white-space:nowrap;">🌐 AI：</span>
-      <input id="aiUrlInput" type="text" placeholder="http://localhost:5000（本機）或貼上ngrok網址"
-        oninput="saveAiUrl(this.value)">
-      <span id="aiUrlStatus" style="font-size:11px;color:#6b7280;white-space:nowrap;">本機</span>
+    <!-- 模型狀態 -->
+    <div class="model-status">
+      <div class="model-dot" id="modelDot"></div>
+      <span id="modelStatusText">AI 模型載入中...</span>
     </div>
 
     <!-- 預覽區 -->
     <div class="ai-preview" id="aiPreview">🐚</div>
 
-    <!-- 拍照 / 選圖 分開按鈕 -->
+    <!-- 拍照 / 選圖 分開 -->
     <div class="ai-photo-btns">
       <button class="ai-btn-camera" onclick="document.getElementById('aiCamera').click()">
         📷 拍照
@@ -210,18 +212,10 @@
         🖼️ 從相簿選
       </button>
     </div>
+    <input type="file" id="aiCamera" accept="image/*" capture="environment" style="display:none" onchange="previewImage(this)">
+    <input type="file" id="aiGallery" accept="image/*" style="display:none" onchange="previewImage(this)">
 
-    <!-- 隱藏的 input（拍照） -->
-    <input type="file" id="aiCamera" accept="image/*" capture="environment"
-      style="display:none" onchange="previewImage(this)">
-    <!-- 隱藏的 input（相簿） -->
-    <input type="file" id="aiGallery" accept="image/*"
-      style="display:none" onchange="previewImage(this)">
-
-    <!-- 開始辨識按鈕 -->
-    <button class="ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>
-      🔍 開始辨識
-    </button>
+    <button class="ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>🔍 開始辨識</button>
 
     <!-- 載入動畫 -->
     <div class="ai-loading" id="aiLoading">
@@ -232,14 +226,20 @@
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div>
       </div>
-      <div class="loading-text">萬壽社區 AI 辨識系統努力中<span class="dot-animate"></span></div>
-      <div class="loading-sub">正在分析照片，請稍候</div>
+      <div class="loading-text">萬壽社區 AI 辨識中<span class="dot-animate"></span></div>
+      <div class="loading-sub">使用 Teachable Machine 專屬模型</div>
     </div>
 
     <!-- 辨識結果 -->
     <div class="ai-result" id="aiResult">
       <div class="ai-result-name" id="aiResultName"></div>
       <div class="ai-result-latin" id="aiResultLatin"></div>
+      <div class="confidence-bar">
+        <div class="confidence-label" id="confLabel"></div>
+        <div class="confidence-track">
+          <div class="confidence-fill" id="confFill"></div>
+        </div>
+      </div>
       <div class="ai-result-desc" id="aiResultDesc"></div>
       <div class="ai-result-advice" id="aiResultAdvice"></div>
     </div>
@@ -249,44 +249,53 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════
+// 物種資料庫（對應 Teachable Machine 標籤）
+// ═══════════════════════════════════════
+const SPECIES_INFO = {
+  '花笠螺': { latinName: 'Cellana toreuma', canHarvest: true, danger: false, desc: '殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱篦仔。', advice: '採集殼徑3cm以上，春季3-5月禁採。' },
+  '斗笠螺': { latinName: 'Cellana grata', canHarvest: true, danger: false, desc: '殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱海鋼盔。', advice: '採集殼徑3cm以上，春季3-5月禁採。' },
+  '蜑螺':   { latinName: 'Nerita sp.', canHarvest: false, danger: false, desc: '黑褐色半球形，殼面平滑，是中角灣礁岸最常見的螺類之一。', advice: '請勿採集，觀察即可。' },
+  '珠螺':   { latinName: 'Turbo bruneus', canHarvest: false, danger: false, desc: '殼口內側有美麗的藍綠色珍珠光澤，口蓋厚重圓滑。', advice: '請勿採集，可輕拿觀察後放回。' },
+  '黑鐘螺': { latinName: 'Omphalius nigerrimus', canHarvest: false, danger: false, desc: '黑色圓錐螺旋形，表面有顆粒突起，口蓋內側帶珍珠光澤。', advice: '請勿採集，注意礁石濕滑。' },
+  '草蓆鐘螺': { latinName: 'Tegula nigerrima', canHarvest: false, danger: false, desc: '墨綠黑色，表面顆粒排列整齊如草蓆，以礁石藻類為食。', advice: '請勿採集，為礁岸生態重要物種。' },
+  '岩螺':   { latinName: 'Thais sp.', canHarvest: false, danger: false, desc: '菱形或紡錘形，殼表有疣狀突起，肉食性螺類。', advice: '請勿採集，殼口銳利小心割傷。' },
+  '織錦芋螺': { latinName: 'Conus textile', canHarvest: false, danger: true, desc: '棕白色網格花紋，含神經毒素，曾有致死案例！', advice: '⚠️ 絕對禁止觸碰！立即告知講師！' },
+  '黃寶螺': { latinName: 'Cypraea moneta', canHarvest: false, danger: false, desc: '殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣。', advice: '請勿採集，稀少種請特別保護。' },
+  '阿拉伯寶螺': { latinName: 'Mauritia arabica', canHarvest: false, danger: false, desc: '殼面有獨特棕色網格花紋，腹面有明顯細齒紋路。', advice: '請勿採集，觀賞後輕放回原位。' },
+};
+
+// ═══════════════════════════════════════
+// Teachable Machine 模型
+// ═══════════════════════════════════════
+const MODEL_URL = './model/';
+let tmModel = null;
+let selectedImage = null;
 let allSpecies = [];
 let currentFilter = '全部';
-let selectedImage = null;
-const categoryEmoji = {'貝類':'🐚','甲殼類':'🦀','棘皮動物':'⭐'};
 
-// 讀取 AI 網址（網址參數優先）
-function initAiUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const urlParam = params.get('ai');
-  if (urlParam) {
-    const clean = urlParam.trim().replace(/\/$/, '');
-    localStorage.setItem('aiServerUrl', clean);
-    document.getElementById('aiUrlInput').value = clean;
-    document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
-  } else {
-    const saved = localStorage.getItem('aiServerUrl');
-    if (saved) {
-      document.getElementById('aiUrlInput').value = saved;
-      document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
-      document.getElementById('aiUrlStatus').style.color = '#166534';
-    }
+const categoryEmoji = {
+  '笠螺類': '🐚', '蜑螺類': '🐌', '鐘螺類': '🐌',
+  '岩螺類': '🐚', '芋螺類': '⚠️', '寶螺類': '✨'
+};
+
+// 載入模型
+async function loadModel() {
+  try {
+    document.getElementById('modelDot').className = 'model-dot loading';
+    document.getElementById('modelStatusText').textContent = 'AI 模型載入中...';
+    tmModel = await tmImage.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
+    document.getElementById('modelDot').className = 'model-dot ready';
+    document.getElementById('modelStatusText').textContent = `✓ AI 模型就緒（${Object.keys(SPECIES_INFO).length} 種）`;
+    console.log('Teachable Machine 模型載入成功');
+  } catch (e) {
+    document.getElementById('modelDot').className = 'model-dot';
+    document.getElementById('modelStatusText').textContent = '模型載入失敗，請重新整理';
+    console.error('模型載入失敗：', e);
   }
 }
 
-function saveAiUrl(val) {
-  const clean = val.trim().replace(/\/$/, '');
-  if (clean.startsWith('http')) {
-    localStorage.setItem('aiServerUrl', clean);
-    document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
-  } else if (clean === '') {
-    localStorage.removeItem('aiServerUrl');
-    document.getElementById('aiUrlStatus').textContent = '本機';
-    document.getElementById('aiUrlStatus').style.color = '#6b7280';
-  }
-}
-
+// 圖鑑資料
 fetch('species.json')
   .then(r => r.json())
   .then(data => { allSpecies = data; renderGrid(data); });
@@ -359,7 +368,6 @@ function openAI() {
   document.getElementById('aiLoading').style.display = 'none';
   document.getElementById('aiResult').style.display = 'none';
   document.getElementById('aiBg').classList.add('open');
-  initAiUrl();
 }
 
 function closeAI(e) {
@@ -373,68 +381,98 @@ function previewImage(input) {
   const reader = new FileReader();
   reader.onload = e => {
     selectedImage = e.target.result;
-    document.getElementById('aiPreview').innerHTML = `<img src="${selectedImage}">`;
+    document.getElementById('aiPreview').innerHTML = `<img src="${selectedImage}" id="previewImg">`;
     document.getElementById('aiSubmitBtn').disabled = false;
     document.getElementById('aiLoading').style.display = 'none';
     document.getElementById('aiResult').style.display = 'none';
   };
   reader.readAsDataURL(file);
-  // 清空 input 讓同一張照片可以重複選
   input.value = '';
 }
 
 async function submitAI() {
   if (!selectedImage) return;
+
   const btn = document.getElementById('aiSubmitBtn');
   btn.textContent = '⏳ 辨識中...';
   btn.disabled = true;
   document.getElementById('aiLoading').style.display = 'flex';
   document.getElementById('aiResult').style.display = 'none';
 
-  const aiUrl = localStorage.getItem('aiServerUrl') || 'http://localhost:5000';
-
   try {
-    const res = await fetch(aiUrl + '/identify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': '1'
-      },
-      body: JSON.stringify({ image: selectedImage })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    if (!tmModel) throw new Error('模型尚未載入，請稍候再試');
 
-    const badge = data.canHarvest
-      ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:11px;">✅ 可採集</span>'
-      : data.danger
-        ? '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:11px;">⚠️ 請注意</span>'
-        : '<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:11px;">觀察即可</span>';
+    // 取得預覽圖片元素
+    const imgEl = document.getElementById('previewImg');
+    if (!imgEl) throw new Error('找不到圖片');
 
-    const confColor = data.confidence==='高'?'#166534':data.confidence==='中'?'#854d0e':'#991b1b';
-    const simText = data.similarity ? `　相似度：${data.similarity}` : '';
+    // 用 Teachable Machine 辨識
+    const predictions = await tmModel.predict(imgEl);
 
-    document.getElementById('aiResultName').innerHTML =
-      `${data.name} ${badge} <span style="font-size:11px;color:${confColor};">信心：${data.confidence||'未知'}${simText}</span>`;
-    document.getElementById('aiResultLatin').textContent = data.latinName || '';
-    document.getElementById('aiResultDesc').textContent = data.description || '';
-    document.getElementById('aiResultAdvice').textContent = '📋 ' + (data.advice || '');
-    document.getElementById('aiLoading').style.display = 'none';
-    document.getElementById('aiResult').style.display = 'block';
+    // 找出最高信心度
+    let best = predictions.reduce((a, b) => a.probability > b.probability ? a : b);
+    const confidence = best.probability;
+    const label = best.className.trim();
+
+    // 取得物種資訊
+    const info = SPECIES_INFO[label];
+
+    // 信心度判斷
+    const confPct = Math.round(confidence * 100);
+    const confClass = confidence >= 0.8 ? 'high' : confidence >= 0.5 ? 'mid' : 'low';
+    const confText = confidence >= 0.8 ? '高信心度' : confidence >= 0.5 ? '中信心度' : '低信心度，建議對照圖鑑確認';
+
+    document.getElementById('confLabel').textContent = `${confText}：${confPct}%`;
+    const fill = document.getElementById('confFill');
+    fill.style.width = confPct + '%';
+    fill.className = 'confidence-fill ' + confClass;
+
+    if (info) {
+      const resultEl = document.getElementById('aiResult');
+      resultEl.className = 'ai-result ' + (info.danger ? 'danger-result' : confidence >= 0.5 ? 'success' : 'warning');
+
+      const badge = info.canHarvest
+        ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:12px;">✅ 可採集</span>'
+        : info.danger
+          ? '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:12px;">⚠️ 危險</span>'
+          : '<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:12px;">觀察即可</span>';
+
+      document.getElementById('aiResultName').innerHTML = `${label} ${badge}`;
+      document.getElementById('aiResultLatin').textContent = info.latinName;
+      document.getElementById('aiResultDesc').textContent = info.desc;
+
+      const adviceEl = document.getElementById('aiResultAdvice');
+      adviceEl.textContent = '📋 ' + info.advice;
+      adviceEl.className = 'ai-result-advice' + (info.danger ? ' danger-advice' : '');
+
+      resultEl.style.display = 'block';
+    }
+
+    // 低信心度警告
+    if (confidence < 0.5) {
+      document.getElementById('aiResultName').textContent = `疑似${label}（信心度低）`;
+      document.getElementById('aiResultDesc').textContent = '照片可能不夠清晰，建議從側面45度角重新拍攝，讓生物佔畫面一半以上。';
+    }
 
   } catch(err) {
+    const resultEl = document.getElementById('aiResult');
+    resultEl.className = 'ai-result warning';
     document.getElementById('aiResultName').textContent = '辨識失敗';
-    document.getElementById('aiResultDesc').textContent = 'AI 服務未啟動，請確認電腦有開啟啟動AI辨識服務.bat';
-    document.getElementById('aiResultAdvice').textContent = '錯誤：' + err.message;
-    document.getElementById('aiLoading').style.display = 'none';
-    document.getElementById('aiResult').style.display = 'block';
+    document.getElementById('aiResultLatin').textContent = '';
+    document.getElementById('confLabel').textContent = '';
+    document.getElementById('confFill').style.width = '0%';
+    document.getElementById('aiResultDesc').textContent = err.message || '請重新整理頁面後再試';
+    document.getElementById('aiResultAdvice').textContent = '建議：靠近拍攝，側面45度角效果最好';
+    resultEl.style.display = 'block';
   }
 
+  document.getElementById('aiLoading').style.display = 'none';
   btn.textContent = '🔍 開始辨識';
   btn.disabled = false;
 }
 
-initAiUrl();
+// 啟動
+loadModel();
 </script>
 </body>
 </html>
