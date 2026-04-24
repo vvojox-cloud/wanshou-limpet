@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>活動進程｜萬壽社區</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; padding-bottom: 80px; }
   body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; }
 
   .header {
@@ -281,5 +281,20 @@ function render() {
 render();
 setInterval(render, 60000);
 </script>
+<!-- 底部導覽列 -->
+<nav style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;display:flex;justify-content:space-around;align-items:center;padding:8px 0 12px;z-index:90;box-shadow:0 -2px 12px rgba(0,0,0,0.08);">
+  <a href="index.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🐚</span>首頁
+  </a>
+  <a href="species.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🔍</span>圖鑑
+  </a>
+  <a href="activity.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#1a6b4a;font-size:11px;padding:4px 12px;font-weight:700;">
+    <span style="font-size:22px;">📅</span>活動進程
+  </a>
+  <a href="admin.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🎛️</span>主持人
+  </a>
+</nav>
 </body>
 </html>

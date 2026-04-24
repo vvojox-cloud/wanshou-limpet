@@ -6,32 +6,58 @@
 <title>潮間帶生物圖鑑｜萬壽社區</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding-bottom: 80px; }
+
   .header { background: #1a6b4a; color: white; padding: 20px 16px 16px; text-align: center; }
   .header h1 { font-size: 20px; margin-bottom: 4px; }
   .header p  { font-size: 13px; opacity: 0.85; }
+
   .search-bar { background: #155c3e; padding: 12px 16px; display: flex; gap: 8px; }
   .search-bar input { flex: 1; padding: 8px 12px; border-radius: 20px; border: none; font-size: 15px; outline: none; }
+
   .filter-bar { display: flex; gap: 8px; padding: 10px 16px; overflow-x: auto; background: white; border-bottom: 1px solid #e5e7eb; }
   .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px solid #d1d5db; background: white; font-size: 13px; cursor: pointer; white-space: nowrap; color: #374151; }
   .filter-btn.active { background: #1a6b4a; color: white; border-color: #1a6b4a; }
+
   .stats { text-align: center; padding: 8px; font-size: 12px; color: #6b7280; }
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; max-width: 640px; margin: 0 auto; }
+
   .card { background: white; border-radius: 12px; overflow: hidden; border: 1.5px solid #e5e7eb; cursor: pointer; }
   .card.danger { border-color: #fca5a5; }
-  .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .card-img { width: 100%; aspect-ratio: 1; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
   .card-img img { width: 100%; height: 100%; object-fit: cover; }
   .card-body { padding: 10px; }
   .card-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
   .card-latin { font-size: 10px; color: #9ca3af; font-style: italic; margin-bottom: 6px; }
-  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
   .badge-harvest { background: #dcfce7; color: #166534; }
   .badge-no { background: #f3f4f6; color: #6b7280; }
   .badge-danger { background: #fee2e2; color: #991b1b; }
+
+  /* 底部導覽列 */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-top: 1px solid #e5e7eb;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 8px 0 12px; z-index: 90;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  }
+  .bnav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px; cursor: pointer; text-decoration: none;
+    color: #6b7280; font-size: 11px; padding: 4px 12px;
+    border-radius: 8px; transition: color 0.15s;
+    border: none; background: none;
+  }
+  .bnav-item.active { color: #1a6b4a; }
+  .bnav-item:active { background: #f0fdf4; }
+  .bnav-icon { font-size: 22px; line-height: 1; }
+
+  /* 生物詳細 Modal */
   .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; justify-content: center; }
   .modal-bg.open { display: flex; }
   .modal { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; }
-  .modal-img { width: 100%; height: 220px; object-fit: cover; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+  .modal-img { width: 100%; height: 220px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 60px; overflow: hidden; }
   .modal-img img { width: 100%; height: 100%; object-fit: cover; }
   .modal-body { padding: 20px; }
   .modal-name { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
@@ -42,90 +68,54 @@
   .modal-rule { background: #fef9c3; border: 1.5px solid #fde047; border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.6; color: #713f12; }
   .modal-rule.danger-rule { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; font-weight: 600; }
   .close-btn { display: block; width: calc(100% - 40px); margin: 0 20px 24px; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-  .fab { position: fixed; bottom: 24px; right: 20px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+
+  /* AI 辨識浮動按鈕 */
+  .fab { position: fixed; bottom: 88px; right: 20px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+
+  /* AI 辨識面板 */
   .ai-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; justify-content: center; }
   .ai-bg.open { display: flex; }
   .ai-panel { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 20px; max-height: 92vh; overflow-y: auto; }
   .ai-preview { width: 100%; aspect-ratio: 4/3; background: #f3f4f6; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 40px; color: #d1d5db; }
   .ai-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .ai-btn { width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 10px; font-size: 15px; cursor: pointer; border: none; }
-  .ai-btn-select { background: #f0fdf4; border: 1.5px solid #86efac !important; color: #166534; }
-  .ai-btn-submit { background: #1a6b4a; color: white; }
-  .ai-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-  .ai-btn-close { background: #f3f4f6; color: #374151; }
+
+  /* 拍照/選圖分開按鈕 */
+  .ai-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .ai-btn-camera { padding: 14px 8px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; text-align: center; }
+  .ai-btn-gallery { padding: 14px 8px; background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 10px; font-size: 15px; cursor: pointer; text-align: center; }
+  .ai-btn-submit { width: 100%; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
+  .ai-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ai-btn-close { width: 100%; padding: 12px; background: #f3f4f6; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #374151; }
+
+  /* AI URL 設定列 */
+  .ai-url-bar { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; display: flex; gap: 6px; align-items: center; }
+  .ai-url-bar input { flex: 1; border: none; background: transparent; font-size: 12px; color: #166534; outline: none; }
+
+  /* 載入動畫 */
+  .ai-loading { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; gap: 16px; }
+  .wave-container { display: flex; gap: 6px; align-items: flex-end; height: 40px; }
+  .wave-bar { width: 8px; border-radius: 4px; background: #1a6b4a; animation: wave 1.2s ease-in-out infinite; }
+  .wave-bar:nth-child(1){animation-delay:0s;height:20px}
+  .wave-bar:nth-child(2){animation-delay:.15s;height:32px}
+  .wave-bar:nth-child(3){animation-delay:.3s;height:40px}
+  .wave-bar:nth-child(4){animation-delay:.45s;height:32px}
+  .wave-bar:nth-child(5){animation-delay:.6s;height:20px}
+  .wave-bar:nth-child(6){animation-delay:.75s;height:32px}
+  .wave-bar:nth-child(7){animation-delay:.9s;height:40px}
+  @keyframes wave { 0%,100%{transform:scaleY(.4);opacity:.5} 50%{transform:scaleY(1);opacity:1} }
+  .loading-shell { font-size: 32px; animation: spin 2s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { font-size: 15px; font-weight: 700; color: #1a6b4a; text-align: center; }
+  .loading-sub { font-size: 12px; color: #6b7280; text-align: center; margin-top: -8px; }
+  .dot-animate::after { content:''; animation: dots 1.5s steps(4,end) infinite; }
+  @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+
+  /* 辨識結果 */
   .ai-result { display: none; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
   .ai-result-name { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
   .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 8px; }
   .ai-result-desc { font-size: 13px; color: #374151; margin-bottom: 8px; line-height: 1.6; }
   .ai-result-advice { font-size: 13px; background: #fef9c3; border-radius: 6px; padding: 8px; color: #713f12; }
-
-  /* 載入動畫 */
-  .ai-loading {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-    margin-bottom: 12px;
-    background: #f0fdf4;
-    border: 1.5px solid #86efac;
-    border-radius: 12px;
-    gap: 16px;
-  }
-  .wave-container {
-    display: flex;
-    gap: 6px;
-    align-items: flex-end;
-    height: 40px;
-  }
-  .wave-bar {
-    width: 8px;
-    border-radius: 4px;
-    background: #1a6b4a;
-    animation: wave 1.2s ease-in-out infinite;
-  }
-  .wave-bar:nth-child(1) { animation-delay: 0s;    height: 20px; }
-  .wave-bar:nth-child(2) { animation-delay: 0.15s; height: 32px; }
-  .wave-bar:nth-child(3) { animation-delay: 0.3s;  height: 40px; }
-  .wave-bar:nth-child(4) { animation-delay: 0.45s; height: 32px; }
-  .wave-bar:nth-child(5) { animation-delay: 0.6s;  height: 20px; }
-  .wave-bar:nth-child(6) { animation-delay: 0.75s; height: 32px; }
-  .wave-bar:nth-child(7) { animation-delay: 0.9s;  height: 40px; }
-  @keyframes wave {
-    0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
-    50%       { transform: scaleY(1);   opacity: 1; }
-  }
-  .loading-shell {
-    font-size: 32px;
-    animation: spin 2s linear infinite;
-  }
-  @keyframes spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  .loading-text {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1a6b4a;
-    text-align: center;
-  }
-  .loading-sub {
-    font-size: 12px;
-    color: #6b7280;
-    text-align: center;
-    margin-top: -8px;
-  }
-  .dot-animate::after {
-    content: '';
-    animation: dots 1.5s steps(4, end) infinite;
-  }
-  @keyframes dots {
-    0%   { content: ''; }
-    25%  { content: '.'; }
-    50%  { content: '..'; }
-    75%  { content: '...'; }
-    100% { content: ''; }
-  }
 </style>
 </head>
 <body>
@@ -150,6 +140,22 @@
 
 <div class="stats" id="stats"></div>
 <div class="grid" id="grid"></div>
+
+<!-- 底部導覽列 -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item">
+    <span class="bnav-icon">🐚</span>首頁
+  </a>
+  <a href="species.html" class="bnav-item active">
+    <span class="bnav-icon">🔍</span>圖鑑
+  </a>
+  <a href="activity.html" class="bnav-item">
+    <span class="bnav-icon">📅</span>活動進程
+  </a>
+  <a href="admin.html" class="bnav-item">
+    <span class="bnav-icon">🎛️</span>主持人
+  </a>
+</nav>
 
 <!-- 生物詳細 Modal -->
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
@@ -182,37 +188,55 @@
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
     <h2 style="font-size:18px;margin-bottom:4px;">📷 AI 生物辨識</h2>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">拍照或上傳照片，Gemma AI 自動辨識潮間帶生物</p><div id="aiUrlBar" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 10px;margin-bottom:12px;display:flex;gap:6px;align-items:center;">
-  <span style="font-size:12px;color:#166534;white-space:nowrap;">🌐 AI網址：</span>
-  <input id="aiUrlInput" type="text" placeholder="http://localhost:5000"
-    style="flex:1;border:none;background:transparent;font-size:12px;color:#166534;outline:none;"
-    value="" oninput="saveAiUrl(this.value)">
-  <span id="aiUrlStatus" style="font-size:11px;color:#6b7280;">本機</span>
-</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px;">拍照或上傳照片，AI 自動辨識潮間帶生物</p>
 
+    <!-- AI 網址設定列 -->
+    <div class="ai-url-bar">
+      <span style="font-size:12px;color:#166534;white-space:nowrap;">🌐 AI：</span>
+      <input id="aiUrlInput" type="text" placeholder="http://localhost:5000（本機）或貼上ngrok網址"
+        oninput="saveAiUrl(this.value)">
+      <span id="aiUrlStatus" style="font-size:11px;color:#6b7280;white-space:nowrap;">本機</span>
+    </div>
+
+    <!-- 預覽區 -->
     <div class="ai-preview" id="aiPreview">🐚</div>
-    <input type="file" id="aiFile" accept="image/*" capture="environment" style="display:none" onchange="previewImage(this)">
 
-    <button class="ai-btn ai-btn-select" onclick="document.getElementById('aiFile').click()">📁 選擇照片 / 拍照</button>
-    <button class="ai-btn ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>🔍 開始辨識</button>
+    <!-- 拍照 / 選圖 分開按鈕 -->
+    <div class="ai-photo-btns">
+      <button class="ai-btn-camera" onclick="document.getElementById('aiCamera').click()">
+        📷 拍照
+      </button>
+      <button class="ai-btn-gallery" onclick="document.getElementById('aiGallery').click()">
+        🖼️ 從相簿選
+      </button>
+    </div>
 
-    <!-- 載入動畫區 -->
+    <!-- 隱藏的 input（拍照） -->
+    <input type="file" id="aiCamera" accept="image/*" capture="environment"
+      style="display:none" onchange="previewImage(this)">
+    <!-- 隱藏的 input（相簿） -->
+    <input type="file" id="aiGallery" accept="image/*"
+      style="display:none" onchange="previewImage(this)">
+
+    <!-- 開始辨識按鈕 -->
+    <button class="ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>
+      🔍 開始辨識
+    </button>
+
+    <!-- 載入動畫 -->
     <div class="ai-loading" id="aiLoading">
       <div class="loading-shell">🐚</div>
       <div class="wave-container">
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div>
       </div>
       <div class="loading-text">萬壽社區 AI 辨識系統努力中<span class="dot-animate"></span></div>
-      <div class="loading-sub">Gemma AI 正在分析照片，請稍候約 10 秒</div>
+      <div class="loading-sub">正在分析照片，請稍候</div>
     </div>
 
-    <!-- 結果區 -->
+    <!-- 辨識結果 -->
     <div class="ai-result" id="aiResult">
       <div class="ai-result-name" id="aiResultName"></div>
       <div class="ai-result-latin" id="aiResultLatin"></div>
@@ -220,7 +244,7 @@
       <div class="ai-result-advice" id="aiResultAdvice"></div>
     </div>
 
-    <button class="ai-btn ai-btn-close" onclick="closeAI()">關閉</button>
+    <button class="ai-btn-close" onclick="closeAI()">關閉</button>
   </div>
 </div>
 
@@ -228,8 +252,40 @@
 let allSpecies = [];
 let currentFilter = '全部';
 let selectedImage = null;
+const categoryEmoji = {'貝類':'🐚','甲殼類':'🦀','棘皮動物':'⭐'};
 
-const categoryEmoji = { '貝類':'🐚', '甲殼類':'🦀', '棘皮動物':'⭐' };
+// 讀取 AI 網址（網址參數優先）
+function initAiUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlParam = params.get('ai');
+  if (urlParam) {
+    const clean = urlParam.trim().replace(/\/$/, '');
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlInput').value = clean;
+    document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else {
+    const saved = localStorage.getItem('aiServerUrl');
+    if (saved) {
+      document.getElementById('aiUrlInput').value = saved;
+      document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
+      document.getElementById('aiUrlStatus').style.color = '#166534';
+    }
+  }
+}
+
+function saveAiUrl(val) {
+  const clean = val.trim().replace(/\/$/, '');
+  if (clean.startsWith('http')) {
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else if (clean === '') {
+    localStorage.removeItem('aiServerUrl');
+    document.getElementById('aiUrlStatus').textContent = '本機';
+    document.getElementById('aiUrlStatus').style.color = '#6b7280';
+  }
+}
 
 fetch('species.json')
   .then(r => r.json())
@@ -267,7 +323,7 @@ function renderGrid(list) {
     card.innerHTML = `
       <div class="card-img">
         <img src="${s.image}" alt="${s.name}"
-          onerror="this.parentElement.innerHTML='<span class=\\'no-img\\'>${categoryEmoji[s.category]||'🐾'}</span>'">
+          onerror="this.parentElement.innerHTML='<span>${categoryEmoji[s.category]||'🐾'}</span>'">
       </div>
       <div class="card-body">
         <div class="card-name">${s.name}</div>
@@ -279,9 +335,9 @@ function renderGrid(list) {
 }
 
 function openModal(s) {
-  const imgHtml = `<img src="${s.image}" alt="${s.name}"
-    onerror="this.parentElement.innerHTML='<span style=\\'font-size:60px\\'>${categoryEmoji[s.category]||'🐾'}</span>'">`;
-  document.getElementById('modalImg').innerHTML = imgHtml;
+  document.getElementById('modalImg').innerHTML =
+    `<img src="${s.image}" alt="${s.name}"
+      onerror="this.parentElement.innerHTML='<span style=\\'font-size:60px\\'>${categoryEmoji[s.category]||'🐾'}</span>'">`;
   document.getElementById('modalName').textContent = s.name;
   document.getElementById('modalLatin').textContent = s.latinName;
   document.getElementById('modalHabitat').textContent = s.habitat;
@@ -303,6 +359,7 @@ function openAI() {
   document.getElementById('aiLoading').style.display = 'none';
   document.getElementById('aiResult').style.display = 'none';
   document.getElementById('aiBg').classList.add('open');
+  initAiUrl();
 }
 
 function closeAI(e) {
@@ -322,22 +379,27 @@ function previewImage(input) {
     document.getElementById('aiResult').style.display = 'none';
   };
   reader.readAsDataURL(file);
+  // 清空 input 讓同一張照片可以重複選
+  input.value = '';
 }
 
 async function submitAI() {
   if (!selectedImage) return;
-
   const btn = document.getElementById('aiSubmitBtn');
   btn.textContent = '⏳ 辨識中...';
   btn.disabled = true;
   document.getElementById('aiLoading').style.display = 'flex';
   document.getElementById('aiResult').style.display = 'none';
 
+  const aiUrl = localStorage.getItem('aiServerUrl') || 'http://localhost:5000';
+
   try {
-    const aiUrl = localStorage.getItem('aiServerUrl') || 'http://localhost:5000';
-const res = await fetch(aiUrl + '/identify', {
+    const res = await fetch(aiUrl + '/identify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': '1'
+      },
       body: JSON.stringify({ image: selectedImage })
     });
     const data = await res.json();
@@ -349,10 +411,11 @@ const res = await fetch(aiUrl + '/identify', {
         ? '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:11px;">⚠️ 請注意</span>'
         : '<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:11px;">觀察即可</span>';
 
-    const confidenceColor = data.confidence === '高' ? '#166534' : data.confidence === '中' ? '#854d0e' : '#991b1b';
+    const confColor = data.confidence==='高'?'#166534':data.confidence==='中'?'#854d0e':'#991b1b';
+    const simText = data.similarity ? `　相似度：${data.similarity}` : '';
 
     document.getElementById('aiResultName').innerHTML =
-      `${data.name} ${badge} <span style="font-size:11px;color:${confidenceColor};">信心度：${data.confidence||'未知'}</span>`;
+      `${data.name} ${badge} <span style="font-size:11px;color:${confColor};">信心：${data.confidence||'未知'}${simText}</span>`;
     document.getElementById('aiResultLatin').textContent = data.latinName || '';
     document.getElementById('aiResultDesc').textContent = data.description || '';
     document.getElementById('aiResultAdvice').textContent = '📋 ' + (data.advice || '');
@@ -361,8 +424,7 @@ const res = await fetch(aiUrl + '/identify', {
 
   } catch(err) {
     document.getElementById('aiResultName').textContent = '辨識失敗';
-    document.getElementById('aiResultLatin').textContent = '';
-    document.getElementById('aiResultDesc').textContent = '請確認 AI 服務正在執行中（啟動AI辨識服務.bat 有開著）';
+    document.getElementById('aiResultDesc').textContent = 'AI 服務未啟動，請確認電腦有開啟啟動AI辨識服務.bat';
     document.getElementById('aiResultAdvice').textContent = '錯誤：' + err.message;
     document.getElementById('aiLoading').style.display = 'none';
     document.getElementById('aiResult').style.display = 'block';
@@ -370,40 +432,6 @@ const res = await fetch(aiUrl + '/identify', {
 
   btn.textContent = '🔍 開始辨識';
   btn.disabled = false;
-}
-// 載入已儲存的 AI 網址
-function initAiUrl() {
-  // 優先從網址參數讀取
-  const params = new URLSearchParams(window.location.search);
-  const urlParam = params.get('ai');
-  
-  if (urlParam) {
-    const clean = urlParam.trim().replace(/\/$/, '');
-    localStorage.setItem('aiServerUrl', clean);
-    document.getElementById('aiUrlInput').value = clean;
-    document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
-  } else {
-    const saved = localStorage.getItem('aiServerUrl');
-    if (saved) {
-      document.getElementById('aiUrlInput').value = saved;
-      document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
-      document.getElementById('aiUrlStatus').style.color = '#166534';
-    }
-  }
-}
-
-function saveAiUrl(val) {
-  const clean = val.trim().replace(/\/$/, '');
-  if (clean.startsWith('http')) {
-    localStorage.setItem('aiServerUrl', clean);
-    document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
-  } else if (clean === '') {
-    localStorage.removeItem('aiServerUrl');
-    document.getElementById('aiUrlStatus').textContent = '本機';
-    document.getElementById('aiUrlStatus').style.color = '#6b7280';
-  }
 }
 
 initAiUrl();
