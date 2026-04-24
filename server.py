@@ -18,38 +18,42 @@ MODEL = "gemma3:12b"
 SPECIES_IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "species")
 
 SPECIES_DB = {
-    "花笠螺":    {"latinName": "Cellana toreuma",     "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱篦仔。",     "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
-    "斗笠螺":    {"latinName": "Cellana grata",        "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱海鋼盔。",     "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
+    "花笠螺":    {"latinName": "Cellana toreuma",     "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱苦丕仔。",   "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
+    "斗笠螺":    {"latinName": "Cellana grata",        "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱丕仔。",       "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
     "蜑螺":      {"latinName": "Nerita sp.",            "category": "蜑螺類", "canHarvest": False, "danger": False, "description": "黑褐色半球形，殼面平滑，是中角灣礁岸最常見的螺類之一。",     "advice": "請勿採集，觀察即可。"},
     "珠螺":      {"latinName": "Turbo bruneus",         "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "殼口內側有美麗的藍綠色珍珠光澤，口蓋厚重圓滑。",             "advice": "請勿採集，可輕拿觀察後放回。"},
     "黑鐘螺":    {"latinName": "Omphalius nigerrimus",  "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "黑色圓錐螺旋形，表面有顆粒突起，口蓋內側帶珍珠光澤。",       "advice": "請勿採集，注意礁石濕滑。"},
     "草蓆鐘螺":  {"latinName": "Tegula nigerrima",      "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "墨綠黑色，表面顆粒排列整齊如草蓆，以礁石藻類為食。",         "advice": "請勿採集，為礁岸生態重要物種。"},
-    "岩螺":      {"latinName": "Thais sp.",             "category": "岩螺類", "canHarvest": False, "danger": False, "description": "菱形或紡錘形，殼表有明顯疣狀突起，肉食性螺類。",             "advice": "請勿採集，殼口銳利小心割傷。"},
+    "岩螺":      {"latinName": "Thais sp.",             "category": "岩螺類", "canHarvest": False, "danger": False, "description": "菱形或紡錘形，殼表有明顯疣狀突起，在地稱辣螺，肉食性。",     "advice": "請勿採集，殼口銳利小心割傷。"},
     "織錦芋螺":  {"latinName": "Conus textile",         "category": "芋螺類", "canHarvest": False, "danger": True,  "description": "棕白色網格花紋，含神經毒素，曾有致死案例！",                 "advice": "⚠️ 絕對禁止觸碰！立即告知講師！"},
-    "黃寶螺":    {"latinName": "Cypraea moneta",        "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣。",             "advice": "請勿採集，稀少種請特別保護。"},
-    "阿拉伯寶螺": {"latinName": "Mauritia arabica",     "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼面有獨特棕色網格花紋，腹面有明顯細齒紋路。",             "advice": "請勿採集，觀賞後輕放回原位。"},
+    "黃寶螺":    {"latinName": "Cypraea moneta",        "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣，中角灣稀有種。", "advice": "請勿採集，稀少種請特別保護。"},
+    "阿拉伯寶螺": {"latinName": "Mauritia arabica",     "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼面有獨特棕色網格花紋，腹面有明顯細齒紋路，中角灣稀客。",   "advice": "請勿採集，觀賞後輕放回原位。"},
 }
 
-GEMMA_PROMPT = """你是「萬壽社區的海洋學家阿超」，在金山中角灣研究潮間帶生物超過30年，說話風格幽默親切，喜歡用在地台語俗稱介紹生物，偶爾會說「哎呦」、「你看你看」、「這個厲害了」之類的語氣詞。
+# 阿超預設說話（Gemma 失敗時備用）
+CHAOSHAO_DEFAULT = {
+    "花笠螺":    "你看你看！這是我們的「苦丕仔」！黃綠色殼面，沒有放射紋。苦中帶甘，老饕才懂這味道！3公分以上才能採喔！",
+    "斗笠螺":    "這個厲害了！「丕仔」來啦！你看那個放射條紋多漂亮。肉質Q脆甜甜的，第一次採集的朋友最適合！",
+    "蜑螺":      "哎呦！這是蜑螺啦，中角灣礁岸到處都是！殼面平滑黑黑的，是我們這邊的老鄰居，請觀察就好！",
+    "珠螺":      "你看你看！把牠翻過來，殼口有沒有藍綠色珍珠光澤？漂亮吧！大自然送的珠寶，看看就好，放回去！",
+    "黑鐘螺":    "這是黑鐘螺！黑色錐形，表面有小顆粒，感覺像釋迦皮。礁岸很常見的好鄰居，請勿採集！",
+    "草蓆鐘螺":  "哎！草蓆鐘螺！你看那個顆粒排列，真的很像草蓆編出來的。牠是礁岸清道夫，負責吃藻類，很重要！",
+    "岩螺":      "這是辣螺！菱形的殼，有疣狀突起。注意喔，殼口很銳利，不小心會割傷手，觀察就好！",
+    "織錦芋螺":  "🚨 危險！織錦芋螺！有神經毒素！花紋再漂亮也不能碰！立刻告知講師！保持距離！",
+    "黃寶螺":    "哎呦！黃寶螺！古代用來當錢幣的！現在很稀有了，在中角灣看到算你運氣好！輕輕放回去！",
+    "阿拉伯寶螺": "你看你看！阿拉伯寶螺！殼面的花紋像阿拉伯文字，很神奇吧！中角灣的稀客，觀察後放回原位！",
+}
 
-照片比對系統判斷這可能是：{candidate}（相似度 {similarity}%）。
+GEMMA_PERSONALITY_PROMPT = """你是「萬壽社區的海洋學家阿超」，在金山中角灣研究潮間帶生物超過30年，說話幽默親切，喜歡用台語俗稱，常說「哎呦」、「你看你看」、「這個厲害了」。
 
-請根據照片，用以下JSON格式回答：
-{{"confirmed": true或false, "name": "最終物種名稱", "confidence": "高或中或低", "reason": "判斷理由15字內", "local_name": "在地俗稱或台語名（如果有的話）", "personality_msg": "用阿超的幽默口吻說一句話介紹這個生物，包含在地名稱和一個有趣的知識點或注意事項，50字以內，口語化，像在跟遊客聊天"}}
+這張照片已經確認是：{species_name}（{latin_name}）
 
-中角灣10種貝類在地知識：
-- 花笠螺：在地叫「苦丕仔」，帶微苦回甘，是老饕最愛的「大人味」，春季3-5月禁採
-- 斗笠螺：在地叫「丕仔」，肉質Q脆鮮甜，初學者首選，春季3-5月禁採
-- 蜑螺：礁岸最常見，殼很平滑，請勿採集
-- 珠螺：殼口有漂亮珍珠光澤，像天然珠寶，請勿採集
-- 黑鐘螺：黑色錐形，表面有顆粒，請勿採集
-- 草蓆鐘螺：顆粒排列像草蓆，礁岸清道夫，請勿採集
-- 岩螺：在地叫辣螺，微辣口感，肉食性，會鑽孔吃藤壺，殼口銳利注意
-- 織錦芋螺：超危險！有毒會致死！發現立即遠離告知講師！
-- 黃寶螺：古代貨幣，稀有珍貴，請勿採集
-- 阿拉伯寶螺：殼面像阿拉伯文字花紋，稀有，請勿採集
+請用阿超的幽默口吻，說一句介紹這個生物的話，包含在地俗稱和一個有趣知識點或注意事項，50字以內，口語化。
 
-只回傳JSON，不要其他文字，不要markdown。"""
+同時回傳在地俗稱（如果有的話）。
+
+只用以下JSON格式回答，不要其他文字：
+{{"local_name": "在地俗稱（沒有就填空字串）", "personality_msg": "阿超說的話"}}"""
 
 
 def extract_features(img):
@@ -97,33 +101,44 @@ DB_FEATURES = load_db_features()
 print(f"✓ 資料庫載入完成，共 {len(DB_FEATURES)} 種生物\n")
 
 
-def gemma_verify(image_base64, candidate, similarity):
+def gemma_get_personality(image_base64, species_name, latin_name):
+    """只讓 Gemma 負責產生阿超的說話，不負責修改辨識結果"""
     try:
         payload = {
             "model": MODEL,
-            "prompt": GEMMA_PROMPT.format(
-                candidate=candidate,
-                similarity=f"{similarity:.0%}"
+            "prompt": GEMMA_PERSONALITY_PROMPT.format(
+                species_name=species_name,
+                latin_name=latin_name
             ),
             "images": [image_base64],
             "stream": False
         }
-        response = requests.post(OLLAMA_URL, json=payload, timeout=90)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=60)
         result = response.json()
         raw = result.get('response', '{}').strip()
-        print(f"  Gemma 回應：{raw[:200]}")
+        print(f"  Gemma 阿超回應：{raw[:200]}")
+
         try:
-            return json.loads(raw)
+            data = json.loads(raw)
+            return data.get('local_name', ''), data.get('personality_msg', '')
         except:
-            match = re.search(r'\{.*\}', raw, re.DOTALL)
+            match = re.search(r'\{.*?\}', raw, re.DOTALL)
             if match:
                 try:
-                    return json.loads(match.group())
+                    data = json.loads(match.group())
+                    return data.get('local_name', ''), data.get('personality_msg', '')
                 except:
                     pass
+
+        # 如果 JSON 解析失敗，直接把回應當成阿超的話
+        clean = re.sub(r'```json|```|\{.*?\}', '', raw, flags=re.DOTALL).strip()
+        if clean and len(clean) > 5:
+            return '', clean[:100]
+
     except Exception as e:
         print(f"  Gemma 錯誤：{e}")
-    return None
+
+    return '', ''
 
 
 @app.route('/identify', methods=['POST'])
@@ -138,6 +153,7 @@ def identify():
         if ',' in img_data:
             img_data = img_data.split(',')[1]
 
+        # ── 圖片比對（主要辨識）──
         img_bytes = base64.b64decode(img_data)
         query_img = Image.open(BytesIO(img_bytes))
         query_features = extract_features(query_img)
@@ -146,6 +162,7 @@ def identify():
         print(f"\n[辨識請求]")
         print(f"  圖片比對：{best_key}（相似度 {similarity:.1%}）")
 
+        # 相似度太低
         if similarity < 0.70:
             return jsonify({
                 "name": "無法辨識",
@@ -158,31 +175,23 @@ def identify():
                 "similarity": f"{similarity:.0%}",
                 "method": "圖片比對",
                 "local_name": "",
-                "personality_msg": "哎呦！這張照片太模糊了啦！阿超我看了30年的貝類，這個真的認不出來。靠近一點，側面45度角拍，我保證給你一個準確的答案！"
+                "personality_msg": "哎呦！這張照片太模糊了啦！阿超我看了30年的貝類，這個真的認不出來。靠近一點，側面45度角拍，保證給你準確答案！"
             })
 
-        print(f"  啟動 Gemma 12B 深度驗證...")
-        gemma_result = gemma_verify(img_data, best_key, similarity)
+        # ── 圖片比對結果確定，Gemma 只負責說阿超的話 ──
+        final_name = best_key
+        confidence = "高" if similarity >= 0.90 else "中" if similarity >= 0.80 else "低"
+        species = SPECIES_DB[final_name]
 
-        personality_msg = ""
-        local_name = ""
+        print(f"  Gemma 產生阿超說話中...")
+        local_name, personality_msg = gemma_get_personality(
+            img_data, final_name, species['latinName']
+        )
 
-        if gemma_result:
-            final_name = gemma_result.get('name', best_key)
-            confidence = gemma_result.get('confidence', '中')
-            personality_msg = gemma_result.get('personality_msg', '')
-            local_name = gemma_result.get('local_name', '')
-            method = "AI雙重驗證" if gemma_result.get('confirmed') else "AI修正"
-            print(f"  最終結果：{final_name}（{confidence}）")
-        else:
-            final_name = best_key
-            confidence = "高" if similarity >= 0.90 else "中" if similarity >= 0.80 else "低"
-            method = "圖片比對"
-
-        species = SPECIES_DB.get(final_name, SPECIES_DB.get(best_key))
-        if not species:
-            species = {"latinName": "", "canHarvest": False, "danger": False,
-                      "description": "中角灣潮間帶生物", "advice": "請對照圖鑑確認"}
+        # Gemma 失敗時用預設說話
+        if not personality_msg:
+            personality_msg = CHAOSHAO_DEFAULT.get(final_name, f"這是{final_name}，{species['description']}")
+            print(f"  使用預設阿超說話")
 
         return jsonify({
             "name": final_name,
@@ -193,7 +202,7 @@ def identify():
             "danger": species["danger"],
             "advice": species["advice"],
             "similarity": f"{similarity:.0%}",
-            "method": method,
+            "method": "圖片比對 + 阿超解說",
             "local_name": local_name,
             "personality_msg": personality_msg
         })
@@ -209,7 +218,7 @@ def identify():
             "danger": False,
             "advice": "請確認啟動AI辨識服務.bat 有開著",
             "local_name": "",
-            "personality_msg": ""
+            "personality_msg": "哎呦！阿超我今天狀況不太好，請重新試試看！"
         })
 
 
@@ -219,14 +228,14 @@ def health():
         "status": "ok",
         "model": MODEL,
         "db_count": len(DB_FEATURES),
-        "mode": "圖片比對 + Gemma12B雙重驗證 + 阿超人格"
+        "mode": "圖片比對辨識 + Gemma阿超解說"
     })
 
 
 if __name__ == '__main__':
     print("=" * 50)
     print("  萬壽社區 AI 生物辨識服務啟動中")
-    print("  模式：圖片比對 + Gemma 12B + 阿超人格")
+    print("  模式：圖片比對 + 阿超人格解說")
     print("  網址：http://localhost:5000")
     print("=" * 50)
     app.run(host='0.0.0.0', port=5000, debug=False)
