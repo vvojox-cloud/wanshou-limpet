@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動主持人工具｜萬壽社區</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding: 20px; }
+  .header { background: #1a6b4a; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+  .header h1 { font-size: 20px; margin-bottom: 4px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+  .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1.5px solid #e5e7eb; }
+  .card h2 { font-size: 16px; font-weight: 700; color: #1a6b4a; margin-bottom: 12px; }
+  input[type=text] { width: 100%; padding: 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 15px; margin-bottom: 12px; outline: none; }
+  input[type=text]:focus { border-color: #1a6b4a; }
+  .btn { width: 100%; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+  .btn-secondary { background: #f0fdf4; color: #1a6b4a; border: 1.5px solid #86efac; }
+  .qr-container { display: none; text-align: center; padding: 20px; }
+  .qr-box { display: inline-block; padding: 16px; background: white; border-radius: 12px; border: 2px solid #1a6b4a; margin-bottom: 12px; }
+  .url-display { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #166534; word-break: break-all; margin-bottom: 12px; }
+  .status { text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+  .status.success { background: #dcfce7; color: #166534; }
+  .status.error { background: #fee2e2; color: #991b1b; }
+  .step { background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 13px; line-height: 1.6; }
+  .step strong { color: #1a6b4a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎛️ 活動主持人工具</h1>
+  <p>萬壽社區發展協會 · 中角灣笠螺採集體驗</p>
+</div>
+
+<!-- 步驟說明 -->
+<div class="card">
+  <h2>📋 活動前準備步驟</h2>
+  <div class="step">
+    <strong>步驟1：</strong>雙擊桌面「啟動AI辨識服務」，等待 ngrok 視窗出現網址
+  </div>
+  <div class="step">
+    <strong>步驟2：</strong>複製 ngrok 網址（格式：https://xxxx.ngrok-free.app）貼入下方
+  </div>
+  <div class="step">
+    <strong>步驟3：</strong>點「產生QR Code」，印出或顯示在大螢幕上
+  </div>
+  <div class="step">
+    <strong>步驟4：</strong>參與者掃碼，直接開啟圖鑑並自動設定AI，不需要手動輸入！
+  </div>
+</div>
+
+<!-- 輸入 ngrok 網址 -->
+<div class="card">
+  <h2>🌐 輸入今日 AI 服務網址</h2>
+  <input type="text" id="ngrokUrl" placeholder="https://xxxx.ngrok-free.app" 
+    oninput="clearQr()">
+  <button class="btn" onclick="generateQR()">產生 QR Code</button>
+  <button class="btn btn-secondary" onclick="testConnection()">🔍 測試連線</button>
+  <div id="status" style="display:none;" class="status"></div>
+</div>
+
+<!-- QR Code 顯示 -->
+<div class="card qr-container" id="qrContainer">
+  <h2 style="margin-bottom:16px;">📱 掃碼進入圖鑑（已含AI設定）</h2>
+  <div class="qr-box">
+    <div id="qrcode"></div>
+  </div>
+  <div class="url-display" id="urlDisplay"></div>
+  <button class="btn" onclick="window.print()">🖨️ 列印 QR Code</button>
+  <button class="btn btn-secondary" onclick="openLink()">📱 在手機測試開啟</button>
+</div>
+
+<!-- 快速連結 -->
+<div class="card">
+  <h2>🔗 快速連結</h2>
+  <button class="btn btn-secondary" onclick="window.location.href='index.html'" style="margin-bottom:8px;">
+    🐚 笠螺採集導覽
+  </button>
+  <button class="btn btn-secondary" onclick="window.location.href='species.html'" style="margin-bottom:8px;">
+    🔍 潮間帶生物圖鑑
+  </button>
+  <button class="btn btn-secondary" onclick="window.location.href='activity.html'">
+    📅 活動進程追蹤
+  </button>
+</div>
+
+<script>
+const BASE_URL = 'https://vvojox-cloud.github.io/wanshou-limpet/species.html';
+let qrInstance = null;
+
+function generateQR() {
+  const ngrok = document.getElementById('ngrokUrl').value.trim().replace(/\/$/, '');
+  
+  if (!ngrok.startsWith('https://')) {
+    showStatus('請輸入正確的 ngrok 網址（https://xxxx.ngrok-free.app）', 'error');
+    return;
+  }
+
+  const fullUrl = `${BASE_URL}?ai=${encodeURIComponent(ngrok)}`;
+  document.getElementById('urlDisplay').textContent = fullUrl;
+
+  // 清除舊的 QR Code
+  const qrDiv = document.getElementById('qrcode');
+  qrDiv.innerHTML = '';
+
+  // 產生新的 QR Code
+  qrInstance = new QRCode(qrDiv, {
+    text: fullUrl,
+    width: 220,
+    height: 220,
+    colorDark: '#1a6b4a',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  document.getElementById('qrContainer').style.display = 'block';
+  showStatus('✅ QR Code 產生成功！參與者掃碼即可使用，無需手動輸入網址', 'success');
+  
+  // 儲存網址
+  localStorage.setItem('lastNgrokUrl', ngrok);
+}
+
+async function testConnection() {
+  const ngrok = document.getElementById('ngrokUrl').value.trim().replace(/\/$/, '');
+  if (!ngrok) {
+    showStatus('請先輸入 ngrok 網址', 'error');
+    return;
+  }
+
+  showStatus('🔍 測試連線中...', 'success');
+  
+  try {
+    const res = await fetch(ngrok + '/health', { 
+      method: 'GET',
+      headers: { 'ngrok-skip-browser-warning': '1' },
+      signal: AbortSignal.timeout(5000)
+    });
+    const data = await res.json();
+    showStatus(`✅ 連線成功！AI 服務正常運作（${data.model || 'gemma'}）`, 'success');
+  } catch (e) {
+    showStatus('❌ 連線失敗，請確認 AI 服務和 ngrok 都有啟動', 'error');
+  }
+}
+
+function openLink() {
+  const ngrok = document.getElementById('ngrokUrl').value.trim().replace(/\/$/, '');
+  const fullUrl = `${BASE_URL}?ai=${encodeURIComponent(ngrok)}`;
+  window.open(fullUrl, '_blank');
+}
+
+function clearQr() {
+  document.getElementById('qrContainer').style.display = 'none';
+  document.getElementById('status').style.display = 'none';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = `status ${type}`;
+  el.style.display = 'block';
+}
+
+// 載入上次的網址
+window.onload = () => {
+  const last = localStorage.getItem('lastNgrokUrl');
+  if (last) document.getElementById('ngrokUrl').value = last;
+};
+</script>
+</body>
+</html>

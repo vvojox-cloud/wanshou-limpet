@@ -182,7 +182,13 @@
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
     <h2 style="font-size:18px;margin-bottom:4px;">📷 AI 生物辨識</h2>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">拍照或上傳照片，Gemma AI 自動辨識潮間帶生物</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">拍照或上傳照片，Gemma AI 自動辨識潮間帶生物</p><div id="aiUrlBar" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 10px;margin-bottom:12px;display:flex;gap:6px;align-items:center;">
+  <span style="font-size:12px;color:#166534;white-space:nowrap;">🌐 AI網址：</span>
+  <input id="aiUrlInput" type="text" placeholder="http://localhost:5000"
+    style="flex:1;border:none;background:transparent;font-size:12px;color:#166534;outline:none;"
+    value="" oninput="saveAiUrl(this.value)">
+  <span id="aiUrlStatus" style="font-size:11px;color:#6b7280;">本機</span>
+</div>
 
     <div class="ai-preview" id="aiPreview">🐚</div>
     <input type="file" id="aiFile" accept="image/*" capture="environment" style="display:none" onchange="previewImage(this)">
@@ -328,7 +334,8 @@ async function submitAI() {
   document.getElementById('aiResult').style.display = 'none';
 
   try {
-    const res = await fetch('http://localhost:5000/identify', {
+    const aiUrl = localStorage.getItem('aiServerUrl') || 'http://localhost:5000';
+const res = await fetch(aiUrl + '/identify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: selectedImage })
@@ -364,6 +371,42 @@ async function submitAI() {
   btn.textContent = '🔍 開始辨識';
   btn.disabled = false;
 }
+// 載入已儲存的 AI 網址
+function initAiUrl() {
+  // 優先從網址參數讀取
+  const params = new URLSearchParams(window.location.search);
+  const urlParam = params.get('ai');
+  
+  if (urlParam) {
+    const clean = urlParam.trim().replace(/\/$/, '');
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlInput').value = clean;
+    document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else {
+    const saved = localStorage.getItem('aiServerUrl');
+    if (saved) {
+      document.getElementById('aiUrlInput').value = saved;
+      document.getElementById('aiUrlStatus').textContent = '✓ 已設定';
+      document.getElementById('aiUrlStatus').style.color = '#166534';
+    }
+  }
+}
+
+function saveAiUrl(val) {
+  const clean = val.trim().replace(/\/$/, '');
+  if (clean.startsWith('http')) {
+    localStorage.setItem('aiServerUrl', clean);
+    document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
+    document.getElementById('aiUrlStatus').style.color = '#166534';
+  } else if (clean === '') {
+    localStorage.removeItem('aiServerUrl');
+    document.getElementById('aiUrlStatus').textContent = '本機';
+    document.getElementById('aiUrlStatus').style.color = '#6b7280';
+  }
+}
+
+initAiUrl();
 </script>
 </body>
 </html>
