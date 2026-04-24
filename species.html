@@ -101,16 +101,17 @@
   .dot-animate::after { content:''; animation: dots 1.5s steps(4,end) infinite; }
   @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
-  /* 辨識結果 */
+  /* 辨識結果與 Gemma 解析匡 */
   .ai-result { display: none; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
   .ai-result.success { background: #f0fdf4; border: 1.5px solid #86efac; }
   .ai-result.warning { background: #fff7ed; border: 1.5px solid #fb923c; }
   .ai-result.danger-result { background: #fee2e2; border: 1.5px solid #fca5a5; }
   .ai-result-name { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
   .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 8px; }
-  .ai-result-desc { font-size: 13px; color: #374151; margin-bottom: 8px; line-height: 1.6; }
-  .ai-result-advice { font-size: 13px; background: #fef9c3; border-radius: 6px; padding: 8px; color: #713f12; }
-  .ai-result-advice.danger-advice { background: #fee2e2; color: #7f1d1d; font-weight: 700; }
+  
+  /* Gemma 的對話框樣式 */
+  .gemma-box { background: rgba(255,255,255,0.7); border-left: 4px solid #1a6b4a; border-radius: 0 8px 8px 0; padding: 12px; margin-top: 12px; font-size: 13.5px; line-height: 1.6; color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .gemma-box-title { font-weight: 700; color: #1a6b4a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
 
   /* 信心度條 */
   .confidence-bar { margin: 8px 0; }
@@ -145,7 +146,6 @@
 <div class="stats" id="stats"></div>
 <div class="grid" id="grid"></div>
 
-<!-- 底部導覽列 -->
 <nav class="bottom-nav">
   <a href="index.html" class="bnav-item">
     <span class="bnav-icon">🐚</span>首頁
@@ -161,7 +161,6 @@
   </a>
 </nav>
 
-<!-- 生物詳細 Modal -->
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-img" id="modalImg"></div>
@@ -185,25 +184,20 @@
   </div>
 </div>
 
-<!-- AI 浮動按鈕 -->
 <button class="fab" onclick="openAI()">📷</button>
 
-<!-- AI 辨識面板 -->
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
     <h2 style="font-size:18px;margin-bottom:4px;">📷 AI 生物辨識</h2>
     <p style="font-size:13px;color:#6b7280;margin-bottom:12px;">拍照或上傳照片，手機直接辨識，不需要網路</p>
 
-    <!-- 模型狀態 -->
     <div class="model-status">
       <div class="model-dot" id="modelDot"></div>
       <span id="modelStatusText">AI 模型載入中...</span>
     </div>
 
-    <!-- 預覽區 -->
     <div class="ai-preview" id="aiPreview">🐚</div>
 
-    <!-- 拍照 / 選圖 分開 -->
     <div class="ai-photo-btns">
       <button class="ai-btn-camera" onclick="document.getElementById('aiCamera').click()">
         📷 拍照
@@ -217,7 +211,6 @@
 
     <button class="ai-btn-submit" id="aiSubmitBtn" onclick="submitAI()" disabled>🔍 開始辨識</button>
 
-    <!-- 載入動畫 -->
     <div class="ai-loading" id="aiLoading">
       <div class="loading-shell">🐚</div>
       <div class="wave-container">
@@ -226,11 +219,10 @@
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div>
       </div>
-      <div class="loading-text">萬壽社區 AI 辨識中<span class="dot-animate"></span></div>
-      <div class="loading-sub">使用 Teachable Machine 專屬模型</div>
+      <div class="loading-text">萬壽社區 AI 雙引擎分析中<span class="dot-animate"></span></div>
+      <div class="loading-sub">TM 視覺判定 ＋ Gemma 12B 在地解說</div>
     </div>
 
-    <!-- 辨識結果 -->
     <div class="ai-result" id="aiResult">
       <div class="ai-result-name" id="aiResultName"></div>
       <div class="ai-result-latin" id="aiResultLatin"></div>
@@ -240,8 +232,7 @@
           <div class="confidence-fill" id="confFill"></div>
         </div>
       </div>
-      <div class="ai-result-desc" id="aiResultDesc"></div>
-      <div class="ai-result-advice" id="aiResultAdvice"></div>
+      <div class="gemma-box" id="gemmaResponse" style="display:none;"></div>
     </div>
 
     <button class="ai-btn-close" onclick="closeAI()">關閉</button>
@@ -250,25 +241,25 @@
 
 <script>
 // ═══════════════════════════════════════
-// 物種資料庫（對應 Teachable Machine 標籤）
+// 物種資料庫（輔助比對用）
 // ═══════════════════════════════════════
 const SPECIES_INFO = {
-  '花笠螺': { latinName: 'Cellana toreuma', canHarvest: true, danger: false, desc: '殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱篦仔。', advice: '採集殼徑3cm以上，春季3-5月禁採。' },
-  '斗笠螺': { latinName: 'Cellana grata', canHarvest: true, danger: false, desc: '殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱海鋼盔。', advice: '採集殼徑3cm以上，春季3-5月禁採。' },
-  '蜑螺':   { latinName: 'Nerita sp.', canHarvest: false, danger: false, desc: '黑褐色半球形，殼面平滑，是中角灣礁岸最常見的螺類之一。', advice: '請勿採集，觀察即可。' },
-  '珠螺':   { latinName: 'Turbo bruneus', canHarvest: false, danger: false, desc: '殼口內側有美麗的藍綠色珍珠光澤，口蓋厚重圓滑。', advice: '請勿採集，可輕拿觀察後放回。' },
-  '黑鐘螺': { latinName: 'Omphalius nigerrimus', canHarvest: false, danger: false, desc: '黑色圓錐螺旋形，表面有顆粒突起，口蓋內側帶珍珠光澤。', advice: '請勿採集，注意礁石濕滑。' },
-  '草蓆鐘螺': { latinName: 'Tegula nigerrima', canHarvest: false, danger: false, desc: '墨綠黑色，表面顆粒排列整齊如草蓆，以礁石藻類為食。', advice: '請勿採集，為礁岸生態重要物種。' },
-  '岩螺':   { latinName: 'Thais sp.', canHarvest: false, danger: false, desc: '菱形或紡錘形，殼表有疣狀突起，肉食性螺類。', advice: '請勿採集，殼口銳利小心割傷。' },
-  '織錦芋螺': { latinName: 'Conus textile', canHarvest: false, danger: true, desc: '棕白色網格花紋，含神經毒素，曾有致死案例！', advice: '⚠️ 絕對禁止觸碰！立即告知講師！' },
-  '黃寶螺': { latinName: 'Cypraea moneta', canHarvest: false, danger: false, desc: '殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣。', advice: '請勿採集，稀少種請特別保護。' },
-  '阿拉伯寶螺': { latinName: 'Mauritia arabica', canHarvest: false, danger: false, desc: '殼面有獨特棕色網格花紋，腹面有明顯細齒紋路。', advice: '請勿採集，觀賞後輕放回原位。' },
+  '花笠螺': { latinName: 'Cellana toreuma', canHarvest: true, danger: false },
+  '斗笠螺': { latinName: 'Cellana grata', canHarvest: true, danger: false },
+  '蜑螺':   { latinName: 'Nerita sp.', canHarvest: false, danger: false },
+  '珠螺':   { latinName: 'Turbo bruneus', canHarvest: false, danger: false },
+  '黑鐘螺': { latinName: 'Omphalius nigerrimus', canHarvest: false, danger: false },
+  '草蓆鐘螺': { latinName: 'Tegula nigerrima', canHarvest: false, danger: false },
+  '岩螺':   { latinName: 'Thais sp.', canHarvest: false, danger: false },
+  '織錦芋螺': { latinName: 'Conus textile', canHarvest: false, danger: true },
+  '黃寶螺': { latinName: 'Cypraea moneta', canHarvest: false, danger: false },
+  '阿拉伯寶螺': { latinName: 'Mauritia arabica', canHarvest: false, danger: false },
 };
 
 // ═══════════════════════════════════════
-// Teachable Machine 模型
+// 雙 AI 模型架構 (TM 視覺 + Gemma 語言)
 // ═══════════════════════════════════════
-const MODEL_URL = './model/';
+const MODEL_URL = './model/'; // 指向你 Github 的 model 資料夾
 let tmModel = null;
 let selectedImage = null;
 let allSpecies = [];
@@ -279,26 +270,27 @@ const categoryEmoji = {
   '岩螺類': '🐚', '芋螺類': '⚠️', '寶螺類': '✨'
 };
 
-// 載入模型
+// 載入 Teachable Machine 視覺模型
 async function loadModel() {
   try {
     document.getElementById('modelDot').className = 'model-dot loading';
-    document.getElementById('modelStatusText').textContent = 'AI 模型載入中...';
+    document.getElementById('modelStatusText').textContent = 'AI 視覺模型載入中...';
     tmModel = await tmImage.load(MODEL_URL + 'model.json', MODEL_URL + 'metadata.json');
     document.getElementById('modelDot').className = 'model-dot ready';
-    document.getElementById('modelStatusText').textContent = `✓ AI 模型就緒（${Object.keys(SPECIES_INFO).length} 種）`;
+    document.getElementById('modelStatusText').textContent = `✓ 視覺模型就緒（待連線 Gemma）`;
     console.log('Teachable Machine 模型載入成功');
   } catch (e) {
     document.getElementById('modelDot').className = 'model-dot';
-    document.getElementById('modelStatusText').textContent = '模型載入失敗，請重新整理';
+    document.getElementById('modelStatusText').textContent = '模型載入失敗，請確認 ./model/ 路徑';
     console.error('模型載入失敗：', e);
   }
 }
 
-// 圖鑑資料
+// 載入圖鑑 JSON 資料
 fetch('species.json')
   .then(r => r.json())
-  .then(data => { allSpecies = data; renderGrid(data); });
+  .then(data => { allSpecies = data; renderGrid(data); })
+  .catch(e => console.warn('尚未建立 species.json 檔案', e));
 
 function setFilter(f, btn) {
   currentFilter = f;
@@ -390,89 +382,126 @@ function previewImage(input) {
   input.value = '';
 }
 
+// 核心：雙 AI 引擎執行
 async function submitAI() {
   if (!selectedImage) return;
 
   const btn = document.getElementById('aiSubmitBtn');
-  btn.textContent = '⏳ 辨識中...';
+  btn.textContent = '⏳ 分析中...';
   btn.disabled = true;
   document.getElementById('aiLoading').style.display = 'flex';
   document.getElementById('aiResult').style.display = 'none';
 
   try {
-    if (!tmModel) throw new Error('模型尚未載入，請稍候再試');
+    if (!tmModel) throw new Error('視覺模型尚未載入，請確認網路與路徑');
 
-    // 取得預覽圖片元素
     const imgEl = document.getElementById('previewImg');
     if (!imgEl) throw new Error('找不到圖片');
 
-    // 用 Teachable Machine 辨識
+    // ── 第一階段：Teachable Machine 視覺辨識 ──
     const predictions = await tmModel.predict(imgEl);
-
-    // 找出最高信心度
     let best = predictions.reduce((a, b) => a.probability > b.probability ? a : b);
     const confidence = best.probability;
     const label = best.className.trim();
-
-    // 取得物種資訊
-    const info = SPECIES_INFO[label];
-
-    // 信心度判斷
     const confPct = Math.round(confidence * 100);
-    const confClass = confidence >= 0.8 ? 'high' : confidence >= 0.5 ? 'mid' : 'low';
-    const confText = confidence >= 0.8 ? '高信心度' : confidence >= 0.5 ? '中信心度' : '低信心度，建議對照圖鑑確認';
 
-    document.getElementById('confLabel').textContent = `${confText}：${confPct}%`;
+    // 視覺介面更新
+    const info = SPECIES_INFO[label];
+    const confClass = confidence >= 0.8 ? 'high' : confidence >= 0.5 ? 'mid' : 'low';
+    document.getElementById('confLabel').textContent = `TM 視覺特徵相似度：${confPct}%`;
     const fill = document.getElementById('confFill');
     fill.style.width = confPct + '%';
     fill.className = 'confidence-fill ' + confClass;
 
+    const resultEl = document.getElementById('aiResult');
+    const gemmaEl = document.getElementById('gemmaResponse');
+    
+    // 設定外框顏色與標籤
     if (info) {
-      const resultEl = document.getElementById('aiResult');
       resultEl.className = 'ai-result ' + (info.danger ? 'danger-result' : confidence >= 0.5 ? 'success' : 'warning');
-
       const badge = info.canHarvest
         ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:12px;">✅ 可採集</span>'
         : info.danger
           ? '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:12px;">⚠️ 危險</span>'
           : '<span style="background:#f3f4f6;color:#6b7280;padding:2px 8px;border-radius:10px;font-size:12px;">觀察即可</span>';
-
+      
       document.getElementById('aiResultName').innerHTML = `${label} ${badge}`;
       document.getElementById('aiResultLatin').textContent = info.latinName;
-      document.getElementById('aiResultDesc').textContent = info.desc;
-
-      const adviceEl = document.getElementById('aiResultAdvice');
-      adviceEl.textContent = '📋 ' + info.advice;
-      adviceEl.className = 'ai-result-advice' + (info.danger ? ' danger-advice' : '');
-
-      resultEl.style.display = 'block';
+    } else {
+      resultEl.className = 'ai-result warning';
+      document.getElementById('aiResultName').innerHTML = label;
+      document.getElementById('aiResultLatin').textContent = '';
     }
 
-    // 低信心度警告
-    if (confidence < 0.5) {
-      document.getElementById('aiResultName').textContent = `疑似${label}（信心度低）`;
-      document.getElementById('aiResultDesc').textContent = '照片可能不夠清晰，建議從側面45度角重新拍攝，讓生物佔畫面一半以上。';
+    resultEl.style.display = 'block';
+    
+    // 顯示 Gemma 準備中的狀態
+    gemmaEl.style.display = 'block';
+    gemmaEl.innerHTML = `<div style="color:#6b7280; display:flex; align-items:center; gap:8px;">
+      <span class="loading-shell" style="font-size:16px;">🐚</span> 正在呼叫在地大腦 Gemma 12B...</div>`;
+
+    // ── 第二階段：Gemma 12B 語言生成 (動態劇本優化版) ──
+    
+    // 讓 JavaScript 先幫忙做邏輯判斷，再組成最精準的 Prompt
+    let dynamicPrompt = `你現在是台灣金山區萬壽社區的專業潮間帶導覽員。遊客剛剛拍了一張照片，視覺 AI 判斷這有 ${confPct}% 的機率是「${label}」。請以親切、專業的台灣繁體中文，用 150 字以內回覆：\n`;
+
+    if (label === '花笠螺') {
+        dynamicPrompt += `請簡單介紹花笠螺的特徵，並務必提及在地海女的經驗：「花笠螺吃起來會帶有微微的苦味」。最後提醒採集規範（建議採集 4-6cm）。`;
+    } else if (!info) { 
+        // 假設 TM 辨識出沒有在 SPECIES_INFO 名單上的東西（例如其他背景、石頭）
+        dynamicPrompt += `請幽默地告訴遊客，這看起來不像潮間帶生物（可能是美麗的石頭或風景），鼓勵他們靠近一點重新拍攝。`;
+    } else {
+        // 其他正常的生物 (如阿拉伯寶螺、蜑螺等)
+        dynamicPrompt += `請簡單介紹「${label}」的生態特徵，並溫柔地提醒遊客相關的生態保護或採集規範。`;
+    }
+
+    try {
+      const response = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gemma3:12b', // 確認本機 Ollama 模型名稱
+          prompt: dynamicPrompt, 
+          stream: false
+        })
+      });
+
+      if (!response.ok) throw new Error('無法連接到本地 Gemma 服務');
+      const data = await response.json();
+      
+      // 將 Gemma 回傳的文字渲染到畫面上
+      gemmaEl.innerHTML = `
+        <div class="gemma-box-title">💡 萬壽導覽員解析：</div>
+        ${data.response.replace(/\n/g, '<br>')}
+      `;
+
+    } catch (gemmaErr) {
+      console.error('Gemma 呼叫失敗:', gemmaErr);
+      gemmaEl.innerHTML = `
+        <div style="color:#991b1b; font-weight:600;">⚠️ 無法連線到大腦 (Gemma 12B)</div>
+        <div style="font-size:12px; margin-top:4px;">請確認您的電腦是否已開啟 Ollama 並執行了「啟動導覽.bat」腳本。</div>
+      `;
     }
 
   } catch(err) {
     const resultEl = document.getElementById('aiResult');
     resultEl.className = 'ai-result warning';
-    document.getElementById('aiResultName').textContent = '辨識失敗';
+    document.getElementById('aiResultName').textContent = '辨識發生錯誤';
     document.getElementById('aiResultLatin').textContent = '';
     document.getElementById('confLabel').textContent = '';
     document.getElementById('confFill').style.width = '0%';
-    document.getElementById('aiResultDesc').textContent = err.message || '請重新整理頁面後再試';
-    document.getElementById('aiResultAdvice').textContent = '建議：靠近拍攝，側面45度角效果最好';
+    document.getElementById('gemmaResponse').style.display = 'block';
+    document.getElementById('gemmaResponse').innerHTML = err.message || '請重新整理頁面後再試';
     resultEl.style.display = 'block';
   }
 
   document.getElementById('aiLoading').style.display = 'none';
-  btn.textContent = '🔍 開始辨識';
+  btn.textContent = '🔍 重新辨識';
   btn.disabled = false;
 }
 
-// 啟動
-loadModel();
+// 網頁載入時啟動 TM 模型
+document.addEventListener('DOMContentLoaded', loadModel);
 </script>
 </body>
 </html>
