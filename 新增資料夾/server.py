@@ -17,18 +17,17 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "gemma3:12b"
 SPECIES_IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "images", "species")
 
-# 修改點 1：加入 img_prefix 讓 Python 知道要找哪個英文檔名
 SPECIES_DB = {
-    "花笠螺":    {"img_prefix": "limpet-taiwan", "latinName": "Cellana toreuma", "category": "笠螺類", "canHarvest": True, "danger": False, "description": "殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱苦丕仔。", "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
-    "斗笠螺":    {"img_prefix": "limpet-oriental", "latinName": "Cellana grata", "category": "笠螺類", "canHarvest": True, "danger": False, "description": "殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱丕仔。", "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
-    "蜑螺":      {"img_prefix": "nerita", "latinName": "Nerita sp.", "category": "蜑螺類", "canHarvest": False, "danger": False, "description": "黑褐色半球形，殼面平滑，是中角灣礁岸最常見的螺類之一。", "advice": "請勿採集，觀察即可。"},
-    "珠螺":      {"img_prefix": "turbo-pearl", "latinName": "Turbo bruneus", "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "殼口內側有美麗的藍綠色珍珠光澤，口蓋厚重圓滑。", "advice": "請勿採集，可輕拿觀察後放回。"},
-    "黑鐘螺":    {"img_prefix": "turbo-black", "latinName": "Omphalius nigerrimus", "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "黑色圓錐螺旋形，表面有顆粒突起，口蓋內側帶珍珠光澤。", "advice": "請勿採集，注意礁石濕滑。"},
-    "草蓆鐘螺":  {"img_prefix": "turbo-green", "latinName": "Tegula nigerrima", "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "墨綠黑色，表面顆粒排列整齊如草蓆，以礁石藻類為食。", "advice": "請勿採集，為礁岸生態重要物種。"},
-    "岩螺":      {"img_prefix": "rock-snail", "latinName": "Thais sp.", "category": "岩螺類", "canHarvest": False, "danger": False, "description": "菱形或紡錘形，殼表有明顯疣狀突起，在地稱辣螺，肉食性。", "advice": "請勿採集，殼口銳利小心割傷。"},
-    "織錦芋螺":  {"img_prefix": "conus-textile", "latinName": "Conus textile", "category": "芋螺類", "canHarvest": False, "danger": True, "description": "棕白色網格花紋，含神經毒素，曾有致死案例！", "advice": "⚠️ 絕對禁止觸碰！立即告知講師！"},
-    "黃寶螺":    {"img_prefix": "cowrie-yellow", "latinName": "Cypraea moneta", "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣，中角灣稀有種。", "advice": "請勿採集，稀少種請特別保護。"},
-    "阿拉伯寶螺": {"img_prefix": "cowrie-arabic", "latinName": "Mauritia arabica", "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼面有獨特棕色網格花紋，腹面有明顯細齒紋路，中角灣稀客。", "advice": "請勿採集，觀賞後輕放回原位。"},
+    "花笠螺":    {"latinName": "Cellana toreuma",     "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面圓潤黃綠褐色，無明顯放射紋，帶苦味回甘，在地稱苦丕仔。",   "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
+    "斗笠螺":    {"latinName": "Cellana grata",        "category": "笠螺類", "canHarvest": True,  "danger": False, "description": "殼面有清楚放射條紋，灰褐色，肉質鮮甜爽脆，俗稱丕仔。",       "advice": "採集殼徑3cm以上，春季3-5月禁採。"},
+    "蜑螺":      {"latinName": "Nerita sp.",            "category": "蜑螺類", "canHarvest": False, "danger": False, "description": "黑褐色半球形，殼面平滑，是中角灣礁岸最常見的螺類之一。",     "advice": "請勿採集，觀察即可。"},
+    "珠螺":      {"latinName": "Turbo bruneus",         "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "殼口內側有美麗的藍綠色珍珠光澤，口蓋厚重圓滑。",             "advice": "請勿採集，可輕拿觀察後放回。"},
+    "黑鐘螺":    {"latinName": "Omphalius nigerrimus",  "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "黑色圓錐螺旋形，表面有顆粒突起，口蓋內側帶珍珠光澤。",       "advice": "請勿採集，注意礁石濕滑。"},
+    "草蓆鐘螺":  {"latinName": "Tegula nigerrima",      "category": "鐘螺類", "canHarvest": False, "danger": False, "description": "墨綠黑色，表面顆粒排列整齊如草蓆，以礁石藻類為食。",         "advice": "請勿採集，為礁岸生態重要物種。"},
+    "岩螺":      {"latinName": "Thais sp.",             "category": "岩螺類", "canHarvest": False, "danger": False, "description": "菱形或紡錘形，殼表有明顯疣狀突起，在地稱辣螺，肉食性。",     "advice": "請勿採集，殼口銳利小心割傷。"},
+    "織錦芋螺":  {"latinName": "Conus textile",         "category": "芋螺類", "canHarvest": False, "danger": True,  "description": "棕白色網格花紋，含神經毒素，曾有致死案例！",                 "advice": "⚠️ 絕對禁止觸碰！立即告知講師！"},
+    "黃寶螺":    {"latinName": "Cypraea moneta",        "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼表光滑如瓷器，淺黃白色，歷史上曾用作貨幣，中角灣稀有種。", "advice": "請勿採集，稀少種請特別保護。"},
+    "阿拉伯寶螺": {"latinName": "Mauritia arabica",     "category": "寶螺類", "canHarvest": False, "danger": False, "description": "殼面有獨特棕色網格花紋，腹面有明顯細齒紋路，中角灣稀客。",   "advice": "請勿採集，觀賞後輕放回原位。"},
 }
 
 # 阿超預設說話（Gemma 失敗時備用）
@@ -64,17 +63,13 @@ def extract_features(img):
     return arr / norm if norm > 0 else arr
 
 
-# 修改點 2：更新載入資料庫的邏輯，讓它去抓英文檔名
 def load_db_features():
     db = {}
-    for key, data in SPECIES_DB.items():
+    for key in SPECIES_DB.keys():
         features_list = []
-        # 讀取我們設定的英文前綴檔名
-        prefix = data.get("img_prefix", key) 
-        candidates = [prefix] + [f"{prefix}-{i}" for i in range(2, 21)]
-        
+        candidates = [key] + [f"{key}-{i}" for i in range(2, 21)]
         for candidate in candidates:
-            for ext in ['.jpg', '.jpeg', '.png', '.JPG']: # 加入大寫 JPG 支援防呆
+            for ext in ['.jpg', '.jpeg', '.png']:
                 path = os.path.join(SPECIES_IMG_DIR, candidate + ext)
                 if os.path.exists(path):
                     try:
@@ -83,7 +78,6 @@ def load_db_features():
                         print(f"  ✓ 載入：{candidate}{ext}")
                     except Exception as e:
                         print(f"  ✗ 失敗：{candidate} → {e}")
-        
         if features_list:
             db[key] = np.mean(features_list, axis=0)
     return db
@@ -224,7 +218,7 @@ def identify():
             "danger": False,
             "advice": "請確認啟動AI辨識服務.bat 有開著",
             "local_name": "",
-            "personality_msg": "哎呦！阿超我今天狀況不太好，請重新試看！"
+            "personality_msg": "哎呦！阿超我今天狀況不太好，請重新試試看！"
         })
 
 
