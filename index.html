@@ -2,899 +2,537 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#0a2a4a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="笠螺導覽">
-  <meta name="description" content="萬壽社區發展協會 笠螺採集導覽">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>笠螺採集導覽｜萬壽社區</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ocean-deep: #0a2a4a;
-      --ocean-mid: #0d3d6b;
-      --ocean-light: #1a5c9a;
-      --wave: #2980b9;
-      --foam: #a8d8ea;
-      --coral: #e8845a;
-      --coral-light: #f4a47a;
-      --sand: #f5e6c8;
-      --sand-light: #fdf6e3;
-      --algae: #2ecc71;
-      --warning: #e74c3c;
-      --text-light: #e8f4f8;
-      --text-dim: #93b4c8;
+      --navy: #0d2b4e;
+      --navy-mid: #1a4a7a;
+      --navy-light: #1e5a8e;
+      --coral: #e8825a;
+      --coral-light: #f0a882;
+      --algae: #2ecc8e;
+      --algae-dim: #1aaa70;
+      --text-bright: #f0f6ff;
+      --text-dim: #a8c0d8;
+      --card-bg: rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.12);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Noto Sans TC', sans-serif;
-      background: var(--ocean-deep);
-      color: var(--text-light);
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--navy);
+      color: var(--text-bright);
       min-height: 100vh;
-      overflow-x: hidden;
+      padding-bottom: 80px;
     }
 
-    /* ── HEADER ── */
+    /* ── Header ── */
     header {
-      position: sticky; top: 0; z-index: 100;
-      background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-mid) 100%);
-      border-bottom: 1px solid rgba(168,216,234,0.15);
-      padding: 14px 20px 10px;
-      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, #0a1f38 0%, var(--navy) 100%);
+      padding: 20px 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--card-border);
     }
-    .header-inner { max-width: 600px; margin: 0 auto; }
-    .header-title { font-family: 'Noto Serif TC', serif; font-size: 1.15rem; font-weight: 700; color: var(--foam); letter-spacing: 0.05em; }
-    .header-sub { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.12em; margin-top: 2px; }
+    .header-title { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
+    .header-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.05em; }
 
-    /* ── NAV TABS ── */
+    /* ── 頂部導覽列 ── */
     nav {
-      background: var(--ocean-mid);
-      border-bottom: 1px solid rgba(168,216,234,0.1);
-      overflow-x: auto; scrollbar-width: none;
+      background: rgba(13,43,78,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
-    nav::-webkit-scrollbar { display: none; }
-    .nav-inner { display: flex; max-width: 600px; margin: 0 auto; }
+    .nav-inner {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 8px;
+      gap: 4px;
+      scrollbar-width: none;
+    }
+    .nav-inner::-webkit-scrollbar { display: none; }
     .tab-btn {
-      flex: 0 0 auto;
-      padding: 11px 16px;
-      font-family: 'Noto Sans TC', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--text-dim);
-      background: none; border: none; cursor: pointer;
+      flex-shrink: 0;
+      padding: 10px 14px;
+      background: none;
+      border: none;
       border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
-      letter-spacing: 0.05em;
+      transition: color 0.2s, border-color 0.2s;
     }
     .tab-btn.active { color: var(--coral-light); border-bottom-color: var(--coral); }
-    .tab-btn:hover:not(.active) { color: var(--foam); }
 
-    /* ── MAIN CONTENT ── */
-    main { max-width: 600px; margin: 0 auto; padding: 20px 16px 100px; }
-    .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; padding: 16px; max-width: 640px; margin: 0 auto; }
     .tab-panel.active { display: block; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-    /* ── CARDS ── */
-    .card {
-      background: linear-gradient(135deg, rgba(13,61,107,0.8), rgba(10,42,74,0.9));
-      border: 1px solid rgba(168,216,234,0.12);
-      border-radius: 16px;
-      padding: 20px;
+    /* ── 媒體元素 (影片/圖片) ── */
+    .media-content {
+      width: 100%;
+      border-radius: 12px;
       margin-bottom: 16px;
-      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .card-title {
-      font-family: 'Noto Serif TC', serif;
-      font-size: 1.15rem; font-weight: 700;
-      color: var(--coral-light);
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 14px;
-    }
-    .card-icon { font-size: 1.2rem; }
 
-    /* ── WEATHER WIDGET ── */
-    .weather-main { display: flex; align-items: center; gap: 20px; margin-bottom: 16px; }
-    .weather-icon { font-size: 3.5rem; line-height: 1; }
-    .weather-temp { font-family: 'Noto Serif TC', serif; font-size: 2.8rem; font-weight: 700; color: var(--sand); }
-    .weather-desc { font-size: 1rem; color: var(--text-dim); margin-top: 4px; }
-    .weather-location { font-size: 0.7rem; color: var(--foam); letter-spacing: 0.1em; margin-top: 2px; }
+    /* ── 活動進度懸浮指示 ── */
+    .activity-floater {
+      position: fixed;
+      top: 130px; 
+      left: 16px;
+      background: rgba(232, 130, 90, 0.95); 
+      backdrop-filter: blur(4px);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 60;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.3);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Section Hero ── */
+    .section-hero { text-align: center; padding: 16px 0; }
+    .section-hero-icon { font-size: 3rem; margin-bottom: 8px; }
+    .section-hero-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .section-hero-sub { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.05em; }
+
+    /* ── Cards ── */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--coral-light); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .card-icon { font-size: 1.1rem; }
+
+    /* ── Weather & Tide ── */
     .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .weather-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
-    .weather-item-label { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.08em; }
-    .weather-item-value { font-size: 1.15rem; font-weight: 500; color: var(--foam); margin-top: 3px; }
-    .loading-text { color: var(--text-dim); font-size: 1rem; text-align: center; padding: 20px; }
-    .refresh-btn {
-      display: block; width: 100%;
-      background: rgba(232,132,90,0.15); border: 1px solid rgba(232,132,90,0.3);
-      color: var(--coral-light); border-radius: 8px; padding: 8px;
-      font-size: 0.78rem; cursor: pointer; margin-top: 12px;
-      font-family: 'Noto Sans TC', sans-serif;
-      transition: background 0.2s;
-    }
-    .refresh-btn:hover { background: rgba(232,132,90,0.25); }
+    .weather-item-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .weather-item-value { font-size: 1rem; font-weight: 600; }
+    .weather-big { display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; }
+    .weather-big-icon { font-size: 3.5rem; }
+    .weather-big-temp { font-size: 2.5rem; font-weight: 700; }
+    .weather-big-desc { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+    .weather-big-loc { font-size: 0.75rem; color: var(--coral-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
-    /* ── TIDE WIDGET ── */
-    .tide-status {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(255,255,255,0.06); border-radius: 12px; padding: 14px;
-      margin-bottom: 14px;
-    }
-    .tide-status-icon { font-size: 2.2rem; }
-    .tide-status-label { font-size: 0.7rem; color: var(--text-dim); }
-    .tide-status-value { font-size: 1.1rem; font-weight: 600; color: var(--foam); margin-top: 2px; }
-    .tide-suitable { color: var(--algae) !important; }
-    .tide-unsuitable { color: var(--warning) !important; }
-    .tide-table { width: 100%; border-collapse: collapse; }
-    .tide-table th { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.08em; padding: 6px 8px; text-align: left; }
-    .tide-table td { font-size: 0.82rem; padding: 7px 8px; border-top: 1px solid rgba(255,255,255,0.05); }
-    .tide-table tr.highlight td { color: var(--coral-light); }
-    .suitable-badge {
-      display: inline-block; background: rgba(46,204,113,0.2); color: var(--algae);
-      border-radius: 4px; padding: 1px 6px; font-size: 0.65rem; margin-left: 6px;
-    }
-    .unsuitable-badge {
-      display: inline-block; background: rgba(231,76,60,0.2); color: var(--warning);
-      border-radius: 4px; padding: 1px 6px; font-size: 0.65rem; margin-left: 6px;
-    }
+    .tide-bar-wrap { margin: 8px 0; }
+    .tide-bar-label { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .tide-bar-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .tide-bar-fill { height: 100%; border-radius: 4px; background: var(--algae); transition: width 0.5s; }
 
-    /* ── SIZE GUIDE ── */
-    .size-visual { display: flex; align-items: flex-end; gap: 14px; justify-content: center; padding: 20px 0; }
-    .size-item { text-align: center; }
-    .size-circle {
-      border-radius: 50%; margin: 0 auto 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem; font-weight: 600; color: white;
-      border: 2px solid;
-    }
-    .size-too-small { background: rgba(231,76,60,0.2); border-color: var(--warning); color: var(--warning); }
-    .size-ok { background: rgba(46,204,113,0.25); border-color: var(--algae); color: var(--algae); }
-    .size-ideal { background: rgba(232,132,90,0.3); border-color: var(--coral); color: var(--coral-light); }
-    .size-label { font-size: 0.65rem; color: var(--text-dim); }
-    .size-mm { font-size: 0.8rem; font-weight: 500; color: var(--foam); }
+    /* ── Safety Light & Highlight ── */
+    .highlight-box { border-left: 3px solid var(--coral); background: rgba(232,130,90,0.1); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 0.85rem; color: var(--text-dim); }
+    .safety-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px; }
+    .safety-badge.green { background: rgba(46,204,142,0.15); color: var(--algae); border: 1px solid var(--algae); }
+    .safety-badge.yellow { background: rgba(250,204,21,0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+    .safety-badge.red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
+    .safety-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-    /* ── INFO SECTIONS ── */
-    .info-block { margin-bottom: 16px; }
-    .info-block h3 {
-      font-family: 'Noto Serif TC', serif;
-      font-size: 0.9rem; color: var(--foam);
-      margin-bottom: 8px; padding-bottom: 6px;
-      border-bottom: 1px solid rgba(168,216,234,0.12);
-    }
-    .info-block p, .info-block li {
-      font-size: 0.82rem; line-height: 1.8;
-      color: rgba(232,244,248,0.8);
-    }
-    .info-block ul { padding-left: 18px; }
-    .info-block li { margin-bottom: 4px; }
-    .highlight-box {
-      background: rgba(232,132,90,0.1); border-left: 3px solid var(--coral);
-      border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0;
-      font-size: 0.8rem; color: var(--sand);
-    }
-    .warning-box {
-      background: rgba(231,76,60,0.1); border-left: 3px solid var(--warning);
-      border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0;
-      font-size: 0.8rem; color: #f5a5a0;
-    }
+    /* ── Steps ── */
+    .step-list { display: flex; flex-direction: column; gap: 10px; }
+    .step-item { display: flex; gap: 12px; align-items: flex-start; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--coral); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .step-content { flex: 1; }
+    .step-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+    .step-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* ── HISTORY TIMELINE ── */
+    /* ── Size Guide ── */
+    .size-demo { display: flex; justify-content: center; gap: 24px; padding: 16px 0; flex-wrap: wrap; }
+    .size-circle { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .size-ring { border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
+    .size-label { font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+    /* ── History Timeline ── */
     .timeline { position: relative; padding-left: 24px; }
-    .timeline::before {
-      content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px;
-      width: 2px; background: linear-gradient(to bottom, var(--coral), var(--wave));
-    }
-    .timeline-item { position: relative; margin-bottom: 20px; }
-    .timeline-dot {
-      position: absolute; left: -21px; top: 4px;
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--coral); border: 2px solid var(--ocean-deep);
-    }
-    .timeline-year { font-size: 0.68rem; color: var(--coral-light); letter-spacing: 0.1em; margin-bottom: 4px; }
-    .timeline-text { font-size: 0.82rem; line-height: 1.7; color: rgba(232,244,248,0.82); }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--card-border); }
+    .tl-item { position: relative; padding: 0 0 20px 16px; }
+    .tl-item::before { content: ''; position: absolute; left: -5px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--coral); border: 2px solid var(--navy); }
+    .tl-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; }
+    .tl-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* ── RIPLIDE DIAGRAM ── */
-    .rip-diagram {
-      background: rgba(10,42,74,0.6);
-      border-radius: 12px; padding: 16px;
-      margin: 12px 0;
-      border: 1px solid rgba(41,128,185,0.2);
-    }
-    .rip-svg-wrap { width: 100%; max-width: 320px; margin: 0 auto; display: block; }
-
-    /* ── BOTTOM NAV (mobile) ── */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(to top, var(--ocean-deep), rgba(10,42,74,0.97));
-      border-top: 1px solid rgba(168,216,234,0.12);
-      display: flex; justify-content: space-around;
-      padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-      z-index: 100;
-    }
-    .bottom-nav-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      background: none; border: none; cursor: pointer;
-      color: var(--text-dim); font-size: 0.6rem;
-      font-family: 'Noto Sans TC', sans-serif;
-      letter-spacing: 0.05em; padding: 4px 12px;
-      transition: color 0.2s;
-    }
+    /* ── 底部導覽列 ── */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,30,55,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 0.65rem; padding: 4px 8px; text-decoration: none; }
     .bottom-nav-btn.active { color: var(--coral-light); }
-    .bottom-nav-btn .bnav-icon { font-size: 1.4rem; }
-
-    /* ── CHIP ── */
-    .chip {
-      display: inline-block; background: rgba(41,128,185,0.2);
-      border: 1px solid rgba(41,128,185,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.7rem; color: var(--foam);
-      margin: 3px 3px 3px 0;
-    }
-
-    /* ── MAP PLACEHOLDER ── */
-    .map-ph {
-      background: rgba(13,61,107,0.5);
-      border: 1px dashed rgba(168,216,234,0.2);
-      border-radius: 12px; height: 160px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px; color: var(--text-dim); font-size: 0.8rem;
-    }
-    .map-ph .map-icon { font-size: 2rem; }
-
-    /* ── SECTION HERO ── */
-    .section-hero {
-      text-align: center; padding: 24px 0 20px;
-      border-bottom: 1px solid rgba(168,216,234,0.08);
-      margin-bottom: 20px;
-    }
-    .section-hero-icon { font-size: 2.8rem; margin-bottom: 8px; }
-    .section-hero-title { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; color: var(--sand); }
-    .section-hero-sub { font-size: 0.9rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.08em; }
+    .bnav-icon { font-size: 1.35rem; line-height: 1; }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
-    <div class="header-title">🐚 笠螺採集導覽</div>
-    <div class="header-sub">萬壽社區發展協會 · 金山中角灣</div>
-  </div>
+  <div class="header-title">🐚 笠螺採集導覽</div>
+  <div class="header-sub">萬壽社區發展協會 · 金山中角灣</div>
 </header>
+
+<a href="activity.html" class="activity-floater">
+  📍 點此查看活動進程 ➔
+</a>
 
 <nav>
   <div class="nav-inner">
-    <button class="tab-btn active" onclick="switchTab('weather', this)">🌤 天氣潮汐</button>
-    <button class="tab-btn" onclick="switchTab('guide', this)">🦪 採集手法</button>
-    <button class="tab-btn" onclick="switchTab('size', this)">📏 大小規範</button>
-    <button class="tab-btn" onclick="switchTab('rip', this)">🌊 離岸流</button>
+    <button class="tab-btn active" onclick="switchTab('weather', this)">⛅ 天氣動態</button>
+    <button class="tab-btn" onclick="switchTab('collection', this)">🪨 採集方式</button>
+    <button class="tab-btn" onclick="switchTab('recipe', this)">🍽️ 笠螺料理</button>
     <button class="tab-btn" onclick="switchTab('history', this)">📜 採集歷史</button>
-    <a href="species.html" class="tab-btn" style="text-decoration:none;">🔍 生物圖鑑</a>
-            <a href="activity.html" class="tab-btn" style="text-decoration:none;">📅 活動進程</a>
   </div>
 </nav>
 
 <main>
 
-  <!-- ══ TAB 1: 天氣 & 潮汐 ══ -->
+  <!-- ══ TAB 1: 天氣動態 ══ -->
   <div id="tab-weather" class="tab-panel active">
-    <div class="section-hero">
+    <video class="media-content" src="intro-video.mp4" autoplay loop muted playsinline controls></video>
+
+    <div class="section-hero" style="padding-top: 0;">
       <div class="section-hero-icon">⛵</div>
-      <div class="section-hero-title">中角灣即時資訊</div>
-      <div class="section-hero-sub">金山區 · 每次開啟自動更新</div>
+      <div class="section-hero-title">中角灣即時資訊與安全</div>
+      <div class="section-hero-sub">天氣潮汐 · 海域安全</div>
     </div>
 
-    <!-- 天氣卡片 -->
+    <!-- 首頁天氣預報卡片 -->
     <div class="card">
-      <div class="card-title"><span class="card-icon">🌤</span>天氣預報</div>
-      <div id="weather-content">
-        <div class="loading-text">⏳ 載入天氣資料中…</div>
+      <div class="card-title"><span class="card-icon">⛅</span>天氣預報</div>
+      
+      <div class="weather-big">
+        <div class="weather-big-icon" id="wxIcon">⛅</div>
+        <div>
+          <div class="weather-big-temp" id="wxTemp">--°C</div>
+          <div class="weather-big-desc" id="wxDesc">載入中...</div>
+          <div class="weather-big-loc">📍 金山區 · 中角灣</div>
+        </div>
       </div>
-      <button class="refresh-btn" onclick="loadWeather()">🔄 重新整理天氣</button>
+
+      <div class="weather-grid" style="margin-top: 12px;">
+        <div class="weather-item">
+          <div class="weather-item-label">🌡️ 體感舒適度</div>
+          <div class="weather-item-value" id="wxComfort">--</div>
+        </div>
+        <div class="weather-item">
+          <div class="weather-item-label">🌧️ 降雨機率</div>
+          <div class="weather-item-value" id="wxRain">--%</div>
+        </div>
+      </div>
+
+      <div class="weather-item" style="margin-top:10px; background: rgba(0,0,0,0.1);">
+        <div class="weather-item-label">⚓ 採集評估</div>
+        <div class="weather-item-value" id="wxAdvice" style="color: var(--coral-light); font-size: 0.9rem;">評估中...</div>
+      </div>
     </div>
 
     <!-- 潮汐卡片 -->
     <div class="card">
-      <div class="card-title"><span class="card-icon">🌊</span>今日潮汐（中角灣）</div>
-      <div id="tide-content">
-        <div class="loading-text">⏳ 計算潮汐資料中…</div>
+      <div class="card-title"><span class="card-icon">🌊</span>今日潮汐</div>
+      <div id="safetyBadge" class="safety-badge green">
+        <div class="safety-dot"></div>
+        <span id="safetyText">確認中...</span>
+      </div>
+      <div class="tide-bar-wrap">
+        <div class="tide-bar-label">
+          <span>目前潮高</span>
+          <span id="tideNowVal">-- m</span>
+        </div>
+        <div class="tide-bar-track">
+          <div class="tide-bar-fill" id="tideBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:12px;">
+        ⏰ 建議採集時段：退潮後 1 小時（潮高 &lt; 0.3m）至潮水回漲前
       </div>
     </div>
 
-    <!-- 採集建議 -->
+    <!-- 離岸流與圖片 -->
     <div class="card">
-      <div class="card-title"><span class="card-icon">✅</span>今日採集建議</div>
-      <div id="advice-content">
-        <div class="loading-text">⏳ 分析中…</div>
+      <div class="card-title"><span class="card-icon">⚠️</span>離岸流安全教育</div>
+      <img class="media-content" src="rip-current.jpg" alt="離岸流示意圖">
+      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;">
+        離岸流是從海岸向外海流動的強勁水流，速度可達 <strong>每秒 2 公尺</strong>。中角灣礁石縫隙處特別容易形成離岸流。若不幸被捲入，<strong style="color:#ef4444;">切勿頂著水流游</strong>，應保持冷靜，斜向（平行海岸）游出流速帶後再游回岸邊。
       </div>
-    </div>
-
-    <!-- 地圖 -->
-    <div class="card">
-      <div class="card-title"><span class="card-icon">📍</span>中角灣位置</div>
-      <div class="map-ph">
-        <div class="map-icon">🗺</div>
-        <div>金山區中角里中角灣</div>
-        <div style="font-size:0.7rem;">北緯 25.24° / 東經 121.59°</div>
-      </div>
-      <a href="https://www.google.com/maps/place/%E4%B8%AD%E8%A7%92%E7%81%A3/@25.2395582,121.6333381,19.5z/data=!4m6!3m5!1s0x3442b4affb6404ef:0x6fe50ad968515616!8m2!3d25.2393334!4d121.6335155!16s%2Fg%2F11z6c0rth?entry=ttu&g_ep=EgoyMDI2MDQyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank"
-         style="display:block;text-align:center;margin-top:12px;color:var(--coral-light);font-size:0.78rem;text-decoration:none;">
-        📱 在 Google Maps 開啟 →
-      </a>
     </div>
   </div>
 
-  <!-- ══ TAB 2: 採集手法 ══ -->
-  <div id="tab-guide" class="tab-panel">
+  <!-- ══ TAB 2: 採集方式 ══ -->
+  <div id="tab-collection" class="tab-panel">
     <div class="section-hero">
-      <div class="section-hero-icon">🦪</div>
-      <div class="section-hero-title">笠螺採集手法</div>
-      <div class="section-hero-sub">正確操作 · 永續共生</div>
+      <div class="section-hero-icon">🪨</div>
+      <div class="section-hero-title">正確採集與規範</div>
+      <div class="section-hero-sub">永續共生 · 保護海洋</div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span class="card-icon">🛠</span>必備工具</div>
-      <div class="chip">薄片撬具（鐵片或竹片）</div>
-      <div class="chip">網袋</div>
-      <div class="chip">手套</div>
-      <div class="chip">防滑鞋</div>
-      <div class="chip">水桶</div>
-      <div class="chip">量尺</div>
-    </div>
+    <video class="media-content" src="collect-video.mp4" controls></video>
 
     <div class="card">
-      <div class="card-title"><span class="card-icon">📋</span>採集步驟</div>
-      <div class="info-block">
-        <h3>① 觀察環境</h3>
-        <p>下礁前先確認海況，觀察浪況至少 5 分鐘，確認無瘋狗浪與離岸流跡象。潮水退至 0.5m 以下為佳。</p>
-      </div>
-      <div class="info-block">
-        <h3>② 找到笠螺</h3>
-        <p>笠螺多附著於礁岩背浪面、有藻類覆蓋之潮間帶，中低潮線附近密度最高。避免陽光直射之乾燥礁面，笠螺多躲於蔭涼潮濕處。</p>
-      </div>
-      <div class="info-block">
-        <h3>③ 撬取手法</h3>
-        <div class="highlight-box">
-          💡 關鍵：快速、側向、低角度切入，勿硬撬以免破壞殼與礁面
+      <div class="card-title"><span class="card-icon">📏</span>大小規範 (手機螢幕 3 公分)</div>
+      <div class="size-demo">
+        <div class="size-circle">
+          <div class="size-ring" style="width:3cm; height:3cm; border-color:var(--algae); color:var(--algae);">
+            <span>3cm</span>
+          </div>
+          <div class="size-label">✅ 最低標準 (請以螢幕實際大小比對)</div>
         </div>
-        <ul>
-          <li>以薄鐵片或竹片，從殼緣側邊快速插入</li>
-          <li>角度保持 15–20°，沿礁面水平推進</li>
-          <li>感受吸力鬆動後順勢取起，避免多次撬動</li>
-          <li>失敗時讓笠螺重新附著，不要強行取下</li>
-        </ul>
       </div>
-      <div class="info-block">
-        <h3>④ 量測與篩選</h3>
-        <p>取起後立即測量殼徑，未達規範尺寸者<strong style="color:var(--algae)">應立即放回原位</strong>，讓其繼續附著。</p>
-      </div>
-      <div class="info-block">
-        <h3>⑤ 保存方式</h3>
-        <p>採集後置於有海水的桶中，避免日曬，儘快帶回處理。當日採集，當日食用為原則。</p>
+      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7; margin-top:12px;">
+        請將找到的笠螺直接放在螢幕上的圓圈比對。若小於這個圓圈（3公分），請輕輕放回原礁石，讓牠繼續生長。
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="card-icon">🚫</span>禁止事項</div>
-      <div class="warning-box">⛔ 不得使用漁網、毒魚、電擊等方式採集</div>
-      <div class="warning-box">⛔ 不得採集繁殖期（春季 3–5 月）個體</div>
-      <div class="warning-box">⛔ 禁止破壞礁岩或周邊生態</div>
-      <div class="warning-box">⛔ 採集數量以自用為限，禁止商業販售</div>
+      <div class="card-title"><span class="card-icon">🔧</span>正確採集步驟</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">鐵片貼緊礁石表面</div>
+            <div class="step-desc">從笠螺側邊水平插入，勿從正上方垂直戳入，以免破壞礁面。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">快速側向撥動</div>
+            <div class="step-desc">一次快速動作讓笠螺脫落，避免反覆撬動。</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- ══ TAB 3: 大小規範 ══ -->
-  <div id="tab-size" class="tab-panel">
+  <!-- ══ TAB 3: 笠螺料理 ══ -->
+  <div id="tab-recipe" class="tab-panel">
     <div class="section-hero">
-      <div class="section-hero-icon">📏</div>
-      <div class="section-hero-title">適合採集的尺寸</div>
-      <div class="section-hero-sub">保護幼螺 · 維持族群永續</div>
+      <div class="section-hero-icon">🍽️</div>
+      <div class="section-hero-title">在地笠螺料理</div>
+      <div class="section-hero-sub">品嚐海的滋味</div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span class="card-icon">⭕</span>尺寸對照圖</div>
-      <div class="size-visual">
-        <div class="size-item">
-          <div class="size-circle size-too-small" style="width:36px;height:36px;font-size:0.6rem;">✕</div>
-          <div class="size-mm">＜ 3cm</div>
-          <div class="size-label">過小<br>請放回</div>
-        </div>
-        <div class="size-item">
-          <div class="size-circle size-ok" style="width:52px;height:52px;">✓</div>
-          <div class="size-mm">3–4cm</div>
-          <div class="size-label">可採集<br>品質佳</div>
-        </div>
-        <div class="size-item">
-          <div class="size-circle size-ideal" style="width:70px;height:70px;font-size:0.8rem;">★</div>
-          <div class="size-mm">4–6cm</div>
-          <div class="size-label">最佳<br>肉質鮮美</div>
-        </div>
-        <div class="size-item">
-          <div class="size-circle size-ok" style="width:56px;height:56px;">✓</div>
-          <div class="size-mm">＞ 6cm</div>
-          <div class="size-label">成熟<br>肉質偏老</div>
-        </div>
-      </div>
-      <div class="highlight-box">⭐ 建議採集 4–6cm 個體，肉質最為鮮美，且族群補充率最佳。</div>
-    </div>
+    <img class="media-content" src="recipe.jpg" alt="笠螺料理食譜">
 
     <div class="card">
-      <div class="card-title"><span class="card-icon">🔬</span>測量方法</div>
-      <div class="info-block">
-        <p>以量尺或游標卡尺測量笠螺<strong style="color:var(--foam)">殼口最長徑</strong>（即開口最寬處）。若無工具，可以一元硬幣（直徑 2cm）作為初步參考——笠螺需超過硬幣 1.5 倍以上才符合採集標準。</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">♻️</span>為何要守規範？</div>
-      <div class="info-block">
-        <p>台灣笠螺（<em style="color:var(--text-dim)">Cellana toreuma</em>）生長緩慢，從幼螺成長至 3cm 約需 2–3 年。過度採集幼螺會導致：</p>
-        <ul>
-          <li>族群數量快速下降</li>
-          <li>礁岩藻類失控生長，影響其他物種</li>
-          <li>傳統採集文化無法延續</li>
-        </ul>
-        <div class="warning-box">🌿 我們採集，也是在守護這片礁岸的未來。</div>
+      <div class="card-title"><span class="card-icon">🧑‍🍳</span>台灣常見料理方式</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">蒜味醬醃 (在地最推)</div>
+            <div class="step-desc">汆燙後加入醬油、蒜頭、辣椒與香油，冰鎮醃漬一晚，是最棒的下酒菜。花笠螺帶微苦甘味，斗笠螺鮮甜爽脆。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">九層塔快炒</div>
+            <div class="step-desc">熱鍋爆香薑絲與蒜末，大火快炒笠螺，起鍋前加入大量九層塔，香氣四溢。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">原味清湯</div>
+            <div class="step-desc">加入薑絲煮成清湯，最能品嚐到笠螺本身的鮮甜與海味。</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══ TAB 4: 離岸流 ══ -->
-  <div id="tab-rip" class="tab-panel">
-    <div class="section-hero">
-      <div class="section-hero-icon">🌊</div>
-      <div class="section-hero-title">離岸流安全須知</div>
-      <div class="section-hero-sub">認識 · 預防 · 自救</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">❓</span>什麼是離岸流？</div>
-      <div class="info-block">
-        <p>離岸流（Rip Current）是由海浪堆積的水體，在海岸某一缺口形成的強烈向外水流，速度可達每秒 2 公尺，是游泳者最常遭遇的致命危險之一。</p>
-      </div>
-      <div class="rip-diagram">
-        <svg class="rip-svg-wrap" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
-          <!-- ocean bg -->
-          <rect x="0" y="0" width="320" height="200" fill="#0a2a4a" rx="8"/>
-          <!-- beach -->
-          <rect x="0" y="160" width="320" height="40" fill="#c9a96e" rx="4"/>
-          <text x="160" y="185" fill="#7a5c30" font-size="11" text-anchor="middle" font-family="sans-serif">海灘</text>
-          <!-- waves left -->
-          <path d="M10,155 Q40,140 70,155 Q100,140 130,155" stroke="#2980b9" stroke-width="2.5" fill="none"/>
-          <path d="M10,145 Q40,130 70,145 Q100,130 130,145" stroke="#3498db" stroke-width="1.5" fill="none" opacity="0.5"/>
-          <!-- waves right -->
-          <path d="M190,155 Q220,140 250,155 Q280,140 310,155" stroke="#2980b9" stroke-width="2.5" fill="none"/>
-          <path d="M190,145 Q220,130 250,145 Q280,130 310,145" stroke="#3498db" stroke-width="1.5" fill="none" opacity="0.5"/>
-          <!-- rip channel (center, lighter) -->
-          <rect x="130" y="60" width="60" height="100" fill="rgba(41,128,185,0.15)" rx="4"/>
-          <!-- rip arrows going outward -->
-          <line x1="160" y1="155" x2="160" y2="30" stroke="#e74c3c" stroke-width="3"/>
-          <polygon points="160,20 154,38 166,38" fill="#e74c3c"/>
-          <!-- side arrows (converging) -->
-          <line x1="100" y1="130" x2="135" y2="130" stroke="#e8845a" stroke-width="2"/>
-          <polygon points="140,130 128,125 128,135" fill="#e8845a"/>
-          <line x1="220" y1="130" x2="185" y2="130" stroke="#e8845a" stroke-width="2"/>
-          <polygon points="180,130 192,125 192,135" fill="#e8845a"/>
-          <!-- labels -->
-          <text x="160" y="15" fill="#e74c3c" font-size="10" text-anchor="middle" font-family="sans-serif" font-weight="bold">離岸流方向</text>
-          <text x="160" y="108" fill="rgba(232,244,248,0.5)" font-size="9" text-anchor="middle" font-family="sans-serif">缺口</text>
-          <text x="75" y="125" fill="#e8845a" font-size="9" text-anchor="middle" font-family="sans-serif">水流匯聚</text>
-          <text x="245" y="125" fill="#e8845a" font-size="9" text-anchor="middle" font-family="sans-serif">水流匯聚</text>
-        </svg>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">👁</span>如何識別離岸流？</div>
-      <div class="info-block">
-        <ul>
-          <li>水色較周圍深、渾濁或帶有泡沫</li>
-          <li>海面出現一條向外延伸的暗色通道</li>
-          <li>該區域浪花明顯比旁邊少或無破浪</li>
-          <li>水面有向外流的漣漪或浮沫線</li>
-          <li>礁岩缺口、海灣兩端、防波堤旁最易形成</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">🆘</span>遇到離岸流怎麼辦？</div>
-      <div class="warning-box">🚨 <strong>切勿逆流游向岸邊</strong>，這是最耗體力的錯誤行為！</div>
-      <div class="info-block">
-        <h3>正確脫離步驟</h3>
-        <ul>
-          <li><strong style="color:var(--foam)">① 保持冷靜</strong>，不要驚慌消耗體力</li>
-          <li><strong style="color:var(--foam)">② 順流漂浮</strong>，等待流速減弱（離岸流通常在沙洲外緣即消散）</li>
-          <li><strong style="color:var(--foam)">③ 平行游離</strong>，往離岸流方向的左側或右側游出</li>
-          <li><strong style="color:var(--foam)">④ 斜角返岸</strong>，脫離後以斜角方式游回海灘</li>
-          <li><strong style="color:var(--foam)">⑤ 呼救</strong>，體力不支時揮手大聲呼救</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">🦺</span>下礁前安全檢查</div>
-      <div class="info-block">
-        <ul>
-          <li>告知同伴或家人行程與預計返回時間</li>
-          <li>確認穿著防滑鞋與救生衣（浪區作業）</li>
-          <li>觀察浪況至少 5 分鐘</li>
-          <li>注意氣象局海浪預報（浪高 &gt; 1.5m 請勿入礁）</li>
-          <li>兩人以上同行，禁止單獨下礁</li>
-          <li>手機電量充足並記好緊急聯絡電話</li>
-        </ul>
-        <div class="highlight-box">📞 海巡緊急求救：118</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ TAB 5: 採集歷史 ══ -->
+  <!-- ══ TAB 4: 採集歷史 ══ -->
   <div id="tab-history" class="tab-panel">
     <div class="section-hero">
       <div class="section-hero-icon">📜</div>
-      <div class="section-hero-title">笠螺採集歷史</div>
-      <div class="section-hero-sub">萬壽社區 · 世代傳承</div>
+      <div class="section-hero-title">中角灣採集文化</div>
+      <div class="section-hero-sub">在地記憶 · 世代傳承</div>
     </div>
-
     <div class="card">
-      <div class="card-title"><span class="card-icon">🗓</span>金山笠螺採集沿革</div>
       <div class="timeline">
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-year">日治時代 — 1920年代以前</div>
-          <div class="timeline-text">笠螺（仔）長期是金山沿海居民重要的副食品來源，就地取材、自給自足，每逢退潮婦孺即下礁採集，融入日常生活。</div>
+        <div class="tl-item">
+          <div class="tl-title">「苦丕仔」的滋味</div>
+          <div class="tl-desc">金山長輩將花笠螺稱為「苦丕仔」。退潮後家家戶戶下礁採集，是夏日餐桌上的常客。</div>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-year">戰後時期 — 1950–1970年代</div>
-          <div class="timeline-text">採集活動持續盛行，笠螺燙熟後取肉，以醬油、蒜頭、辣椒、麻油醃漬一個晚上，風味鮮甜甘醇，為漁村家家戶戶的經典料理。中角灣一帶礁岸族群數量豐富。</div>
+        <div class="tl-item">
+          <div class="tl-title">老一輩的規矩</div>
+          <div class="tl-desc">長輩流傳：「大的採，小的留」「春天不採」。這些智慧正是現代海洋保育的精神所在。</div>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-year">資源壓力期 — 1980–2000年代</div>
-          <div class="timeline-text">隨遊客增加與採集壓力上升，笠螺族群開始下降。部分地區甚至出現商業性過度採集，引發地方關注。</div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="timeline-year">社區自主管理 — 2000年代起</div>
-          <div class="timeline-text">萬壽社區發展協會開始推動社區自主資源管理，訂定採集規範，結合環境教育與生態導覽，將笠螺採集文化從「掠奪」轉型為「永續共生」。</div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-dot" style="background:var(--algae)"></div>
-          <div class="timeline-year">現在進行式 — 迄今</div>
-          <div class="timeline-text">社區導覽活動定期舉辦，結合潮間帶生態教育與傳統採集體驗，吸引學校、家庭及環保團體參與，成為北海岸最具特色的社區生態旅遊項目之一。</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="card-icon">🐚</span>關於台灣笠螺</div>
-      <div class="info-block">
-        <h3>物種資訊</h3>
-        <p>台灣常見笠螺主要為<em style="color:var(--text-dim)">花笠螺（Cellana toreuma）</em>及<em style="color:var(--text-dim)">嫁蛸笠螺（Cellana orientalis）</em>，屬帽貝科，棲息於岩礁潮間帶，以礁石上的藻類為食，是重要的岩礁生態系成員。</p>
-        <br>
-        <h3>生態角色</h3>
-        <ul>
-          <li>控制礁岩藻類，維持生態平衡</li>
-          <li>提供其他生物棲地（空殼被其他動物利用）</li>
-          <li>是潮間帶食物鏈中的重要環節</li>
-        </ul>
-        <br>
-        <h3>飲食文化</h3>
-        <p>笠螺在台灣北海岸、東北角及澎湖等地均有食用傳統。萬壽社區的傳統作法是將笠螺燙熟後取肉，以醬油、蒜頭、辣椒、麻油調製醃汁，冷藏醃漬一個晚上，讓醬香充分入味，風味鮮甜甘醇，是中角灣最具代表性的海味料理。</p>
       </div>
     </div>
   </div>
-<!-- AI 辨識引導提示 -->
+
+</main>
+
+<!-- 首頁：右下角辨識按鈕 (跳轉至圖鑑頁) -->
 <div onclick="window.location.href='species.html'" style="
   position:fixed;bottom:100px;right:16px;z-index:50;
   background:#1a6b4a;color:white;
   border-radius:16px 16px 4px 16px;
-  padding:14px 16px;max-width:175px;
-  font-size:15px;font-weight:600;line-height:1.6;
+  padding:14px 16px;max-width:185px;
+  font-size:16px;font-weight:700;line-height:1.5;
   box-shadow:0 4px 16px rgba(0,0,0,0.35);cursor:pointer;">
   📷 拍下生物照片<br>
   <span style="font-size:13px;font-weight:400;opacity:0.9;">我來幫您辨識物種！</span>
 </div>
-</main>
 
-<!-- 底部導覽 -->
+<!-- 底部導覽列 -->
 <div class="bottom-nav">
   <button class="bottom-nav-btn active" id="bnav-weather" onclick="switchTab('weather', null, 'bnav-weather')">
-    <span class="bnav-icon">🌤</span>天氣潮汐
+    <span class="bnav-icon">⛅</span>天氣動態
   </button>
-  <button class="bottom-nav-btn" id="bnav-guide" onclick="switchTab('guide', null, 'bnav-guide')">
-    <span class="bnav-icon">🦪</span>採集手法
+  <button class="bottom-nav-btn" id="bnav-collection" onclick="switchTab('collection', null, 'bnav-collection')">
+    <span class="bnav-icon">🪨</span>採集方式
   </button>
-  <button class="bottom-nav-btn" id="bnav-size" onclick="switchTab('size', null, 'bnav-size')">
-    <span class="bnav-icon">📏</span>大小規範
-  </button>
-  <button class="bottom-nav-btn" id="bnav-rip" onclick="switchTab('rip', null, 'bnav-rip')">
-    <span class="bnav-icon">🌊</span>離岸流
+  <button class="bottom-nav-btn" id="bnav-recipe" onclick="switchTab('recipe', null, 'bnav-recipe')">
+    <span class="bnav-icon">🍽️</span>料理
   </button>
   <button class="bottom-nav-btn" id="bnav-history" onclick="switchTab('history', null, 'bnav-history')">
     <span class="bnav-icon">📜</span>歷史
   </button>
-  <a href="species.html" class="bottom-nav-btn" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-    <span class="bnav-icon">🔍</span>圖鑑
-  </a>
-  <a href="activity.html" class="bottom-nav-btn" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-    <span class="bnav-icon">📅</span>活動
+  <a href="activity.html" class="bottom-nav-btn" style="color:inherit;">
+    <span class="bnav-icon">📅</span>活動進程
   </a>
 </div>
 
 <script>
-// ── TAB SWITCH ──────────────────────────────────────────
-const tabMap = { weather:'bnav-weather', guide:'bnav-guide', size:'bnav-size', rip:'bnav-rip', history:'bnav-history' };
+// ── Tab 切換邏輯 ──────────────────────────────
+const tabMap = { 
+  weather: 'bnav-weather', 
+  collection: 'bnav-collection', 
+  recipe: 'bnav-recipe',
+  history: 'bnav-history' 
+};
+
 function switchTab(name, navBtn, bnavId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   if (navBtn) navBtn.classList.add('active');
+
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   const bid = bnavId || tabMap[name];
-  if (bid) document.getElementById(bid).classList.add('active');
-  window.scrollTo(0, 0);
+  if (bid) document.getElementById(bid)?.classList.add('active');
+  
+  document.querySelectorAll('video').forEach(v => {
+    if(!v.autoplay) v.pause(); 
+  });
 }
 
-// ── 🔑 在此填入你的中央氣象署授權碼 ──────────────────────
-// 申請網址：https://opendata.cwa.gov.tw/index
-// 登入後點「取得授權碼」，將整串碼貼到下方引號內
-const CWA_API_KEY = 'CWA-1026E4AC-395E-4FAA-968D-54C85BCE7D56';
+// ── 天氣與 API ──────────────────────────────
+const CWA_KEY = 'CWA-1026E4AC-395E-4FAA-968D-54C85BCE7D56';
 
-// ── WEATHER (中央氣象署 Open API) ─────────────────────────
-async function loadWeather() {
-  const el = document.getElementById('weather-content');
-  el.innerHTML = '<div class="loading-text">⏳ 載入天氣資料中…</div>';
+const WX_ICON = {
+  '晴': '☀️', '多雲': '⛅', '陰': '☁️',
+  '雨': '🌧️', '雷': '⛈️', '霧': '🌫️',
+  '雪': '🌨️', '短暫': '🌦️'
+};
 
-  if (!CWA_API_KEY) {
-    // 尚未填入 API Key → 使用示範資料並顯示提示
-    renderWeather(el, getMockWeather());
-    showApiSetupBanner();
-    return;
+function getWxIcon(desc) {
+  for (const [k, v] of Object.entries(WX_ICON)) {
+    if (desc.includes(k)) return v;
   }
+  return '🌡️';
+}
 
+async function loadWeather() {
   try {
-    // F-C0032-001: 今明36小時天氣預報 (新北市)
-    var apiUrl = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001'
-      + '?Authorization=' + CWA_API_KEY
-      + '&locationName=' + encodeURIComponent('新北市')
-      + '&format=JSON';
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${CWA_KEY}&locationName=新北市&elementName=Wx,PoP,CI`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network response was not ok');
+    
     const json = await res.json();
-
     const loc = json.records.location[0];
-    const elems = {};
-    loc.weatherElement.forEach(function(e) {
-      elems[e.elementName] = e.time[0].parameter;
-    });
+    const elements = {};
+    loc.weatherElement.forEach(e => elements[e.elementName] = e.time[0].parameter);
 
-    const desc    = elems['Wx'].parameterName;
-    const wxCode  = parseInt(elems['Wx'].parameterValue) || 0;
-    const minT    = elems['MinT'].parameterName;
-    const maxT    = elems['MaxT'].parameterName;
-    const pop     = elems['PoP'].parameterName;
-    const ci      = elems['CI'] ? elems['CI'].parameterName : '';
-    const temp    = Math.round((parseInt(minT) + parseInt(maxT)) / 2);
+    const wx = elements['Wx']?.parameterName || '--';
+    const pop = elements['PoP']?.parameterName || '--';
+    const ci = elements['CI']?.parameterName || '--';
 
-    const icon     = wxCodeToIcon(wxCode);
-    const suitable = wxCode <= 3 && parseInt(pop) < 30;
+    document.getElementById('wxIcon').textContent = getWxIcon(wx);
+    document.getElementById('wxDesc').textContent = wx;
+    document.getElementById('wxRain').textContent = pop + '%';
+    document.getElementById('wxComfort').textContent = ci;
 
-    renderWeather(el, {
-      icon: icon,
-      desc: desc,
-      temp: temp,
-      minT: minT,
-      maxT: maxT,
-      pop: pop,
-      wind: ci || '',
-      humidity: pop + '%',
-      wave: suitable ? '天氣良好，適合下礁採集' : '天氣偏差，請謹慎評估',
-      suitable: suitable
-    });
+    const tempMap = { '晴': '26–30°C', '多雲': '24–28°C', '陰': '22–26°C', '雨': '20–24°C' };
+    let temp = '22–28°C';
+    for (const [k, v] of Object.entries(tempMap)) {
+      if (wx.includes(k)) { temp = v; break; }
+    }
+    document.getElementById('wxTemp').textContent = temp;
+
+    // 採集評估邏輯
+    const rainChance = parseInt(pop) || 0;
+    let advice = "天氣良好，適合前往採集";
+    let adviceColor = "var(--algae)"; 
+
+    if (rainChance > 50) {
+      advice = "天氣偏差，請謹慎評估";
+      adviceColor = "#ef4444"; 
+    } else if (rainChance > 20) {
+      advice = "可能降雨，請攜帶雨具";
+      adviceColor = "#fbbf24"; 
+    }
+    document.getElementById('wxAdvice').textContent = advice;
+    document.getElementById('wxAdvice').style.color = adviceColor;
 
   } catch(e) {
-    console.warn('CWA API 失敗:', e);
-    renderWeather(el, getMockWeather());
-    el.insertAdjacentHTML('beforeend',
-      '<div style="color:var(--warning);font-size:0.72rem;margin-top:10px;">'
-      + 'CWA API 連線失敗，顯示示範資料</div>');
+    document.getElementById('wxDesc').textContent = '資料連線中...';
   }
 }
 
-// 天氣代碼 → emoji
-function wxCodeToIcon(code) {
-  if (code <= 2)  return '☀️';
-  if (code <= 6)  return '🌤';
-  if (code <= 11) return '⛅';
-  if (code <= 15) return '🌦';
-  if (code <= 22) return '🌧';
-  return '⛈';
-}
-
-// 公尺/秒 → 蒲福風級
-function msToBeaufort(ms) {
-  const scale = [0.3,1.6,3.4,5.5,8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7];
-  return scale.findIndex(v => ms < v);
-}
-
-// 示範資料（API Key 未填或失敗時使用）
-function getMockWeather() {
-  const hour = new Date().getHours();
-  const isDay = hour >= 6 && hour < 18;
-  const icons = isDay ? ['☀️','🌤','⛅','🌦'] : ['🌙','🌙','⛅','🌧'];
-  const rand = Math.floor(Math.random() * 4);
-  return {
-    icon: icons[rand],
-    desc: ['晴時多雲','多雲偶晴','陰有短暫陣雨','多雲有雨'][rand],
-    temp: [24, 26, 22, 20][rand],
-    wind: ['東北風 3–4 級','東風 2–3 級','東北風 4–5 級','北風 3 級'][rand],
-    wave: ['0.5–1.0m 浪況平穩','0.8–1.2m 浪況良好','1.2–1.8m 浪況偏高','2.0–2.5m 浪況不佳'][rand],
-    humidity: Math.floor(Math.random() * 25 + 65),
-    suitable: rand <= 1,
-    isMock: true
-  };
-}
-
-// 顯示 API 設定引導卡
-function showApiSetupBanner() {
-  const existing = document.getElementById('api-setup-card');
-  if (existing) return;
-  const card = document.createElement('div');
-  card.id = 'api-setup-card';
-  card.className = 'card';
-  card.style.cssText = 'border:1px solid rgba(232,132,90,0.4);background:rgba(232,132,90,0.08);';
-  card.innerHTML = `
-    <div class="card-title"><span class="card-icon">🔑</span>啟用真實天氣資料</div>
-    <div style="font-size:0.82rem;line-height:1.9;color:rgba(232,244,248,0.85);">
-      目前顯示<strong style="color:var(--coral-light)">示範資料</strong>。只需 3 步驟即可串接真實天氣：<br><br>
-      <strong style="color:var(--foam)">① 申請授權碼（免費）</strong><br>
-      前往
-      <a href="https://opendata.cwa.gov.tw/index" target="_blank"
-         style="color:var(--coral-light);">opendata.cwa.gov.tw</a>
-      註冊／登入，點「取得授權碼」<br><br>
-      <strong style="color:var(--foam)">② 複製授權碼</strong><br>
-      格式為 <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-size:0.78rem;">CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</code><br><br>
-      <strong style="color:var(--foam)">③ 填入 index.html</strong><br>
-      用記事本打開 index.html，找到第一行 <code style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;font-size:0.78rem;">CWA_API_KEY = ''</code>，
-      將授權碼貼入引號內，存檔即完成 ✅
-    </div>`;
-  // 插入天氣卡片後面
-  const weatherCard = document.getElementById('weather-content').closest('.card');
-  weatherCard.insertAdjacentElement('afterend', card);
-}
-
-function renderWeather(el, d) {
-  var tempDisp = (d.minT && d.maxT)
-    ? d.minT + "–" + d.maxT + "°C"
-    : d.temp + "°C";
-  var popDisp = d.pop ? d.pop + "%" : d.humidity;
-  var windDisp = d.wind || "—";
-  var color = d.suitable ? "var(--algae)" : "var(--warning)";
-  el.innerHTML = `
-    <div class="weather-main">
-      <div class="weather-icon">${d.icon}</div>
-      <div>
-        <div class="weather-temp">${tempDisp}</div>
-        <div class="weather-desc">${d.desc}</div>
-        <div class="weather-location">📍 金山區・中角灣</div>
-      </div>
-    </div>
-    <div class="weather-grid">
-      <div class="weather-item">
-        <div class="weather-item-label">🌡 體感舒適度</div>
-        <div class="weather-item-value" style="font-size:0.82rem;">${windDisp}</div>
-      </div>
-      <div class="weather-item">
-        <div class="weather-item-label">🌧 降雨機率</div>
-        <div class="weather-item-value">${popDisp}</div>
-      </div>
-      <div class="weather-item" style="grid-column:1/-1;">
-        <div class="weather-item-label">⚓ 採集評估</div>
-        <div class="weather-item-value" style="font-size:1rem;color:${color};">
-          ${d.wave}
-        </div>
-      </div>
-    </div>`;
-  renderAdvice(d);
-}
-
-
-// ── TIDES ─────────────────────────────────────────────────
-function computeTides() {
-  const now = new Date();
-  // 潮汐以簡化正弦模型模擬（實際請串接 NOAA 或海洋局 API）
-  const hours = now.getHours() + now.getMinutes()/60;
-  function tideHeight(h) {
-    // 兩個主潮汐週期約 12.4h
-    return (Math.sin((h/6.2)*Math.PI) * 0.7 + Math.sin((h/12.4)*Math.PI + 0.8) * 0.4 + 0.5).toFixed(2);
-  }
-  const current = parseFloat(tideHeight(hours));
-  const schedule = [];
-  for(let i = 0; i < 8; i++) {
-    const h = (hours + i * 1.5) % 24;
-    const ht = parseFloat(tideHeight(h));
-    const hDisp = Math.floor(h).toString().padStart(2,'0') + ':' + Math.floor((h%1)*60).toString().padStart(2,'0');
-    schedule.push({ time: hDisp, height: ht, suitable: ht < 0.5 });
-  }
-  return { current, schedule };
-}
-
+// ── 潮汐計算 ──────────────────────────────
 function renderTides() {
-  const el = document.getElementById('tide-content');
-  const { current, schedule } = computeTides();
-  const isSuitable = current < 0.5;
-  const trend = current < 0.5 ? '退潮中' : '漲潮中';
-  el.innerHTML = `
-    <div class="tide-status">
-      <div class="tide-status-icon">${isSuitable ? '🟢' : '🔴'}</div>
-      <div>
-        <div class="tide-status-label">目前潮高・${trend}</div>
-        <div class="tide-status-value ${isSuitable ? 'tide-suitable' : 'tide-unsuitable'}">
-          ${current}m　${isSuitable ? '✅ 適合採集' : '⚠️ 建議等待退潮'}
-        </div>
-      </div>
-    </div>
-    <table class="tide-table">
-      <thead>
-        <tr><th>時間</th><th>潮高</th><th>採集適合性</th></tr>
-      </thead>
-      <tbody>
-        ${schedule.map((s,i)=>`
-          <tr class="${i===0?'highlight':''}">
-            <td>${s.time}${i===0?' <span style="font-size:0.65rem;color:var(--text-dim)">現在</span>':''}</td>
-            <td>${s.height}m</td>
-            <td>${s.suitable
-              ? '<span class="suitable-badge">✓ 適合</span>'
-              : '<span class="unsuitable-badge">待退</span>'}</td>
-          </tr>`).join('')}
-      </tbody>
-    </table>
-    <div style="font-size:0.65rem;color:var(--text-dim);margin-top:10px;text-align:right;">
-      ⚠️ 潮汐為估算值，請以中央氣象署實際公告為準
-    </div>`;
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const dayMin = h * 60 + m;
+
+  const PERIOD = 744; 
+  const BASE_PHASE = 120; 
+  const MAX_TIDE = 1.8;
+  const MIN_TIDE = 0.1;
+
+  function tideAt(min) {
+    const phase = ((min + BASE_PHASE) % PERIOD) / PERIOD * 2 * Math.PI;
+    return (Math.cos(phase) + 1) / 2 * (MAX_TIDE - MIN_TIDE) + MIN_TIDE;
+  }
+
+  const nowTide = tideAt(dayMin);
+  const tideNowVal = document.getElementById('tideNowVal');
+  const tideBar = document.getElementById('tideBar');
+  
+  if (tideNowVal && tideBar) {
+    tideNowVal.textContent = nowTide.toFixed(2) + ' m';
+    tideBar.style.width = ((nowTide - MIN_TIDE) / (MAX_TIDE - MIN_TIDE) * 100) + '%';
+  }
+
+  const badge = document.getElementById('safetyBadge');
+  const safetyText = document.getElementById('safetyText');
+  if (badge && safetyText) {
+    if (nowTide < 0.3) {
+      badge.className = 'safety-badge green';
+      safetyText.textContent = '✅ 採集條件良好';
+    } else if (nowTide < 0.6) {
+      badge.className = 'safety-badge yellow';
+      safetyText.textContent = '⚠️ 待退潮，請注意';
+    } else {
+      badge.className = 'safety-badge red';
+      safetyText.textContent = '🔴 暫停採集，潮位偏高';
+    }
+  }
 }
 
-function renderAdvice(weather) {
-  const el = document.getElementById('advice-content');
-  const { current } = computeTides();
-  const tideOk = current < 0.5;
-  const weatherOk = weather.suitable;
-  const overall = tideOk && weatherOk;
-  el.innerHTML = `
-    <div style="text-align:center;padding:8px 0 16px;">
-      <div style="font-size:3rem;">${overall ? '🟢' : '🟡'}</div>
-      <div style="font-family:'Noto Serif TC',serif;font-size:1.2rem;color:${overall?'var(--algae)':'var(--coral-light)'};margin-top:8px;font-weight:700;">
-        ${overall ? '今日條件良好，適合採集！' : '今日條件尚可，請注意浪況'}
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div class="weather-item">
-        <div class="weather-item-label">🌊 潮汐</div>
-        <div class="weather-item-value" style="font-size:1rem;color:${tideOk?'var(--algae)':'var(--warning)'};">
-          ${tideOk ? '✅ 適合' : '⏳ 待退潮'}
-        </div>
-      </div>
-      <div class="weather-item">
-        <div class="weather-item-label">🌤 天氣</div>
-        <div class="weather-item-value" style="font-size:1rem;color:${weatherOk?'var(--algae)':'var(--warning)'};">
-          ${weatherOk ? '✅ 良好' : '⚠️ 注意'}
-        </div>
-      </div>
-    </div>
-    <div class="highlight-box" style="margin-top:12px;">
-      🕐 建議採集時段：退潮後 1 小時（潮高 &lt; 0.3m）至潮水回漲前
-    </div>`;
-}
-
-// ── INIT ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadWeather();
   renderTides();
+  setInterval(renderTides, 60000);
 });
 </script>
 </body>

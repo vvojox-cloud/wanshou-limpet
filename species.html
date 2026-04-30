@@ -7,133 +7,166 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 <style>
+  :root {
+    --navy: #0d2b4e;
+    --navy-mid: #1a4a7a;
+    --navy-light: #1e5a8e;
+    --coral: #e8825a;
+    --coral-light: #f0a882;
+    --algae: #2ecc8e;
+    --algae-dim: #1aaa70;
+    --text-bright: #f0f6ff;
+    --text-dim: #a8c0d8;
+    --card-bg: rgba(255,255,255,0.07);
+    --card-border: rgba(255,255,255,0.12);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding-bottom: 80px; }
-  .header { background: #1a6b4a; color: white; padding: 20px 16px 16px; text-align: center; }
-  .header h1 { font-size: 20px; margin-bottom: 4px; }
-  .header p { font-size: 13px; opacity: 0.85; }
-  .search-bar { background: #155c3e; padding: 12px 16px; display: flex; gap: 8px; }
-  .search-bar input { flex: 1; padding: 8px 12px; border-radius: 20px; border: none; font-size: 15px; outline: none; }
-  .filter-bar { display: flex; gap: 8px; padding: 10px 16px; overflow-x: auto; background: white; border-bottom: 1px solid #e5e7eb; }
-  .filter-btn { padding: 5px 14px; border-radius: 20px; border: 1.5px solid #d1d5db; background: white; font-size: 13px; cursor: pointer; white-space: nowrap; color: #374151; }
-  .filter-btn.active { background: #1a6b4a; color: white; border-color: #1a6b4a; }
-  .stats { text-align: center; padding: 8px; font-size: 12px; color: #6b7280; }
-  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; max-width: 640px; margin: 0 auto; }
-  .card { background: white; border-radius: 12px; overflow: hidden; border: 1.5px solid #e5e7eb; cursor: pointer; }
-  .card.danger { border-color: #fca5a5; }
-  .card-img { width: 100%; aspect-ratio: 1; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
+  
+  body { 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background: var(--navy); 
+    color: var(--text-bright); 
+    padding-bottom: 90px; 
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header { 
+    background: linear-gradient(180deg, #0a1f38 0%, var(--navy) 100%);
+    padding: 20px 16px 12px; 
+    text-align: center; 
+    border-bottom: 1px solid var(--card-border);
+  }
+  .header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 4px; }
+  .header p { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.05em; }
+
+  /* ── 搜尋與篩選列 ── */
+  .search-bar { padding: 12px 16px; display: flex; gap: 8px; }
+  .search-bar input { 
+    flex: 1; padding: 10px 14px; border-radius: 20px; 
+    background: rgba(255,255,255,0.1); color: var(--text-bright);
+    border: 1px solid var(--card-border); font-size: 0.95rem; outline: none; 
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  
+  .filter-bar { display: flex; gap: 8px; padding: 4px 16px 12px; overflow-x: auto; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-btn { 
+    padding: 6px 16px; border-radius: 20px; border: 1px solid var(--card-border); 
+    background: var(--card-bg); font-size: 0.85rem; cursor: pointer; 
+    white-space: nowrap; color: var(--text-dim); transition: all 0.2s;
+  }
+  .filter-btn.active { background: var(--coral); color: white; border-color: var(--coral); }
+
+  .stats { text-align: center; padding: 4px 8px 12px; font-size: 0.75rem; color: var(--text-dim); }
+
+  /* ── 生物卡片 ── */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 16px 16px; max-width: 640px; margin: 0 auto; }
+  .card { background: var(--card-bg); border-radius: 14px; overflow: hidden; border: 1px solid var(--card-border); cursor: pointer; }
+  .card.danger { border-color: #ef4444; }
+  .card-img { width: 100%; aspect-ratio: 1; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
   .card-img img { width: 100%; height: 100%; object-fit: cover; }
-  .card-body { padding: 10px; }
-  .card-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-  .card-latin { font-size: 10px; color: #9ca3af; font-style: italic; margin-bottom: 6px; }
-  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
-  .badge-harvest { background: #dcfce7; color: #166534; }
-  .badge-no { background: #f3f4f6; color: #6b7280; }
-  .badge-danger { background: #fee2e2; color: #991b1b; }
+  .card-body { padding: 12px; }
+  .card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; color: var(--text-bright); }
+  .card-latin { font-size: 0.7rem; color: var(--text-dim); font-style: italic; margin-bottom: 8px; }
+  
+  .badge { display: inline-block; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+  .badge-harvest { background: rgba(46,204,142,0.15); color: var(--algae); border: 1px solid var(--algae); }
+  .badge-no { background: rgba(255,255,255,0.1); color: var(--text-dim); border: 1px solid var(--text-dim); }
+  .badge-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
 
-  /* 底部導覽列 */
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
-  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: #6b7280; font-size: 11px; padding: 4px 8px; border-radius: 8px; border: none; background: none; cursor: pointer; }
-  .bnav-item.active { color: #1a6b4a; font-weight: 700; }
-  .bnav-icon { font-size: 22px; line-height: 1; }
+  /* ── 底部導覽列 ── */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,30,55,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; }
+  .bnav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; color: var(--text-dim); font-size: 0.65rem; padding: 4px 8px; border: none; background: none; cursor: pointer; }
+  .bnav-item.active { color: var(--coral-light); }
+  .bnav-icon { font-size: 1.35rem; line-height: 1; }
 
-  /* 生物詳細 Modal */
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; justify-content: center; }
+  /* ── 生物詳細 Modal ── */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; align-items: flex-end; justify-content: center; }
   .modal-bg.open { display: flex; }
-  .modal { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; }
-  .modal-img { width: 100%; height: 220px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 60px; overflow: hidden; }
+  .modal { background: var(--navy); border-radius: 20px 20px 0 0; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--card-border); }
+  .modal-img { width: 100%; height: 250px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 60px; overflow: hidden; }
   .modal-img img { width: 100%; height: 100%; object-fit: cover; }
   .modal-body { padding: 20px; }
-  .modal-name { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
-  .modal-latin { font-size: 13px; color: #9ca3af; font-style: italic; margin-bottom: 12px; }
-  .modal-section { margin-bottom: 14px; }
-  .modal-label { font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
-  .modal-text { font-size: 14px; line-height: 1.6; color: #374151; }
-  .modal-rule { background: #fef9c3; border: 1.5px solid #fde047; border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.6; color: #713f12; }
-  .modal-rule.danger-rule { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; font-weight: 600; }
-  .close-btn { display: block; width: calc(100% - 40px); margin: 0 20px 24px; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+  .modal-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; color: var(--coral-light); }
+  .modal-latin { font-size: 0.8rem; color: var(--text-dim); font-style: italic; margin-bottom: 16px; }
+  .modal-section { margin-bottom: 16px; }
+  .modal-label { font-size: 0.75rem; font-weight: 700; color: var(--algae); margin-bottom: 6px; }
+  .modal-text { font-size: 0.9rem; line-height: 1.6; color: var(--text-bright); }
+  .modal-rule { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; font-size: 0.85rem; line-height: 1.6; color: var(--text-bright); }
+  .modal-rule.danger-rule { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #fca5a5; font-weight: 600; }
+  .close-btn { display: block; width: calc(100% - 40px); margin: 0 20px 24px; padding: 14px; background: rgba(255,255,255,0.1); color: var(--text-bright); border: 1px solid var(--card-border); border-radius: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; }
 
-  /* AI 浮動按鈕 */
-  .fab { position: fixed; bottom: 88px; right: 20px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; background: #1a6b4a; color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
-
-  /* AI 辨識面板 */
-  .ai-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; justify-content: center; }
+  /* ── AI 辨識面板 ── */
+  .ai-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 200; align-items: flex-end; justify-content: center; }
   .ai-bg.open { display: flex; }
-  .ai-panel { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 20px; max-height: 92vh; overflow-y: auto; }
-  .ai-preview { width: 100%; aspect-ratio: 4/3; background: #f3f4f6; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 40px; color: #d1d5db; }
-  .ai-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .ai-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .ai-btn-camera { padding: 14px 8px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
-  .ai-btn-gallery { padding: 14px 8px; background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; border-radius: 10px; font-size: 15px; cursor: pointer; }
-  .ai-btn-submit { width: 100%; padding: 14px; background: #1a6b4a; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; margin-bottom: 8px; }
-  .ai-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-  .ai-btn-close { width: 100%; padding: 12px; background: #f3f4f6; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #374151; }
-
-  /* 模型狀態 */
-  .model-status { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #166534; display: flex; align-items: center; gap: 6px; }
-  .model-dot { width: 8px; height: 8px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; }
-  .model-dot.ready { background: #16a34a; }
-  .model-dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+  .ai-panel { background: var(--navy); border-radius: 24px 24px 0 0; width: 100%; max-width: 640px; padding: 24px 20px; max-height: 95vh; overflow-y: auto; border-top: 1px solid var(--card-border); }
+  
+  .model-status { background: rgba(46,204,142,0.1); border: 1px solid var(--algae); border-radius: 10px; padding: 10px 14px; margin: 12px 0; font-size: 0.8rem; color: var(--algae); display: flex; align-items: center; gap: 8px; }
+  .model-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+  .model-dot.ready { background: var(--algae); }
+  .model-dot.loading { background: #fbbf24; animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  /* AI 網址設定 */
-  .ai-url-bar { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin-bottom: 12px; display: flex; gap: 6px; align-items: center; }
-  .ai-url-bar input { flex: 1; border: none; background: transparent; font-size: 12px; color: #374151; outline: none; }
+  .ai-url-bar { background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; margin-bottom: 16px; display: flex; gap: 6px; align-items: center; }
+  .ai-url-bar input { flex: 1; border: none; background: transparent; font-size: 0.8rem; color: var(--text-bright); outline: none; }
+  
+  .ai-preview { width: 100%; aspect-ratio: 4/3; background: rgba(0,0,0,0.3); border-radius: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; font-size: 50px; color: var(--card-border); border: 1px dashed var(--card-border); }
+  .ai-preview img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .ai-photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .ai-btn-camera { padding: 16px 8px; background: var(--coral); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .ai-btn-gallery { padding: 16px 8px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-bright); border-radius: 12px; font-size: 1rem; cursor: pointer; }
+  .ai-btn-submit { width: 100%; padding: 16px; background: var(--algae); color: var(--navy); border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+  .ai-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; background: var(--text-dim); }
+  .ai-btn-close { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--card-border); border-radius: 12px; font-size: 1rem; cursor: pointer; color: var(--text-dim); }
 
   /* 載入動畫 */
-  .ai-loading { display: none; flex-direction: column; align-items: center; padding: 24px 16px; margin-bottom: 12px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; gap: 16px; }
+  .ai-loading { display: none; flex-direction: column; align-items: center; padding: 24px 16px; margin-bottom: 16px; background: rgba(46,204,142,0.05); border: 1px solid var(--card-border); border-radius: 14px; gap: 16px; }
+  .wave-bar { width: 8px; border-radius: 4px; background: var(--algae); animation: wave 1.2s ease-in-out infinite; }
   .wave-container { display: flex; gap: 6px; align-items: flex-end; height: 40px; }
-  .wave-bar { width: 8px; border-radius: 4px; background: #1a6b4a; animation: wave 1.2s ease-in-out infinite; }
-  .wave-bar:nth-child(1){animation-delay:0s;height:20px}
-  .wave-bar:nth-child(2){animation-delay:.15s;height:32px}
-  .wave-bar:nth-child(3){animation-delay:.3s;height:40px}
-  .wave-bar:nth-child(4){animation-delay:.45s;height:32px}
-  .wave-bar:nth-child(5){animation-delay:.6s;height:20px}
-  .wave-bar:nth-child(6){animation-delay:.75s;height:32px}
-  .wave-bar:nth-child(7){animation-delay:.9s;height:40px}
+  .wave-bar:nth-child(1){animation-delay:0s;height:20px} .wave-bar:nth-child(2){animation-delay:.15s;height:32px} .wave-bar:nth-child(3){animation-delay:.3s;height:40px} .wave-bar:nth-child(4){animation-delay:.45s;height:32px} .wave-bar:nth-child(5){animation-delay:.6s;height:20px} .wave-bar:nth-child(6){animation-delay:.75s;height:32px} .wave-bar:nth-child(7){animation-delay:.9s;height:40px}
   @keyframes wave { 0%,100%{transform:scaleY(.4);opacity:.5} 50%{transform:scaleY(1);opacity:1} }
-  .loading-shell { font-size: 32px; animation: spin 2s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  .loading-text { font-size: 15px; font-weight: 700; color: #1a6b4a; text-align: center; }
-  .loading-sub { font-size: 12px; color: #6b7280; text-align: center; margin-top: -8px; }
-  .dot-animate::after { content:''; animation: dots 1.5s steps(4,end) infinite; }
-  @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+  .loading-text { font-size: 1rem; font-weight: 700; color: var(--algae); text-align: center; }
+  .loading-sub { font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: -8px; }
 
   /* 辨識結果 */
-  .ai-result { display: none; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-  .ai-result.success { background: #f0fdf4; border: 1.5px solid #86efac; }
-  .ai-result.warning { background: #fff7ed; border: 1.5px solid #fb923c; }
-  .ai-result.danger-result { background: #fee2e2; border: 1.5px solid #fca5a5; }
-  .ai-result-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
-  .ai-result-latin { font-size: 12px; color: #9ca3af; font-style: italic; margin-bottom: 10px; }
-  .ai-result-desc { font-size: 13px; color: #374151; margin-bottom: 10px; line-height: 1.6; }
-
-  /* 阿超說話框 */
-  .chaoshao-box { background: white; border-radius: 12px; padding: 12px; border: 1.5px solid #d1fae5; margin-bottom: 8px; }
-  .chaoshao-box.danger-box { border-color: #fca5a5; background: #fff5f5; }
-  .chaoshao-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .chaoshao-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a6b4a; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .chaoshao-name { font-size: 12px; font-weight: 700; color: #1a6b4a; }
-  .chaoshao-title { font-size: 10px; color: #6b7280; }
-  .chaoshao-msg { font-size: 14px; line-height: 1.7; color: #1a1a1a; }
-  .chaoshao-msg.danger-msg { color: #991b1b; font-weight: 600; }
+  .ai-result { display: none; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .ai-result.success { background: rgba(46,204,142,0.1); border: 1px solid var(--algae); }
+  .ai-result.warning { background: rgba(250,204,21,0.1); border: 1px solid #fbbf24; }
+  .ai-result.danger-result { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; }
+  
+  .ai-result-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+  .ai-result-latin { font-size: 0.8rem; color: var(--text-dim); font-style: italic; margin-bottom: 12px; }
+  .ai-result-desc { font-size: 0.9rem; color: var(--text-bright); margin-bottom: 12px; line-height: 1.6; }
 
   /* 信心度條 */
-  .confidence-bar { margin: 8px 0 10px; }
-  .confidence-label { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
-  .confidence-track { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .confidence-bar { margin: 10px 0 12px; }
+  .confidence-label { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 4px; }
+  .confidence-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
   .confidence-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-  .confidence-fill.high { background: #16a34a; }
-  .confidence-fill.mid { background: #f59e0b; }
+  .confidence-fill.high { background: var(--algae); }
+  .confidence-fill.mid { background: #fbbf24; }
   .confidence-fill.low { background: #ef4444; }
 
-  /* 標籤 */
-  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; margin-bottom: 4px; }
-  .tag-green { background: #dcfce7; color: #166534; }
-  .tag-red { background: #fee2e2; color: #991b1b; }
-  .tag-gray { background: #f3f4f6; color: #6b7280; }
-  .tag-yellow { background: #fef9c3; color: #854d0e; }
-  .tag-blue { background: #e0f2fe; color: #0369a1; }
+  /* 阿超說話框 */
+  .chaoshao-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px; border: 1px solid var(--coral-light); margin-bottom: 8px; }
+  .chaoshao-box.danger-box { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+  .chaoshao-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .chaoshao-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--coral); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .chaoshao-name { font-size: 0.85rem; font-weight: 700; color: var(--coral-light); }
+  .chaoshao-title { font-size: 0.7rem; color: var(--text-dim); }
+  .chaoshao-msg { font-size: 0.9rem; line-height: 1.7; color: var(--text-bright); }
+  .chaoshao-msg.danger-msg { color: #fca5a5; font-weight: 600; }
+
+  /* 通用標籤 */
+  .tag { display: inline-block; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; margin-right: 4px; margin-bottom: 4px; font-weight: 600;}
+  .tag-green { background: rgba(46,204,142,0.15); color: var(--algae); border: 1px solid var(--algae); }
+  .tag-red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
+  .tag-gray { background: rgba(255,255,255,0.1); color: var(--text-dim); border: 1px solid var(--text-dim); }
+  .tag-yellow { background: rgba(250,204,21,0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+  .tag-blue { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid #38bdf8; }
 </style>
 </head>
 <body>
@@ -202,14 +235,23 @@
   </div>
 </div>
 
-<!-- AI 浮動按鈕 -->
-<button class="fab" onclick="openAI()">📷</button>
+<!-- 圖鑑頁：右下角辨識按鈕 (觸發 openAI) -->
+<div onclick="openAI()" style="
+  position:fixed;bottom:100px;right:16px;z-index:80;
+  background:#1a6b4a;color:white;
+  border-radius:16px 16px 4px 16px;
+  padding:14px 16px;max-width:185px;
+  font-size:16px;font-weight:700;line-height:1.5;
+  box-shadow:0 4px 16px rgba(0,0,0,0.35);cursor:pointer;">
+  📷 拍下生物照片<br>
+  <span style="font-size:13px;font-weight:400;opacity:0.9;">我來幫您辨識物種！</span>
+</div>
 
 <!-- AI 辨識面板 -->
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
-    <h2 style="font-size:18px;margin-bottom:2px;">📷 AI 生物辨識</h2>
-    <p style="font-size:12px;color:#6b7280;margin-bottom:10px;">拍照辨識，由阿超海洋學家為您解說</p>
+    <h2 style="font-size:1.2rem;margin-bottom:4px;color:var(--text-bright);">📷 AI 生物辨識</h2>
+    <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:12px;">拍照辨識，由阿超海洋學家為您解說</p>
 
     <!-- 模型狀態 -->
     <div class="model-status">
@@ -219,11 +261,11 @@
 
     <!-- AI 網址設定 -->
     <div class="ai-url-bar">
-      <span style="font-size:11px;color:#6b7280;white-space:nowrap;">🌐 Gemma：</span>
+      <span style="font-size:0.75rem;color:var(--text-dim);white-space:nowrap;">🌐 Gemma：</span>
       <input id="aiUrlInput" type="text"
-        placeholder="貼上 ngrok 網址啟用阿超深度分析（選填）"
+        placeholder="貼上 ngrok 網址啟用深度分析"
         oninput="saveAiUrl(this.value)">
-      <span id="aiUrlStatus" style="font-size:10px;color:#9ca3af;white-space:nowrap;">未連線</span>
+      <span id="aiUrlStatus" style="font-size:0.7rem;color:var(--algae);white-space:nowrap;">未連線</span>
     </div>
 
     <!-- 預覽區 -->
@@ -241,14 +283,14 @@
 
     <!-- 載入動畫 -->
     <div class="ai-loading" id="aiLoading">
-      <div class="loading-shell">🐚</div>
+      <div style="font-size: 32px; animation: spin 2s linear infinite;">🐚</div>
       <div class="wave-container">
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div><div class="wave-bar"></div>
         <div class="wave-bar"></div>
       </div>
-      <div class="loading-text">阿超正在幫您辨識<span class="dot-animate"></span></div>
+      <div class="loading-text">阿超正在幫您辨識...</div>
       <div class="loading-sub" id="loadingSubText">TM 模型分析中</div>
     </div>
 
@@ -276,7 +318,7 @@
       </div>
     </div>
 
-    <button class="ai-btn-close" onclick="closeAI()">關閉</button>
+    <button class="ai-btn-close" onclick="closeAI()">關閉返回圖鑑</button>
   </div>
 </div>
 
@@ -292,17 +334,16 @@ const categoryEmoji = {
   '岩螺類':'🐚', '芋螺類':'⚠️', '寶螺類':'✨'
 };
 
-// 預設阿超說話（TM 本地模型用，沒有 Gemma 時）
 const TM_PERSONALITY = {
   '花笠螺':    '你看你看！這是我們的「苦丕仔」！黃綠色殼面，沒有放射紋的那種。苦中帶甘，老饕才懂這味道！3公分以上才能採喔！',
   '斗笠螺':    '這個厲害了！「丕仔」來啦！你看那個放射條紋，多漂亮。肉質Q脆，甜甜的，第一次採集的朋友最適合！',
-  '蜑螺':      '哎呦！這是蜑螺啦，中角灣礁岸到處都是！殼面平滑黑黑的，是我們這邊的老鄰居，請觀察就好，不要採走牠！',
-  '珠螺':      '你看你看！把牠翻過來，殼口有沒有藍綠色的珍珠光澤？漂亮吧！這是大自然送的珠寶，看看就好，放回去讓牠繼續亮！',
-  '黑鐘螺':    '這是黑鐘螺！黑色錐形，表面有小顆粒，感覺像釋迦皮。礁岸很常見，是個低調的好鄰居，請勿採集！',
-  '草蓆鐘螺':  '哎！草蓆鐘螺！你看那個顆粒排列，真的很像草蓆編出來的。牠是礁岸的清道夫，負責吃藻類，很重要！',
-  '岩螺':      '這是岩螺！菱形的殼，有疣狀突起。注意喔，殼口很銳利，不小心會割傷手，觀察就好，保持距離！',
+  '蜑螺':      '哎呦！這是蜑螺啦，中角灣礁岸到處都是！殼面平滑黑黑的，是我們這邊的老鄰居！',
+  '珠螺':      '你看你看！把牠翻過來，殼口有沒有藍綠色的珍珠光澤？漂亮吧！',
+  '黑鐘螺':    '這是黑鐘螺！黑色錐形，表面有小顆粒，感覺像釋迦皮。',
+  '草蓆鐘螺':  '哎！草蓆鐘螺！你看那個顆粒排列，真的很像草蓆編出來的。',
+  '岩螺':      '這是岩螺！菱形的殼，有疣狀突起。',
   '織錦芋螺':  '🚨 這個厲害了，但是要小心！織錦芋螺！有神經毒素！花紋再漂亮也不能碰！立刻告知講師！保持距離！',
-  '黃寶螺':    '哎呦！黃寶螺！古代用來當錢幣的！現在很稀有了，在中角灣看到算你運氣好！好好欣賞，輕輕放回去！',
+  '黃寶螺':    '哎呦！黃寶螺！古代用來當錢幣的！現在很稀有了，好好欣賞，輕輕放回去！',
   '阿拉伯寶螺': '你看你看！阿拉伯寶螺！殼面的花紋像阿拉伯文字，很神奇吧！中角灣的稀客，觀察後輕輕放回原位喔！',
 };
 
@@ -315,7 +356,7 @@ async function loadModel() {
     document.getElementById('modelStatusText').textContent = '✓ AI 模型就緒，可以開始辨識';
   } catch(e) {
     document.getElementById('modelDot').className = 'model-dot';
-    document.getElementById('modelStatusText').textContent = '模型載入失敗，請重新整理';
+    document.getElementById('modelStatusText').textContent = '模型載入失敗，請確認檔案路徑';
     console.error('模型載入失敗：', e);
   }
 }
@@ -328,13 +369,11 @@ function initAiUrl() {
     localStorage.setItem('aiServerUrl', clean);
     document.getElementById('aiUrlInput').value = clean;
     document.getElementById('aiUrlStatus').textContent = '✓ 已連線';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
   } else {
     const saved = localStorage.getItem('aiServerUrl');
     if (saved) {
       document.getElementById('aiUrlInput').value = saved;
       document.getElementById('aiUrlStatus').textContent = '✓ 已連線';
-      document.getElementById('aiUrlStatus').style.color = '#166534';
     }
   }
 }
@@ -344,11 +383,9 @@ function saveAiUrl(val) {
   if (clean.startsWith('http')) {
     localStorage.setItem('aiServerUrl', clean);
     document.getElementById('aiUrlStatus').textContent = '✓ 已儲存';
-    document.getElementById('aiUrlStatus').style.color = '#166534';
   } else if (clean === '') {
     localStorage.removeItem('aiServerUrl');
     document.getElementById('aiUrlStatus').textContent = '未連線';
-    document.getElementById('aiUrlStatus').style.color = '#9ca3af';
   }
 }
 
@@ -374,7 +411,7 @@ function filterSpecies() {
 }
 
 function renderGrid(list) {
-  document.getElementById('stats').textContent = `共 ${list.length} 種`;
+  document.getElementById('stats').textContent = `共找到 ${list.length} 種生物`;
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   list.forEach(s => {
@@ -383,8 +420,8 @@ function renderGrid(list) {
     card.onclick = () => openModal(s);
     const badge = s.canHarvest
       ? `<span class="badge badge-harvest">✅ 可採集</span>`
-      : s.danger ? `<span class="badge badge-danger">⚠️ 注意</span>`
-      : `<span class="badge badge-no">觀察</span>`;
+      : s.danger ? `<span class="badge badge-danger">⚠️ 注意危險</span>`
+      : `<span class="badge badge-no">僅供觀賞</span>`;
     card.innerHTML = `
       <div class="card-img">
         <img src="${s.image}" alt="${s.name}"
@@ -456,14 +493,14 @@ function showResult(name, latinName, confidence, confPct, desc, chaoshaoMsg, isD
       ? '<span class="tag tag-red">⚠️ 危險</span>'
       : allSpecies.find(s => s.name === name)?.canHarvest
         ? '<span class="tag tag-green">✅ 可採集</span>'
-        : '<span class="tag tag-gray">觀察即可</span>';
+        : '<span class="tag tag-gray">僅供觀賞</span>';
 
   const localTag = localName ? `<span class="tag tag-yellow">🏡 ${localName}</span>` : '';
   const methodTag = method ? `<span class="tag tag-blue">🤖 ${method}</span>` : '';
   const simTag = similarity ? `<span class="tag tag-blue">相似度 ${similarity}</span>` : '';
 
   document.getElementById('aiResultName').innerHTML =
-    `${name}<br><span style="font-size:12px;">${harvestBadge}${localTag}${methodTag}${simTag}</span>`;
+    `${name}<br><span style="font-size:12px;display:inline-block;margin-top:6px;">${harvestBadge}${localTag}${methodTag}${simTag}</span>`;
   document.getElementById('aiResultLatin').textContent = latinName || '';
 
   const fill = document.getElementById('confFill');
@@ -494,7 +531,6 @@ async function submitAI() {
 
   const aiUrl = localStorage.getItem('aiServerUrl');
 
-  // ── 先嘗試 Gemma 服務（有 ngrok 才用）──
   if (aiUrl) {
     try {
       document.getElementById('loadingSubText').textContent = 'Gemma 深度分析 + 阿超解說中...';
@@ -507,16 +543,9 @@ async function submitAI() {
       const data = await res.json();
       if (data && data.name && data.name !== '辨識失敗') {
         const confPct = data.confidence === '高' ? 92 : data.confidence === '中' ? 65 : 35;
-        const chaoshaoMsg = data.personality_msg ||
-          TM_PERSONALITY[data.name] ||
-          `這是${data.name}，${data.description}`;
-
+        const chaoshaoMsg = data.personality_msg || TM_PERSONALITY[data.name] || `這是${data.name}，${data.description}`;
         document.getElementById('aiLoading').style.display = 'none';
-        showResult(
-          data.name, data.latinName, data.confidence, confPct,
-          data.description, chaoshaoMsg, data.danger,
-          data.method, data.local_name, data.similarity
-        );
+        showResult(data.name, data.latinName, data.confidence, confPct, data.description, chaoshaoMsg, data.danger, data.method, data.local_name, data.similarity);
         btn.textContent = '🔍 開始辨識';
         btn.disabled = false;
         return;
@@ -527,7 +556,6 @@ async function submitAI() {
     }
   }
 
-  // ── 備用：TM 本地模型 ──
   try {
     document.getElementById('loadingSubText').textContent = 'TM 本地模型分析中...';
     if (!tmModel) throw new Error('模型尚未載入，請稍候再試');
@@ -550,15 +578,10 @@ async function submitAI() {
       : TM_PERSONALITY[label] || `這是${label}，請對照圖鑑確認。`;
 
     document.getElementById('aiLoading').style.display = 'none';
-    showResult(label, speciesData?.latinName || '', confLevel, confPct,
-      desc, chaoshaoMsg, isDanger, 'TM本地模型', '', '');
-
+    showResult(label, speciesData?.latinName || '', confLevel, confPct, desc, chaoshaoMsg, isDanger, 'TM本地模型', '', '');
   } catch(err) {
     document.getElementById('aiLoading').style.display = 'none';
-    showResult('辨識失敗', '', '低', 0,
-      err.message || '請重新整理後再試',
-      '哎呦！阿超我也有出錯的時候。請重新拍一張，側面角度，靠近一點！',
-      false, '', '', '');
+    showResult('辨識失敗', '', '低', 0, err.message || '請重新整理後再試', '哎呦！阿超我也有出錯的時候。請重新拍一張，側面角度，靠近一點！', false, '', '', '');
   }
 
   btn.textContent = '🔍 開始辨識';
