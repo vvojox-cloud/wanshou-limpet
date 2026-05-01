@@ -251,7 +251,8 @@
 <div class="ai-bg" id="aiBg" onclick="closeAI(event)">
   <div class="ai-panel">
     <h2 style="font-size:1.2rem;margin-bottom:4px;color:var(--text-bright);">📷 AI 生物辨識</h2>
-    <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:12px;">拍照辨識，由阿超海洋學家為您解說</p>
+    <!-- 說明文字更新 -->
+    <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:12px;">拍照辨識笠螺、鐘螺、方蟹或藤壺，由阿超為您解說</p>
 
     <!-- 模型狀態 -->
     <div class="model-status">
@@ -334,6 +335,7 @@ const categoryEmoji = {
   '岩螺類':'🐚', '芋螺類':'⚠️', '寶螺類':'✨'
 };
 
+// 更新阿超對新分類的專屬對白
 const TM_PERSONALITY = {
   '花笠螺':    '你看你看！這是我們的「苦丕仔」！黃綠色殼面，沒有放射紋的那種。苦中帶甘，老饕才懂這味道！3公分以上才能採喔！',
   '斗笠螺':    '這個厲害了！「丕仔」來啦！你看那個放射條紋，多漂亮。肉質Q脆，甜甜的，第一次採集的朋友最適合！',
@@ -345,6 +347,9 @@ const TM_PERSONALITY = {
   '織錦芋螺':  '🚨 這個厲害了，但是要小心！織錦芋螺！有神經毒素！花紋再漂亮也不能碰！立刻告知講師！保持距離！',
   '黃寶螺':    '哎呦！黃寶螺！古代用來當錢幣的！現在很稀有了，好好欣賞，輕輕放回去！',
   '阿拉伯寶螺': '你看你看！阿拉伯寶螺！殼面的花紋像阿拉伯文字，很神奇吧！中角灣的稀客，觀察後輕輕放回原位喔！',
+  '方蟹':      '哎呦跑真快！這是礁石上常見的方蟹。牠們是海邊的清道夫，看看就好，小心不要被夾到手指頭喔！',
+  '藤壺':      '這是藤壺！長得像小火山，緊緊黏在石頭上。在礁岩走動一定要穿防滑鞋，不然不小心踩到會被割傷的！',
+  '礁石':      '哈哈哈！看了半天，這就是一塊普通的礁石啦！沒有看到笠螺，換個角度再找找看！',
 };
 
 async function loadModel() {
@@ -488,12 +493,20 @@ function showResult(name, latinName, confidence, confPct, desc, chaoshaoMsg, isD
   const resultEl = document.getElementById('aiResult');
   resultEl.className = 'ai-result ' + (isDanger ? 'danger-result' : confidence === '低' ? 'warning' : 'success');
 
-  const harvestBadge = name === '無法辨識' ? '' :
-    isDanger
-      ? '<span class="tag tag-red">⚠️ 危險</span>'
-      : allSpecies.find(s => s.name === name)?.canHarvest
+  // 防呆邏輯優化：礁石不顯示標籤，藤壺/方蟹顯示僅供觀察
+  let harvestBadge = '';
+  if (name !== '無法辨識' && name !== '礁石') {
+    if (isDanger) {
+      harvestBadge = '<span class="tag tag-red">⚠️ 危險</span>';
+    } else if (name === '方蟹' || name === '藤壺') {
+      harvestBadge = '<span class="tag tag-gray">僅供觀察</span>';
+    } else {
+      const s = allSpecies.find(s => s.name === name);
+      harvestBadge = (s && s.canHarvest)
         ? '<span class="tag tag-green">✅ 可採集</span>'
         : '<span class="tag tag-gray">僅供觀賞</span>';
+    }
+  }
 
   const localTag = localName ? `<span class="tag tag-yellow">🏡 ${localName}</span>` : '';
   const methodTag = method ? `<span class="tag tag-blue">🤖 ${method}</span>` : '';
@@ -570,9 +583,16 @@ async function submitAI() {
     const confPct = Math.round(confidence * 100);
     const confLevel = confidence >= 0.8 ? '高' : confidence >= 0.5 ? '中' : '低';
 
+    // 若新物種尚未加入 JSON 檔，先提供備用描述
     const speciesData = allSpecies.find(s => s.name === label);
-    const desc = speciesData?.desc || '';
+    let desc = speciesData?.desc || '';
+    if (!speciesData) {
+      if (label === '礁石') desc = '中角灣常見的天然岩石，表面常附著各種藻類與微小生物。';
+      if (label === '方蟹') desc = '潮間帶常見的螃蟹，移動迅速，擅長躲藏於礁石縫隙中。';
+      if (label === '藤壺') desc = '附著性節肢動物，外殼銳利如小火山，行走時需特別小心避免割傷。';
+    }
     const isDanger = speciesData?.danger || false;
+    
     const chaoshaoMsg = confidence < 0.5
       ? `哎呦！這張照片讓阿超我有點拿不準。看起來可能是${label}，但信心不足。靠近一點，側面角度拍，我給你更準確的答案！`
       : TM_PERSONALITY[label] || `這是${label}，請對照圖鑑確認。`;
