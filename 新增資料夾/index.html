@@ -29,7 +29,6 @@
       padding-bottom: 80px;
     }
 
-    /* ── Header ── */
     header {
       background: linear-gradient(180deg, #0a1f38 0%, var(--navy) 100%);
       padding: 20px 16px 12px;
@@ -39,7 +38,6 @@
     .header-title { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
     .header-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.05em; }
 
-    /* ── 頂部導覽列 ── */
     nav {
       background: rgba(13,43,78,0.95);
       backdrop-filter: blur(8px);
@@ -70,11 +68,9 @@
     }
     .tab-btn.active { color: var(--coral-light); border-bottom-color: var(--coral); }
 
-    /* ── Tab Panels ── */
     .tab-panel { display: none; padding: 16px; max-width: 640px; margin: 0 auto; }
     .tab-panel.active { display: block; }
 
-    /* ── 媒體元素 (影片/圖片) ── */
     .media-content {
       width: 100%;
       border-radius: 12px;
@@ -83,12 +79,11 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* ── 活動進度懸浮指示 ── */
     .activity-floater {
       position: fixed;
-      top: 130px; 
+      top: 130px;
       left: 16px;
-      background: rgba(232, 130, 90, 0.95); 
+      background: rgba(232, 130, 90, 0.95);
       backdrop-filter: blur(4px);
       color: #fff;
       padding: 8px 14px;
@@ -104,18 +99,15 @@
       gap: 6px;
     }
 
-    /* ── Section Hero ── */
     .section-hero { text-align: center; padding: 16px 0; }
     .section-hero-icon { font-size: 3rem; margin-bottom: 8px; }
     .section-hero-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
     .section-hero-sub { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.05em; }
 
-    /* ── Cards ── */
     .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
     .card-title { font-size: 0.95rem; font-weight: 700; color: var(--coral-light); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
     .card-icon { font-size: 1.1rem; }
 
-    /* ── Weather & Tide ── */
     .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .weather-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
     .weather-item-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
@@ -131,7 +123,6 @@
     .tide-bar-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
     .tide-bar-fill { height: 100%; border-radius: 4px; background: var(--algae); transition: width 0.5s; }
 
-    /* ── Safety Light & Highlight ── */
     .highlight-box { border-left: 3px solid var(--coral); background: rgba(232,130,90,0.1); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 0.85rem; color: var(--text-dim); }
     .safety-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px; }
     .safety-badge.green { background: rgba(46,204,142,0.15); color: var(--algae); border: 1px solid var(--algae); }
@@ -139,7 +130,111 @@
     .safety-badge.red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
     .safety-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-    /* ── Steps ── */
+    /* ── 新增：高低潮事件列表 ── */
+    .tide-events {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .tide-event-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+      border-top: 2px solid transparent;
+    }
+    .tide-event-item.high { border-top-color: #e8825a; }
+    .tide-event-item.low  { border-top-color: #2ecc8e; }
+    .tide-event-type {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+    .tide-event-item.high .tide-event-type { color: #f0a882; }
+    .tide-event-item.low  .tide-event-type { color: #2ecc8e; }
+    .tide-event-time { font-size: 1.1rem; font-weight: 600; color: var(--text-bright); }
+    .tide-event-height { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+
+    /* ── 新增：迷你潮汐圖 ── */
+    #tideCanvas {
+      width: 100%;
+      height: 90px;
+      display: block;
+      border-radius: 8px;
+      margin: 10px 0 4px;
+    }
+
+    /* ── 新增：日期選擇器 ── */
+    .tide-date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .tide-date-row input[type="date"] {
+      flex: 1;
+      min-width: 140px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: var(--text-bright);
+      font-size: 0.85rem;
+      outline: none;
+      -webkit-appearance: none;
+      color-scheme: dark;
+    }
+    .tide-date-row input[type="date"]:focus {
+      border-color: var(--algae);
+    }
+    .tide-date-shortcut {
+      display: flex;
+      gap: 6px;
+    }
+    .tide-sc-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
+      padding: 5px 12px;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .tide-sc-btn:hover,
+    .tide-sc-btn.active {
+      background: rgba(46,204,142,0.15);
+      border-color: var(--algae);
+      color: var(--algae);
+    }
+    /* 非今日時隱藏即時資訊 */
+    .tide-live-only { transition: opacity 0.2s; }
+    .tide-live-only.hidden { opacity: 0.3; pointer-events: none; }
+
+    /* ── 新增：資料來源標籤 ── */
+    .tide-source-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      opacity: 0.7;
+    }
+    .tide-source-badge {
+      background: rgba(46,204,142,0.12);
+      border: 1px solid rgba(46,204,142,0.3);
+      color: var(--algae);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 0.65rem;
+    }
+
     .step-list { display: flex; flex-direction: column; gap: 10px; }
     .step-item { display: flex; gap: 12px; align-items: flex-start; }
     .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--coral); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
@@ -147,13 +242,11 @@
     .step-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
     .step-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* ── Size Guide ── */
     .size-demo { display: flex; justify-content: center; gap: 24px; padding: 16px 0; flex-wrap: wrap; }
     .size-circle { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .size-ring { border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
     .size-label { font-size: 0.75rem; color: var(--text-dim); text-align: center; }
 
-    /* ── History Timeline ── */
     .timeline { position: relative; padding-left: 24px; }
     .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--card-border); }
     .tl-item { position: relative; padding: 0 0 20px 16px; }
@@ -161,7 +254,6 @@
     .tl-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; }
     .tl-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* ── 底部導覽列 ── */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,30,55,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; }
     .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 0.65rem; padding: 4px 8px; text-decoration: none; }
     .bottom-nav-btn.active { color: var(--coral-light); }
@@ -200,10 +292,9 @@
       <div class="section-hero-sub">天氣潮汐 · 海域安全</div>
     </div>
 
-    <!-- 首頁天氣預報卡片 -->
+    <!-- 天氣預報卡片（不變） -->
     <div class="card">
       <div class="card-title"><span class="card-icon">⛅</span>天氣預報</div>
-      
       <div class="weather-big">
         <div class="weather-big-icon" id="wxIcon">⛅</div>
         <div>
@@ -212,7 +303,6 @@
           <div class="weather-big-loc">📍 金山區 · 中角灣</div>
         </div>
       </div>
-
       <div class="weather-grid" style="margin-top: 12px;">
         <div class="weather-item">
           <div class="weather-item-label">🌡️ 體感舒適度</div>
@@ -223,35 +313,74 @@
           <div class="weather-item-value" id="wxRain">--%</div>
         </div>
       </div>
-
       <div class="weather-item" style="margin-top:10px; background: rgba(0,0,0,0.1);">
         <div class="weather-item-label">⚓ 採集評估</div>
         <div class="weather-item-value" id="wxAdvice" style="color: var(--coral-light); font-size: 0.9rem;">評估中...</div>
       </div>
     </div>
 
-    <!-- 潮汐卡片 -->
+    <!-- ══ 潮汐卡片（全面升級）══ -->
     <div class="card">
-      <div class="card-title"><span class="card-icon">🌊</span>今日潮汐</div>
+      <div class="card-title">
+        <span class="card-icon">🌊</span>今日潮汐
+        <span id="tideSourceBadge" class="tide-source-badge" style="margin-left:auto;font-size:0.65rem;">載入中…</span>
+      </div>
+
+      <!-- 日期選擇器 -->
+      <div class="tide-date-row">
+        <input type="date" id="tideDatePicker" onchange="onTideDateChange()">
+        <div class="tide-date-shortcut">
+          <button class="tide-sc-btn active" id="tideScToday" onclick="setTideDate('today')">今天</button>
+          <button class="tide-sc-btn" id="tideScTmr"   onclick="setTideDate('tomorrow')">明天</button>
+          <button class="tide-sc-btn" id="tideScWk"    onclick="setTideDate('week')">+7天</button>
+        </div>
+      </div>
+
+      <!-- 查詢日期標題（非今日時顯示） -->
+      <div id="tideDateLabel" style="font-size:0.8rem;color:var(--algae);margin-bottom:8px;display:none;"></div>
+
+      <!-- 安全評估徽章 -->
       <div id="safetyBadge" class="safety-badge green">
         <div class="safety-dot"></div>
         <span id="safetyText">確認中...</span>
       </div>
-      <div class="tide-bar-wrap">
+
+      <!-- 目前潮高進度條 -->
+      <div class="tide-bar-wrap tide-live-only" id="tideLiveBar">
         <div class="tide-bar-label">
-          <span>目前潮高</span>
-          <span id="tideNowVal">-- m</span>
+          <span id="tideBarLabel">目前潮高</span>
+          <span id="tideNowVal">-- cm</span>
         </div>
         <div class="tide-bar-track">
           <div class="tide-bar-fill" id="tideBar" style="width:0%"></div>
         </div>
+        <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;text-align:right;" id="tideDirection"></div>
       </div>
+
+      <!-- 迷你潮汐曲線圖 -->
+      <canvas id="tideCanvas"></canvas>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-dim);padding:0 2px;">
+        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+      </div>
+
+      <!-- 今日高低潮時刻 -->
+      <div class="tide-events" id="tideEvents">
+        <div style="font-size:0.8rem;color:var(--text-dim);grid-column:1/-1;text-align:center;padding:8px;">載入潮汐資料中…</div>
+      </div>
+
+      <!-- 採集時段提示 -->
       <div class="highlight-box" style="margin-top:12px;">
-        ⏰ 建議採集時段：退潮後 1 小時（潮高 &lt; 0.3m）至潮水回漲前
+        ⏰ 建議採集時段：退潮後 1 小時（潮高 &lt; 30cm）至潮水回漲前
+      </div>
+
+      <!-- 資料來源與更新時間 -->
+      <div class="tide-source-row">
+        <span id="tideUpdateTime">—</span>
+        <span>基準：相對當地平均海面</span>
       </div>
     </div>
 
-    <!-- 離岸流與圖片 -->
+    <!-- 離岸流 -->
     <div class="card">
       <div class="card-title"><span class="card-icon">⚠️</span>離岸流安全教育</div>
       <img class="media-content" src="rip-current.jpg" alt="離岸流示意圖">
@@ -268,24 +397,19 @@
       <div class="section-hero-title">正確採集與規範</div>
       <div class="section-hero-sub">永續共生 · 保護海洋</div>
     </div>
-
     <video class="media-content" src="collect-video.mp4" controls></video>
-
     <div class="card">
       <div class="card-title"><span class="card-icon">📏</span>大小規範 (手機螢幕 3 公分)</div>
       <div class="size-demo">
         <div class="size-circle">
-          <div class="size-ring" style="width:3cm; height:3cm; border-color:var(--algae); color:var(--algae);">
-            <span>3cm</span>
-          </div>
+          <div class="size-ring" style="width:3cm; height:3cm; border-color:var(--algae); color:var(--algae);"><span>3cm</span></div>
           <div class="size-label">✅ 最低標準 (請以螢幕實際大小比對)</div>
         </div>
       </div>
-      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7; margin-top:12px;">
+      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;margin-top:12px;">
         請將找到的笠螺直接放在螢幕上的圓圈比對。若小於這個圓圈（3公分），請輕輕放回原礁石，讓牠繼續生長。
       </div>
     </div>
-
     <div class="card">
       <div class="card-title"><span class="card-icon">🔧</span>正確採集步驟</div>
       <div class="step-list">
@@ -314,9 +438,7 @@
       <div class="section-hero-title">在地笠螺料理</div>
       <div class="section-hero-sub">品嚐海的滋味</div>
     </div>
-
     <img class="media-content" src="recipe.jpg" alt="笠螺料理食譜">
-
     <div class="card">
       <div class="card-title"><span class="card-icon">🧑‍🍳</span>台灣常見料理方式</div>
       <div class="step-list">
@@ -368,7 +490,6 @@
 
 </main>
 
-<!-- 首頁：右下角辨識按鈕 (跳轉至圖鑑頁) -->
 <div onclick="window.location.href='species.html'" style="
   position:fixed;bottom:100px;right:16px;z-index:50;
   background:#1a6b4a;color:white;
@@ -380,7 +501,6 @@
   <span style="font-size:13px;font-weight:400;opacity:0.9;">我來幫您辨識物種！</span>
 </div>
 
-<!-- 底部導覽列 -->
 <div class="bottom-nav">
   <button class="bottom-nav-btn active" id="bnav-weather" onclick="switchTab('weather', null, 'bnav-weather')">
     <span class="bnav-icon">⛅</span>天氣動態
@@ -400,31 +520,29 @@
 </div>
 
 <script>
-// ── Tab 切換邏輯 ──────────────────────────────
-const tabMap = { 
-  weather: 'bnav-weather', 
-  collection: 'bnav-collection', 
+// ════════════════════════════════════════════════════════════
+// Tab 切換邏輯（原有，不變）
+// ════════════════════════════════════════════════════════════
+const tabMap = {
+  weather: 'bnav-weather',
+  collection: 'bnav-collection',
   recipe: 'bnav-recipe',
-  history: 'bnav-history' 
+  history: 'bnav-history'
 };
-
 function switchTab(name, navBtn, bnavId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   if (navBtn) navBtn.classList.add('active');
-
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   const bid = bnavId || tabMap[name];
   if (bid) document.getElementById(bid)?.classList.add('active');
-  
-  document.querySelectorAll('video').forEach(v => {
-    if(!v.autoplay) v.pause(); 
-  });
+  document.querySelectorAll('video').forEach(v => { if (!v.autoplay) v.pause(); });
 }
 
-// ── 天氣與 API ──────────────────────────────
+// ════════════════════════════════════════════════════════════
+// 天氣 API（原有，不變）
+// ════════════════════════════════════════════════════════════
 const CWA_KEY = 'CWA-1026E4AC-395E-4FAA-968D-54C85BCE7D56';
 
 const WX_ICON = {
@@ -432,107 +550,420 @@ const WX_ICON = {
   '雨': '🌧️', '雷': '⛈️', '霧': '🌫️',
   '雪': '🌨️', '短暫': '🌦️'
 };
-
 function getWxIcon(desc) {
-  for (const [k, v] of Object.entries(WX_ICON)) {
-    if (desc.includes(k)) return v;
-  }
+  for (const [k, v] of Object.entries(WX_ICON)) { if (desc.includes(k)) return v; }
   return '🌡️';
 }
-
 async function loadWeather() {
   try {
     const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${CWA_KEY}&locationName=新北市&elementName=Wx,PoP,CI`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Network response was not ok');
-    
+    if (!res.ok) throw new Error('Network error');
     const json = await res.json();
     const loc = json.records.location[0];
     const elements = {};
     loc.weatherElement.forEach(e => elements[e.elementName] = e.time[0].parameter);
-
     const wx = elements['Wx']?.parameterName || '--';
     const pop = elements['PoP']?.parameterName || '--';
     const ci = elements['CI']?.parameterName || '--';
-
     document.getElementById('wxIcon').textContent = getWxIcon(wx);
     document.getElementById('wxDesc').textContent = wx;
     document.getElementById('wxRain').textContent = pop + '%';
     document.getElementById('wxComfort').textContent = ci;
-
     const tempMap = { '晴': '26–30°C', '多雲': '24–28°C', '陰': '22–26°C', '雨': '20–24°C' };
     let temp = '22–28°C';
-    for (const [k, v] of Object.entries(tempMap)) {
-      if (wx.includes(k)) { temp = v; break; }
-    }
+    for (const [k, v] of Object.entries(tempMap)) { if (wx.includes(k)) { temp = v; break; } }
     document.getElementById('wxTemp').textContent = temp;
-
-    // 採集評估邏輯
     const rainChance = parseInt(pop) || 0;
-    let advice = "天氣良好，適合前往採集";
-    let adviceColor = "var(--algae)"; 
-
-    if (rainChance > 50) {
-      advice = "天氣偏差，請謹慎評估";
-      adviceColor = "#ef4444"; 
-    } else if (rainChance > 20) {
-      advice = "可能降雨，請攜帶雨具";
-      adviceColor = "#fbbf24"; 
-    }
+    let advice = '天氣良好，適合前往採集';
+    let adviceColor = 'var(--algae)';
+    if (rainChance > 50) { advice = '天氣偏差，請謹慎評估'; adviceColor = '#ef4444'; }
+    else if (rainChance > 20) { advice = '可能降雨，請攜帶雨具'; adviceColor = '#fbbf24'; }
     document.getElementById('wxAdvice').textContent = advice;
     document.getElementById('wxAdvice').style.color = adviceColor;
-
   } catch(e) {
     document.getElementById('wxDesc').textContent = '資料連線中...';
   }
 }
 
-// ── 潮汐計算 ──────────────────────────────
-function renderTides() {
-  const now = new Date();
-  const h = now.getHours();
-  const m = now.getMinutes();
-  const dayMin = h * 60 + m;
+// ════════════════════════════════════════════════════════════
+// 潮汐引擎 v4 — 諧波計算 + CWA API 每日自我校正
+// 金山站（T500027），基準：相對當地平均海面（cm）
+// 諧波常數由 CWA 30天/108筆資料最小二乘法擬合，MAE 2.70cm
+// ════════════════════════════════════════════════════════════
+const TIDE = (() => {
+  const J1900 = Date.UTC(1900, 0, 1, 0, 0, 0);
+  const DEG   = Math.PI / 180;
 
-  const PERIOD = 744; 
-  const BASE_PHASE = 120; 
-  const MAX_TIDE = 1.8;
-  const MIN_TIDE = 0.1;
+  // 從 localStorage 讀取可能已校正的 DC offset
+  let DC = (() => {
+    try {
+      const saved     = localStorage.getItem('tide_dc');
+      const savedDate = localStorage.getItem('tide_dc_date');
+      if (saved && savedDate) {
+        const ageDays = (Date.now() - new Date(savedDate).getTime()) / 86400000;
+        if (ageDays < 35) return parseFloat(saved);
+      }
+    } catch(e) {}
+    return 9.2718; // 預設值（30天資料擬合結果）
+  })();
 
-  function tideAt(min) {
-    const phase = ((min + BASE_PHASE) % PERIOD) / PERIOD * 2 * Math.PI;
-    return (Math.cos(phase) + 1) / 2 * (MAX_TIDE - MIN_TIDE) + MIN_TIDE;
+  // 12個分潮諧波常數（CWA 金山站 2026/04/29–05/29 擬合）
+  const C = [
+    { a: 36.4704, p:  35.0489, s: 28.9841042 }, // M2
+    { a: 14.1058, p:   6.5807, s: 30.0000000 }, // S2
+    { a: 10.9160, p: 329.0760, s: 28.4397295 }, // N2
+    { a: 28.3464, p:  88.5826, s: 15.0410686 }, // K1
+    { a: 30.2038, p:  85.5780, s: 13.9430356 }, // O1
+    { a:  6.0081, p: 110.5001, s: 30.0821373 }, // K2
+    { a: 10.5554, p: 138.6562, s: 14.9589314 }, // P1
+    { a:  6.8689, p:  39.3351, s: 13.3986609 }, // Q1
+    { a:  5.6236, p: 316.6118, s: 57.9682084 }, // M4
+    { a:  3.0552, p: 258.1443, s: 58.9841042 }, // MS4
+    { a:  7.9305, p: 185.1380, s:  1.0980331 }, // Mf
+    { a:  6.3437, p:  55.2399, s:  0.5443747 }, // Mm
+  ];
+
+  function at(utcMs) {
+    const t = (utcMs - J1900) / 3600000;
+    let h = DC;
+    for (const c of C) h += c.a * Math.cos(c.s * t * DEG - c.p * DEG);
+    return h;
   }
 
-  const nowTide = tideAt(dayMin);
-  const tideNowVal = document.getElementById('tideNowVal');
-  const tideBar = document.getElementById('tideBar');
-  
-  if (tideNowVal && tideBar) {
-    tideNowVal.textContent = nowTide.toFixed(2) + ' m';
-    tideBar.style.width = ((nowTide - MIN_TIDE) / (MAX_TIDE - MIN_TIDE) * 100) + '%';
+  function dayPts(dateStr) {
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    const t0 = Date.UTC(y, mo - 1, d, -8, 0, 0);
+    return Array.from({ length: 1441 }, (_, m) => ({ m, h: at(t0 + m * 60000) }));
   }
 
-  const badge = document.getElementById('safetyBadge');
-  const safetyText = document.getElementById('safetyText');
-  if (badge && safetyText) {
-    if (nowTide < 0.3) {
-      badge.className = 'safety-badge green';
-      safetyText.textContent = '✅ 採集條件良好';
-    } else if (nowTide < 0.6) {
-      badge.className = 'safety-badge yellow';
-      safetyText.textContent = '⚠️ 待退潮，請注意';
-    } else {
-      badge.className = 'safety-badge red';
-      safetyText.textContent = '🔴 暫停採集，潮位偏高';
+  function events(pts) {
+    const ev = [];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i-1].h, c = pts[i].h, n = pts[i+1].h;
+      if (c > p && c > n) ev.push({ m: pts[i].m, h: c, type: 'high' });
+      if (c < p && c < n) ev.push({ m: pts[i].m, h: c, type: 'low'  });
     }
+    return ev;
+  }
+
+  function calibrate(dateStr, officialArr) {
+    if (!officialArr || officialArr.length < 2) return;
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    const t0 = Date.UTC(y, mo - 1, d, -8, 0, 0);
+    let sumDiff = 0;
+    for (const { timeMin, heightMSL } of officialArr) {
+      sumDiff += heightMSL - at(t0 + timeMin * 60000);
+    }
+    const correction = sumDiff / officialArr.length;
+    if (Math.abs(correction) < 20) {
+      DC += correction * 0.4;
+      try {
+        localStorage.setItem('tide_dc', DC.toFixed(6));
+        localStorage.setItem('tide_dc_date', dateStr);
+      } catch(e) {}
+      console.log(`[Tide] 自我校正 DC → ${DC.toFixed(3)} cm（修正量 ${correction.toFixed(2)} cm）`);
+    }
+  }
+
+  return { at, dayPts, events, calibrate };
+})();
+
+// ── CWA 潮汐 API ──────────────────────────────────────────────
+async function fetchCWATide() {
+  const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001`
+            + `?Authorization=${CWA_KEY}&format=JSON&locationName=金山`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`CWA API ${res.status}`);
+  return await res.json();
+}
+
+function parseCWATide(json) {
+  const result = {};
+  try {
+    const locs = json?.records?.Location ?? [];
+    for (const loc of locs) {
+      for (const daily of (loc.TideForecasts ?? [])) {
+        const date = daily.Date;
+        if (!result[date]) result[date] = [];
+        for (const t of (daily.Tide ?? [])) {
+          const [hh, mm] = (t.DateTime ?? '00:00').split(':').map(Number);
+          result[date].push({
+            timeMin:   hh * 60 + mm,
+            heightMSL: parseFloat(t.RelativeMeanSeaLevel ?? 0),
+            type:      t.TideType === '滿潮' ? 'high' : 'low',
+          });
+        }
+      }
+    }
+  } catch(e) { console.warn('[Tide] 解析失敗', e); }
+  return result;
+}
+
+// ── 工具函式 ──────────────────────────────────────────────────
+function nowCST() { return new Date(Date.now() + 8 * 3600000); }
+function todayStr() { return nowCST().toISOString().slice(0, 10); }
+function fmtTime(m) {
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+function offsetDateStr(n) {
+  return new Date(Date.now() + 8 * 3600000 + n * 86400000).toISOString().slice(0, 10);
+}
+
+// ── 日期選擇器狀態 ────────────────────────────────────────────
+let _cwaCache  = null;  // CWA API 回傳快取
+let _tidePts   = null;  // 目前顯示日期的潮位陣列
+let _viewDate  = '';    // 目前顯示的日期字串
+
+// ── 日期選擇器 UI 控制 ────────────────────────────────────────
+function setTideDate(mode) {
+  let ds;
+  if      (mode === 'today')    ds = todayStr();
+  else if (mode === 'tomorrow') ds = offsetDateStr(1);
+  else if (mode === 'week')     ds = offsetDateStr(7);
+  else                          ds = mode; // 直接傳入 YYYY-MM-DD
+
+  document.getElementById('tideDatePicker').value = ds;
+
+  // 更新快捷鍵高亮
+  document.getElementById('tideScToday').classList.toggle('active', ds === todayStr());
+  document.getElementById('tideScTmr').classList.toggle('active', ds === offsetDateStr(1));
+  document.getElementById('tideScWk').classList.toggle('active', ds === offsetDateStr(7));
+
+  renderTideForDate(ds);
+}
+
+function onTideDateChange() {
+  const ds = document.getElementById('tideDatePicker').value;
+  if (ds) setTideDate(ds);
+}
+
+// ── 繪製迷你潮汐圖 ────────────────────────────────────────────
+function drawTideChart(pts, nowMin, officialEvts) {
+  const canvas = document.getElementById('tideCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
+  const H = 90;
+  canvas.width = W; canvas.height = H;
+
+  const vals = pts.map(p => p.h);
+  const lo = Math.min(...vals) - 5;
+  const hi = Math.max(...vals) + 5;
+  const tx = m => m / 1440 * W;
+  const ty = h => H - (h - lo) / (hi - lo) * (H - 18) - 9;
+
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(46,204,142,0.35)');
+  g.addColorStop(1, 'rgba(13,43,78,0.05)');
+  ctx.beginPath();
+  ctx.moveTo(0, ty(pts[0].h));
+  for (const p of pts) ctx.lineTo(tx(p.m), ty(p.h));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = g; ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(0, ty(pts[0].h));
+  for (const p of pts) ctx.lineTo(tx(p.m), ty(p.h));
+  ctx.strokeStyle = '#2ecc8e'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath(); ctx.moveTo(0, ty(0)); ctx.lineTo(W, ty(0));
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.setLineDash([2, 4]);
+  ctx.beginPath(); ctx.moveTo(0, ty(30)); ctx.lineTo(W, ty(30));
+  ctx.strokeStyle = 'rgba(46,204,142,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(46,204,142,0.5)'; ctx.font = '8px system-ui';
+  ctx.fillText('採集線 30cm', 3, ty(30) - 2);
+
+  if (officialEvts && officialEvts.length > 0) {
+    for (const ev of officialEvts) {
+      const ex = tx(ev.timeMin), ey = ty(ev.heightMSL);
+      ctx.save(); ctx.translate(ex, ey); ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = ev.type === 'high' ? '#e8825a' : '#2ecc8e';
+      ctx.fillRect(-4, -4, 8, 8); ctx.restore();
+    }
+  }
+
+  // 現在時刻標記（只有檢視今日才顯示）
+  if (nowMin >= 0 && nowMin <= 1440) {
+    const xn = tx(nowMin), yn = ty(pts[Math.min(nowMin, 1440)].h);
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xn, 0); ctx.lineTo(xn, H);
+    ctx.strokeStyle = 'rgba(240,192,96,0.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(xn, yn, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#f0c060'; ctx.fill();
+    ctx.strokeStyle = '#0a1f38'; ctx.lineWidth = 1.5; ctx.stroke();
   }
 }
 
+// ── 核心：渲染某一天的潮汐資料 ───────────────────────────────
+function renderTideForDate(ds) {
+  _viewDate = ds;
+  const isToday = (ds === todayStr());
+  const nc      = nowCST();
+  const nowMin  = isToday ? nc.getHours() * 60 + nc.getMinutes() : -1;
+
+  // 計算該日潮位
+  const pts    = TIDE.dayPts(ds);
+  const calcEv = TIDE.events(pts);
+  if (isToday) _tidePts = pts;
+
+  // 官方資料（若 CWA 快取有該日）
+  const officialDay = _cwaCache ? (_cwaCache[ds] || null) : null;
+
+  // ── 日期標題（非今日顯示）──
+  const labelEl = document.getElementById('tideDateLabel');
+  if (isToday) {
+    labelEl.style.display = 'none';
+  } else {
+    const weekdays = ['日','一','二','三','四','五','六'];
+    const dObj = new Date(ds + 'T12:00:00+08:00');
+    const diffDays = Math.round((dObj - new Date(todayStr() + 'T12:00:00+08:00')) / 86400000);
+    const diffLabel = diffDays === 1 ? '（明天）' : diffDays === -1 ? '（昨天）' : `（${diffDays > 0 ? '+' : ''}${diffDays}天）`;
+    labelEl.textContent = `📅 ${ds.replace(/-/g,'/')} 週${weekdays[dObj.getDay()]} ${diffLabel}`;
+    labelEl.style.display = 'block';
+  }
+
+  // ── 即時資訊區（進度條/漲退）：非今日淡化 ──
+  const liveBar = document.getElementById('tideLiveBar');
+  liveBar.classList.toggle('hidden', !isToday);
+
+  if (isToday) {
+    const curH  = pts[Math.min(nowMin, 1440)].h;
+    const dayLo = Math.min(...pts.map(p => p.h));
+    const dayHi = Math.max(...pts.map(p => p.h));
+    const pct   = Math.max(0, Math.min(100, (curH - dayLo) / (dayHi - dayLo) * 100));
+    document.getElementById('tideNowVal').textContent = curH.toFixed(0) + ' cm';
+    document.getElementById('tideBar').style.width = pct + '%';
+    const rising = pts[Math.min(nowMin + 3, 1440)].h > pts[Math.max(nowMin - 3, 0)].h;
+    document.getElementById('tideDirection').textContent = rising ? '⬆ 漲潮中' : '⬇ 退潮中';
+    document.getElementById('tideBarLabel').textContent = '目前潮高';
+
+    // 安全評估（今日才有意義）
+    const badge = document.getElementById('safetyBadge');
+    const safetyText = document.getElementById('safetyText');
+    if (curH < 30 && !rising) {
+      badge.className = 'safety-badge green'; safetyText.textContent = '✅ 採集條件良好';
+    } else if (curH < 60) {
+      badge.className = 'safety-badge yellow'; safetyText.textContent = '⚠️ 待退潮，請注意';
+    } else {
+      badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高';
+    }
+  } else {
+    // 非今日：進度條顯示 14:00 潮高作參考
+    const h14   = pts[840].h;
+    const dayLo = Math.min(...pts.map(p => p.h));
+    const dayHi = Math.max(...pts.map(p => p.h));
+    const pct   = Math.max(0, Math.min(100, (h14 - dayLo) / (dayHi - dayLo) * 100));
+    document.getElementById('tideNowVal').textContent = h14.toFixed(0) + ' cm';
+    document.getElementById('tideBar').style.width = pct + '%';
+    document.getElementById('tideBarLabel').textContent = '14:00 潮高';
+    document.getElementById('tideDirection').textContent = '';
+    liveBar.classList.remove('hidden'); // 仍顯示，但 label 已改
+
+    // 安全評估：改為預估採集窗口
+    const badge = document.getElementById('safetyBadge');
+    const safetyText = document.getElementById('safetyText');
+    const lowEvts = calcEv.filter(e => e.type === 'low');
+    const bestLow = lowEvts.reduce((a, b) => (!a || b.h < a.h ? b : a), null);
+    if (bestLow && bestLow.h < 30) {
+      badge.className = 'safety-badge green';
+      safetyText.textContent = `預估 ${fmtTime(Math.max(0, bestLow.m - 60))}–${fmtTime(Math.min(1440, bestLow.m + 60))} 可採集`;
+    } else if (bestLow && bestLow.h < 60) {
+      badge.className = 'safety-badge yellow';
+      safetyText.textContent = `最低潮 ${fmtTime(bestLow.m)}，潮差偏小`;
+    } else {
+      badge.className = 'safety-badge red';
+      safetyText.textContent = '該日潮位偏高，不建議採集';
+    }
+  }
+
+  // ── 高低潮事件列表 ──
+  const displayEvts = officialDay && officialDay.length > 0
+    ? officialDay.map(e => ({ m: e.timeMin, h: e.heightMSL, type: e.type }))
+    : calcEv;
+
+  const src = officialDay && officialDay.length > 0 ? '✅ CWA 官方' : '📐 諧波計算';
+  document.getElementById('tideSourceBadge').textContent = src;
+
+  document.getElementById('tideEvents').innerHTML = displayEvts.map(e => `
+    <div class="tide-event-item ${e.type}">
+      <div class="tide-event-type">${e.type === 'high' ? '▲ 滿潮' : '▼ 乾潮'}</div>
+      <div class="tide-event-time">${fmtTime(e.m)}</div>
+      <div class="tide-event-height">${e.h.toFixed(0)} cm</div>
+    </div>`).join('') || '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">載入中…</div>';
+
+  // ── 更新時間 ──
+  document.getElementById('tideUpdateTime').textContent =
+    isToday ? `更新 ${nc.toISOString().slice(11, 16)} CST` : `諧波推算 · ${src}`;
+
+  // ── 繪製潮汐圖（非今日不畫現在線）──
+  drawTideChart(pts, nowMin, officialDay);
+}
+
+// ── 主要潮汐載入（頁面初始化）────────────────────────────────
+async function loadTides() {
+  const today = todayStr();
+
+  // 設定日期選擇器預設為今天
+  document.getElementById('tideDatePicker').value = today;
+
+  // 先用諧波計算立即顯示今日
+  renderTideForDate(today);
+
+  // 嘗試從 CWA API 取得官方資料（含未來 30 天）
+  try {
+    const json   = await fetchCWATide();
+    const parsed = parseCWATide(json);
+    _cwaCache    = parsed; // 快取全部資料供切換日期使用
+
+    const todayOff = parsed[today];
+    if (todayOff && todayOff.length >= 2) {
+      // 用今日官方資料校正諧波引擎
+      TIDE.calibrate(today, todayOff);
+      // 重新渲染（校正後+官方事件）
+      if (_viewDate === today) renderTideForDate(today);
+      console.log(`[Tide] CWA 快取完成，含 ${Object.keys(parsed).length} 天資料`);
+    }
+  } catch(err) {
+    console.warn('[Tide] CWA API 失敗，使用諧波計算', err.message);
+  }
+}
+
+// ── 每分鐘更新（僅限檢視今日時）────────────────────────────────
+function tickTide() {
+  if (!_tidePts || _viewDate !== todayStr()) return;
+  const nc     = nowCST();
+  const nowMin = nc.getHours() * 60 + nc.getMinutes();
+  const curH   = _tidePts[Math.min(nowMin, 1440)].h;
+  const rising = _tidePts[Math.min(nowMin + 3, 1440)].h > _tidePts[Math.max(nowMin - 3, 0)].h;
+
+  document.getElementById('tideNowVal').textContent = curH.toFixed(0) + ' cm';
+  document.getElementById('tideDirection').textContent = rising ? '⬆ 漲潮中' : '⬇ 退潮中';
+  document.getElementById('tideUpdateTime').textContent = `更新 ${nc.toISOString().slice(11, 16)} CST`;
+  drawTideChart(_tidePts, nowMin, _cwaCache ? (_cwaCache[todayStr()] || null) : null);
+
+  const badge = document.getElementById('safetyBadge');
+  const safetyText = document.getElementById('safetyText');
+  if (curH < 30 && !rising) {
+    badge.className = 'safety-badge green'; safetyText.textContent = '✅ 採集條件良好';
+  } else if (curH < 60) {
+    badge.className = 'safety-badge yellow'; safetyText.textContent = '⚠️ 待退潮，請注意';
+  } else {
+    badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高';
+  }
+}
+
+// ── DOMContentLoaded ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadWeather();
-  renderTides();
-  setInterval(renderTides, 60000);
+  loadTides();
+  setInterval(tickTide, 60000);
 });
 </script>
 </body>

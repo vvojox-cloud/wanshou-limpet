@@ -186,6 +186,7 @@
       font-size: 0.85rem;
       outline: none;
       -webkit-appearance: none;
+      appearance: none;
       color-scheme: dark;
     }
     .tide-date-row input[type="date"]:focus {
@@ -253,6 +254,288 @@
     .tl-item::before { content: ''; position: absolute; left: -5px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--coral); border: 2px solid var(--navy); }
     .tl-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; }
     .tl-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+
+    /* ══════════════════════════════════════
+       小旅行彈出視窗
+    ══════════════════════════════════════ */
+    .trip-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 15, 35, 0.82);
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 0;
+      animation: overlayIn 0.3s ease;
+    }
+    .trip-overlay.hiding {
+      animation: overlayOut 0.35s ease forwards;
+    }
+    @keyframes overlayIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+
+    .trip-sheet {
+      background: linear-gradient(170deg, #0d2b4e 0%, #0a1f38 100%);
+      border-radius: 24px 24px 0 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-bottom: none;
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 0 0 32px;
+      animation: sheetUp 0.38s cubic-bezier(0.22,1,0.36,1);
+      scrollbar-width: none;
+    }
+    .trip-sheet::-webkit-scrollbar { display: none; }
+    .trip-sheet.hiding {
+      animation: sheetDown 0.32s ease forwards;
+    }
+    @keyframes sheetUp   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes sheetDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+    /* 拖曳把手 */
+    .trip-handle {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.22);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    /* 海報區 */
+    /* ── 輪播圖片區 ── */
+    .trip-poster {
+      position: relative;
+      margin: 16px 16px 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0a2540;
+      touch-action: pan-y;
+    }
+    .trip-slider {
+      display: flex;
+      width: 300%;
+      transition: transform 0.38s cubic-bezier(0.25,0.8,0.25,1);
+      will-change: transform;
+    }
+    .trip-slide {
+      width: 33.333%;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background: #06131f;
+    }
+    .trip-slide img {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      background: #06131f;
+    }
+    .trip-slide-caption {
+      display: block;
+      text-align: center;
+      padding: 8px 14px 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #a8c0d8;
+      letter-spacing: 0.05em;
+      background: #06131f;
+    }
+    .trip-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 0 8px;
+      background: #06131f;
+    }
+    .trip-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transition: background 0.25s, transform 0.25s;
+      cursor: pointer;
+    }
+    .trip-dot.active {
+      background: var(--coral-light);
+      transform: scale(1.3);
+    }
+    .trip-arrow {
+      position: absolute;
+      top: 150px;
+      transform: translateY(-50%);
+      background: rgba(13,43,78,0.75);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      font-size: 1.1rem;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 5;
+      transition: background 0.18s;
+    }
+    .trip-arrow:hover { background: rgba(0,0,0,0.6); }
+    .trip-arrow-prev { left: 8px; }
+    .trip-arrow-next { right: 8px; }
+    .trip-poster-tag {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(232,130,90,0.92);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      z-index: 5;
+    }
+
+    /* 主要內容 */
+    .trip-body { padding: 18px 18px 0; }
+
+    .trip-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #f0f6ff;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .trip-sub {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    /* 價格橫幅 */
+    .trip-price-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(232,130,90,0.18), rgba(232,130,90,0.08));
+      border: 1px solid rgba(232,130,90,0.35);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .trip-price-label { font-size: 0.7rem; color: var(--coral-light); letter-spacing: 0.05em; margin-bottom: 2px; }
+    .trip-price-num { font-size: 1.8rem; font-weight: 800; color: #f0a882; line-height: 1; }
+    .trip-price-unit { font-size: 0.8rem; color: var(--text-dim); }
+    .trip-price-right { text-align: right; }
+    .trip-min-badge {
+      display: inline-block;
+      background: rgba(46,204,142,0.15);
+      border: 1px solid var(--algae);
+      color: var(--algae);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 4px;
+    }
+    .trip-time-badge {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* 包含項目格格 */
+    .trip-includes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .trip-inc-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .trip-inc-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .trip-inc-text { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; }
+    .trip-inc-text strong { display: block; color: var(--text-bright); font-size: 0.82rem; margin-bottom: 1px; }
+
+    /* 聯絡按鈕 */
+    .trip-cta-row {
+      display: flex;
+      gap: 10px;
+      margin: 0 18px;
+    }
+    .trip-btn-line {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #06C755;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: filter 0.2s;
+    }
+    .trip-btn-line:hover { filter: brightness(1.1); }
+    .trip-btn-line svg { width: 22px; height: 22px; }
+
+    .trip-btn-close {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      padding: 14px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .trip-btn-close:hover { background: rgba(255,255,255,0.13); }
+
+    /* 小字說明 */
+    .trip-note {
+      text-align: center;
+      font-size: 0.68rem;
+      color: rgba(168,192,216,0.55);
+      margin: 10px 18px 0;
+      line-height: 1.7;
+    }
+
+    /* ── 觸發按鈕（固定在畫面左下角，活動進程按鈕旁） ── */
+    .trip-trigger {
+      position: fixed;
+      bottom: 88px;
+      left: 16px;
+      z-index: 80;
+      background: linear-gradient(135deg, #e8825a, #d4643a);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 14px rgba(232,130,90,0.5);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: triggerPulse 2.8s ease-in-out infinite;
+      transition: transform 0.15s;
+    }
+    .trip-trigger:hover { transform: scale(1.05); }
+    @keyframes triggerPulse {
+      0%,100% { box-shadow: 0 3px 14px rgba(232,130,90,0.5); }
+      50%      { box-shadow: 0 3px 22px rgba(232,130,90,0.82); }
+    }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,30,55,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; }
     .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 0.65rem; padding: 4px 8px; text-decoration: none; }
@@ -490,6 +773,109 @@
 
 </main>
 
+<!-- ══ 小旅行觸發按鈕 ══ -->
+<button class="trip-trigger" onclick="openTrip()">
+  🐚 凸丕仔小旅行
+</button>
+
+<!-- ══ 小旅行彈出視窗 ══ -->
+<div class="trip-overlay" id="tripOverlay" style="display:none;" onclick="handleOverlayClick(event)">
+  <div class="trip-sheet" id="tripSheet">
+    <div class="trip-handle"></div>
+
+    <!-- 海報圖區：觸控輪播 -->
+    <div class="trip-poster">
+      <div class="trip-poster-tag">🗓 限定名額・報名中</div>
+
+      <button class="trip-arrow trip-arrow-prev" onclick="tripSlide(-1)">&#8249;</button>
+      <button class="trip-arrow trip-arrow-next" onclick="tripSlide(1)">&#8250;</button>
+
+      <div class="trip-slider" id="tripSlider">
+        <div class="trip-slide">
+          <img src="trip-poster.jpg" alt="活動海報">
+          <div class="trip-slide-caption">🌊 中角灣凸丕仔體驗</div>
+        </div>
+        <div class="trip-slide">
+          <img src="trip-activity.jpg" alt="採集活動">
+          <div class="trip-slide-caption">🐚 笠螺採集・海洋教育</div>
+        </div>
+        <div class="trip-slide">
+          <img src="trip-food.jpg" alt="丕仔料理">
+          <div class="trip-slide-caption">🍽️ 凸丕仔料理・粉彩手作</div>
+        </div>
+      </div>
+
+      <div class="trip-dots" id="tripDots">
+        <div class="trip-dot active" onclick="tripGoTo(0)"></div>
+        <div class="trip-dot" onclick="tripGoTo(1)"></div>
+        <div class="trip-dot" onclick="tripGoTo(2)"></div>
+      </div>
+    </div>
+
+    <div class="trip-body">
+      <div class="trip-title">新北市金山萬壽社區<br>凸丕仔海岸小旅行</div>
+      <div class="trip-sub">萬壽社區發展協會 · 中角灣潮間帶體驗</div>
+
+      <!-- 價格 -->
+      <div class="trip-price-banner">
+        <div class="trip-price-left">
+          <div class="trip-price-label">每人費用（含保險）</div>
+          <div>
+            <span class="trip-price-num">699</span>
+            <span class="trip-price-unit"> 元／人</span>
+          </div>
+        </div>
+        <div class="trip-price-right">
+          <div class="trip-min-badge">4 人成團</div>
+          <div class="trip-time-badge">⏱ 活動時間約 3 小時</div>
+        </div>
+      </div>
+
+      <!-- 包含項目 -->
+      <div class="trip-includes">
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🛡️</span>
+          <div class="trip-inc-text"><strong>旅遊保險</strong>含意外險保障</div>
+        </div>
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🐚</span>
+          <div class="trip-inc-text"><strong>丕仔料理</strong>現採現煮品嚐</div>
+        </div>
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🧃</span>
+          <div class="trip-inc-text"><strong>飲料點心</strong>茶點同樂</div>
+        </div>
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🎨</span>
+          <div class="trip-inc-text"><strong>粉彩手作</strong>笠螺紀念明信片</div>
+        </div>
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🌊</span>
+          <div class="trip-inc-text"><strong>海洋導覽</strong>潮間帶生態教育</div>
+        </div>
+        <div class="trip-inc-item">
+          <span class="trip-inc-icon">🗺️</span>
+          <div class="trip-inc-text"><strong>金山導覽</strong>在地故事分享</div>
+        </div>
+      </div>
+    </div><!-- /trip-body -->
+
+    <!-- 聯絡按鈕 -->
+    <div class="trip-cta-row">
+      <a href="https://line.me/R/ti/p/@wanshou" target="_blank" rel="noopener" class="trip-btn-line">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        LINE 洽詢報名
+      </a>
+      <button class="trip-btn-close" onclick="closeTrip()">稍後再說</button>
+    </div>
+
+    <p class="trip-note">
+      📍 集合地點：金山中角灣停車場入口<br>
+      🗓 日期時間：歡迎來訊預約，依潮汐彈性安排<br>
+      👥 每梯次上限 20 人，歡迎親子、銀髮團體報名
+    </p>
+  </div>
+</div>
 <div onclick="window.location.href='species.html'" style="
   position:fixed;bottom:100px;right:16px;z-index:50;
   background:#1a6b4a;color:white;
@@ -958,6 +1344,88 @@ function tickTide() {
     badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高';
   }
 }
+
+// ════════════════════════════════════════════════════════════
+// 小旅行彈出視窗
+// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// 輪播控制
+// ════════════════════════════════════════════════════════════
+let _tripIdx = 0;
+const TRIP_TOTAL = 3;
+
+function tripGoTo(idx) {
+  _tripIdx = (idx + TRIP_TOTAL) % TRIP_TOTAL;
+  const slider = document.getElementById('tripSlider');
+  if (slider) {
+    const pct = _tripIdx * (100 / TRIP_TOTAL);
+    slider.style.transform = 'translateX(-' + pct + '%)';
+  }
+  document.querySelectorAll('.trip-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === _tripIdx));
+}
+
+function tripSlide(dir) { tripGoTo(_tripIdx + dir); }
+
+let _tripTimer = null;
+function startTripAuto() {
+  stopTripAuto();
+  _tripTimer = setInterval(() => tripSlide(1), 3200);
+}
+function stopTripAuto() {
+  if (_tripTimer) { clearInterval(_tripTimer); _tripTimer = null; }
+}
+
+function initTripSwipe() {
+  const poster = document.querySelector('.trip-poster');
+  if (!poster) return;
+  let sx = 0;
+  poster.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stopTripAuto(); }, { passive: true });
+  poster.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) tripSlide(dx < 0 ? 1 : -1);
+    startTripAuto();
+  }, { passive: true });
+}
+
+function openTrip() {
+  const overlay = document.getElementById('tripOverlay');
+  overlay.style.display = 'flex';
+  overlay.classList.remove('hiding');
+  document.getElementById('tripSheet').classList.remove('hiding');
+  document.body.style.overflow = 'hidden';
+  tripGoTo(0);          // 每次開啟回到第一張
+  initTripSwipe();      // 初始化觸控
+  startTripAuto();      // 開始自動輪播
+}
+
+function closeTrip() {
+  const overlay = document.getElementById('tripOverlay');
+  const sheet   = document.getElementById('tripSheet');
+  overlay.classList.add('hiding');
+  sheet.classList.add('hiding');
+  stopTripAuto();       // 停止自動輪播
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 350);
+}
+
+function handleOverlayClick(e) {
+  // 點擊背景（非 sheet 本身）時關閉
+  if (e.target === document.getElementById('tripOverlay')) closeTrip();
+}
+
+// 頁面載入 3 秒後自動彈出（僅第一次造訪）
+document.addEventListener('DOMContentLoaded', () => {
+  const seen = sessionStorage.getItem('trip_popup_seen');
+  if (!seen) {
+    setTimeout(() => {
+      openTrip();
+      sessionStorage.setItem('trip_popup_seen', '1');
+    }, 3000);
+  }
+});
 
 // ── DOMContentLoaded ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
