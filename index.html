@@ -4,6 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>笠螺採集導覽｜萬壽社區</title>
+  <!-- ══ Google Analytics 4 ══ -->
+  <!-- 取得 GA4 ID 後，將下方兩處 G-SL4W2CJ697 替換為你的測量 ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SL4W2CJ697"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-SL4W2CJ697', {
+      page_title: '笠螺採集導覽｜萬壽社區',
+      page_location: window.location.href,
+    });
+
+    // ── 統一事件追蹤函式 ──────────────────────────────────────
+    // GA4 事件 + 同時寫入本地統計（供自建後台使用）
+    function trackEvent(category, action, label) {
+      // GA4 自訂事件
+      if (typeof gtag !== 'undefined') {
+        gtag('event', action, {
+          event_category: category,
+          event_label: label,
+          value: 1,
+        });
+      }
+      // 本地 localStorage 累計計數（供 admin-stats.html 讀取）
+      try {
+        const today = new Date(Date.now() + 8*3600000).toISOString().slice(0, 10);
+        const key = 'ws_stats_' + today;
+        const stats = JSON.parse(localStorage.getItem(key) || '{}');
+        // label 作為 key 的一部分，讓後台可以區分各 Tab
+        const eventKey = label
+          ? category + '__' + action + '__' + label
+          : category + '__' + action;
+        stats[eventKey] = (stats[eventKey] || 0) + 1;
+        stats['_updated'] = new Date().toISOString();
+        localStorage.setItem(key, JSON.stringify(stats));
+        // 保留最近 30 天的資料，清除舊資料
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('ws_stats_')) {
+            const dateStr = k.replace('ws_stats_', '');
+            const diff = (new Date(today) - new Date(dateStr)) / 86400000;
+            if (diff > 30) localStorage.removeItem(k);
+          }
+        }
+      } catch(e) {}
+    }
+  </script>
   <style>
     :root {
       --navy: #0d2b4e;
@@ -550,7 +597,7 @@
   <div class="header-sub">萬壽社區發展協會 · 金山中角灣</div>
 </header>
 
-<a href="activity.html" class="activity-floater">
+<a href="activity.html" class="activity-floater" onclick="trackEvent('導覽','activity_click','活動進程浮動按鈕')">
   📍 點此查看活動進程 ➔
 </a>
 
@@ -774,7 +821,7 @@
 </main>
 
 <!-- ══ 小旅行觸發按鈕 ══ -->
-<button class="trip-trigger" onclick="openTrip()">
+<button class="trip-trigger" onclick="trackEvent('推廣','trip_popup_open','觸發按鈕');openTrip()">
   🐚 凸丕仔小旅行
 </button>
 
@@ -862,7 +909,7 @@
 
     <!-- 聯絡按鈕 -->
     <div class="trip-cta-row">
-      <a href="https://line.me/R/ti/p/@443vypgo" target="_blank" rel="noopener" class="trip-btn-line">
+      <a href="https://line.me/R/ti/p/@wanshou" target="_blank" rel="noopener" class="trip-btn-line" onclick="trackEvent('聯絡','line_click','小旅行報名')">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
         LINE 洽詢報名
       </a>
@@ -876,7 +923,7 @@
     </p>
   </div>
 </div>
-<div onclick="window.location.href='species.html'" style="
+<div onclick="trackEvent('導覽','species_click','物種辨識');window.location.href='species.html'" style="
   position:fixed;bottom:100px;right:16px;z-index:50;
   background:#1a6b4a;color:white;
   border-radius:16px 16px 4px 16px;
@@ -900,7 +947,7 @@
   <button class="bottom-nav-btn" id="bnav-history" onclick="switchTab('history', null, 'bnav-history')">
     <span class="bnav-icon">📜</span>歷史
   </button>
-  <a href="activity.html" class="bottom-nav-btn" style="color:inherit;">
+  <a href="activity.html" class="bottom-nav-btn" style="color:inherit;" onclick="trackEvent('導覽','activity_click','底部導覽列')">
     <span class="bnav-icon">📅</span>活動進程
   </a>
 </div>
@@ -924,6 +971,9 @@ function switchTab(name, navBtn, bnavId) {
   const bid = bnavId || tabMap[name];
   if (bid) document.getElementById(bid)?.classList.add('active');
   document.querySelectorAll('video').forEach(v => { if (!v.autoplay) v.pause(); });
+  // 追蹤 Tab 切換事件
+  const tabNames = { weather:'天氣動態', collection:'採集方式', recipe:'笠螺料理', history:'採集歷史' };
+  trackEvent('頁面瀏覽', 'tab_view', tabNames[name] || name);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1432,6 +1482,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadWeather();
   loadTides();
   setInterval(tickTide, 60000);
+  // 首次載入追蹤
+  trackEvent('頁面瀏覽', 'page_view', '首頁-天氣動態');
+  // 記錄每日訪客（以 sessionStorage 避免重複計算同一 session）
+  if (!sessionStorage.getItem('ws_visited')) {
+    sessionStorage.setItem('ws_visited', '1');
+    trackEvent('訪客', 'session_start', '新 Session');
+  }
 });
 </script>
 </body>

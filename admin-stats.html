@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>數據後台｜萬壽社區</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg:      #070e1a;
+  --bg2:     #0c1829;
+  --bg3:     #111f35;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #3b82f6;
+  --green:   #22c55e;
+  --coral:   #f97316;
+  --purple:  #a855f7;
+  --yellow:  #eab308;
+  --text:    #e2e8f0;
+  --muted:   #64748b;
+  --dim:     #1e2d45;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* ── 頂部 ── */
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-logo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.03em;
+}
+.topbar-logo span { color: var(--accent); }
+.live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  50%      { opacity: 0.8; box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+.live-label { font-size: 0.72rem; color: var(--green); font-family: 'DM Mono', monospace; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.btn-refresh {
+  background: var(--dim);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-refresh:hover { background: var(--accent); border-color: var(--accent); }
+.btn-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-back:hover { border-color: var(--muted); color: var(--text); }
+
+/* ── 日期選擇列 ── */
+.date-bar {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.date-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: all 0.18s;
+}
+.date-btn:hover, .date-btn.active {
+  background: rgba(59,130,246,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.date-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.date-label { font-size: 0.72rem; color: var(--muted); }
+
+/* ── 內容區 ── */
+.content { padding: 20px; max-width: 1000px; margin: 0 auto; }
+
+/* ── GA4 設定警示 ── */
+.ga-notice {
+  background: rgba(234,179,8,0.08);
+  border: 1px solid rgba(234,179,8,0.25);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 0.82rem;
+  color: #fcd34d;
+  line-height: 1.7;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.ga-notice .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+
+/* ── KPI 卡片列 ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.kpi-card.blue::before { background: var(--accent); }
+.kpi-card.green::before { background: var(--green); }
+.kpi-card.coral::before { background: var(--coral); }
+.kpi-card.purple::before { background: var(--purple); }
+.kpi-card.yellow::before { background: var(--yellow); }
+.kpi-card:hover { border-color: rgba(255,255,255,0.14); }
+
+.kpi-label {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi-card.blue   .kpi-value { color: #60a5fa; }
+.kpi-card.green  .kpi-value { color: #4ade80; }
+.kpi-card.coral  .kpi-value { color: #fb923c; }
+.kpi-card.purple .kpi-value { color: #c084fc; }
+.kpi-card.yellow .kpi-value { color: #facc15; }
+
+.kpi-sub { font-size: 0.72rem; color: var(--muted); }
+.kpi-icon { position: absolute; right: 14px; top: 14px; font-size: 1.4rem; opacity: 0.25; }
+
+/* ── 圖表區 ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+.chart-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.chart-card.wide { grid-column: span 2; }
+@media (max-width: 640px) {
+  .chart-card.wide { grid-column: span 1; }
+}
+.chart-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chart-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* 橫條圖 */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-row-label {
+  font-size: 0.76rem;
+  color: var(--muted);
+  width: 90px;
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.3;
+}
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--dim);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--text);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 折線迷你圖 */
+canvas.mini-chart {
+  width: 100%;
+  height: 80px;
+  display: block;
+  margin-top: 8px;
+}
+
+/* 7日折線圖 */
+canvas#lineChart {
+  width: 100%;
+  height: 140px;
+  display: block;
+}
+.line-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  margin-top: 4px;
+  padding: 0 2px;
+}
+
+/* ── 事件詳細列表 ── */
+.event-table-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.table-title { font-size: 0.82rem; font-weight: 500; }
+.table-sub { font-size: 0.72rem; color: var(--muted); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+thead th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 400;
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.035);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.025); }
+.ev-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-family: 'DM Mono', monospace;
+}
+.ev-badge.blue   { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.ev-badge.green  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+.ev-badge.coral  { background: rgba(249,115,22,0.15); color: #fb923c; }
+.ev-badge.purple { background: rgba(168,85,247,0.15); color: #c084fc; }
+.count-mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ── 報表匯出區 ── */
+.export-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.export-info h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+.export-info p  { font-size: 0.75rem; color: var(--muted); }
+.export-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-export {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border: none;
+  font-family: 'Noto Sans TC', sans-serif;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.18s;
+}
+.btn-csv { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.btn-csv:hover { background: rgba(34,197,94,0.25); }
+.btn-json { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.btn-json:hover { background: rgba(59,130,246,0.25); }
+.btn-clear { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.btn-clear:hover { background: rgba(239,68,68,0.2); }
+
+/* ── GA4 連結區 ── */
+.ga-link-card {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.03));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.ga-link-info h3 { font-size: 0.88rem; font-weight: 600; color: #60a5fa; margin-bottom: 4px; }
+.ga-link-info p  { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+.btn-ga {
+  background: var(--accent);
+  color: white;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+  transition: filter 0.18s;
+  flex-shrink: 0;
+}
+.btn-ga:hover { filter: brightness(1.15); }
+
+/* ── Make.com 說明 ── */
+.make-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.make-card h3 { font-size: 0.88rem; font-weight: 600; margin-bottom: 12px; color: #c084fc; }
+.make-steps { display: flex; flex-direction: column; gap: 10px; counter-reset: step; }
+.make-step {
+  display: flex; gap: 12px; align-items: flex-start;
+  counter-increment: step;
+  position: relative;
+}
+.make-step::before {
+  content: counter(step);
+  min-width: 22px; height: 22px;
+  background: rgba(168,85,247,0.2);
+  border: 1px solid rgba(168,85,247,0.4);
+  color: #c084fc;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.make-step-body h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 2px; }
+.make-step-body p  { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+.code-inline {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  background: rgba(255,255,255,0.07);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #93c5fd;
+}
+
+/* ── 空狀態 ── */
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.empty-state .icon { font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.4; }
+
+/* ── 頁尾 ── */
+footer {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 32px;
+  padding: 0 20px;
+  line-height: 1.7;
+}
+footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- 頂部欄 -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">🐚 萬壽社區<span>數據後台</span></div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div class="live-dot"></div>
+      <span class="live-label">本地資料</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-time" id="topbarTime">--:--:--</span>
+    <button class="btn-refresh" onclick="loadAll()">⟳ 重新整理</button>
+    <a href="index.html" class="btn-back">← 返回網站</a>
+  </div>
+</div>
+
+<!-- 日期選擇列 -->
+<div class="date-bar">
+  <span class="date-label">查看日期：</span>
+  <button class="date-btn active" id="btn-today" onclick="selectDate(0)">今天</button>
+  <button class="date-btn" id="btn-yesterday" onclick="selectDate(-1)">昨天</button>
+  <button class="date-btn" id="btn-7days" onclick="selectDate('7days')">最近7天</button>
+  <div class="date-sep"></div>
+  <span class="date-label" id="selectedDateLabel"></span>
+</div>
+
+<div class="content">
+
+  <!-- GA4 設定提示 -->
+  <div class="ga-notice" id="gaNotice" style="background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25);color:#86efac;">
+    <span class="icon">✅</span>
+    <div>
+      <strong>Google Analytics 4 已設定</strong>　測量 ID：<span style="font-family:monospace;color:#4ade80;">G-SL4W2CJ697</span><br>
+      流量資料約需 <strong>24–48 小時</strong>後開始出現在 GA4 後台。本頁同時顯示<strong>本地瀏覽器即時記錄</strong>的點擊事件，資料從你的網站使用者真實行為中產生。
+    </div>
+  </div>
+
+  <!-- KPI 卡片 -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">👁️</div>
+      <div class="kpi-label">頁面瀏覽</div>
+      <div class="kpi-value" id="kpi-pageview">0</div>
+      <div class="kpi-sub">Tab 切換次數</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">👤</div>
+      <div class="kpi-label">訪客 Session</div>
+      <div class="kpi-value" id="kpi-session">0</div>
+      <div class="kpi-sub">不重複造訪</div>
+    </div>
+    <div class="kpi-card coral">
+      <div class="kpi-icon">💬</div>
+      <div class="kpi-label">LINE 諮詢</div>
+      <div class="kpi-value" id="kpi-line">0</div>
+      <div class="kpi-sub">報名點擊次數</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-icon">🐚</div>
+      <div class="kpi-label">物種辨識</div>
+      <div class="kpi-value" id="kpi-species">0</div>
+      <div class="kpi-sub">辨識按鈕點擊</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-label">活動進程</div>
+      <div class="kpi-value" id="kpi-activity">0</div>
+      <div class="kpi-sub">活動頁面點擊</div>
+    </div>
+  </div>
+
+  <!-- GA4 連結 -->
+  <div class="ga-link-card">
+    <div class="ga-link-info">
+      <h3>📊 Google Analytics 4 深度報表</h3>
+      <p>完整的使用者行為分析、裝置類型、地理位置、頁面停留時間等進階數據，<br>需先在 index.html 設定 GA4 測量 ID 後，資料約 24 小時後開始累積。</p>
+    </div>
+    <a href="https://analytics.google.com" target="_blank" class="btn-ga">
+      前往 GA4 →
+    </a>
+  </div>
+
+  <!-- 圖表區 -->
+  <div class="charts-grid">
+    <!-- Tab 頁面瀏覽分佈 -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <div class="dot" style="background:#3b82f6"></div>
+        各頁面瀏覽分佈
+      </div>
+      <div class="bar-chart" id="tabChart">
+        <div class="empty-state"><span class="icon">📊</span>載入中…</div>
+      </div>
+    </div>
+
+    <!-- 互動行為分佈 -->
+    <div class="chart-card">
+      <div class="chart-title">
+        <div class="dot" style="background:#f97316"></div>
+        使用者互動行為
+      </div>
+      <div class="bar-chart" id="actionChart">
+        <div class="empty-state"><span class="icon">📊</span>載入中…</div>
+      </div>
+    </div>
+
+    <!-- 7日趨勢折線圖 -->
+    <div class="chart-card wide">
+      <div class="chart-title">
+        <div class="dot" style="background:#22c55e"></div>
+        最近 7 天趨勢
+        <span style="font-size:0.7rem;color:var(--muted);margin-left:auto;">— 頁面瀏覽 &nbsp;— LINE 點擊</span>
+      </div>
+      <canvas id="lineChart"></canvas>
+      <div class="line-chart-labels" id="lineChartLabels"></div>
+    </div>
+  </div>
+
+  <!-- 事件明細表 -->
+  <div class="event-table-card">
+    <div class="table-header">
+      <div class="table-title">📋 事件明細</div>
+      <div class="table-sub" id="tableDate">今日</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>事件類型</th>
+          <th>動作</th>
+          <th>說明</th>
+          <th style="text-align:right;">次數</th>
+        </tr>
+      </thead>
+      <tbody id="eventTableBody">
+        <tr><td colspan="4"><div class="empty-state"><span class="icon">📭</span>尚無事件記錄</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 匯出報表 -->
+  <div class="export-card">
+    <div class="export-info">
+      <h3>📥 匯出報表</h3>
+      <p>將本地記錄的點擊事件匯出為 CSV 或 JSON 格式，方便存檔或匯入試算表</p>
+    </div>
+    <div class="export-btns">
+      <button class="btn-export btn-csv" onclick="exportCSV()">⬇ 匯出 CSV</button>
+      <button class="btn-export btn-json" onclick="exportJSON()">⬇ 匯出 JSON</button>
+      <button class="btn-export btn-clear" onclick="clearData()">🗑 清除資料</button>
+    </div>
+  </div>
+
+  <!-- Make.com 自動化說明 -->
+  <div class="make-card">
+    <h3>🔄 Make.com 自動化升級（選用）</h3>
+    <div class="make-steps">
+      <div class="make-step">
+        <div class="make-step-body">
+          <h4>申請 Google Sheets 連接</h4>
+          <p>在 Make.com 新增 Google Sheets 連接器，建立一張試算表作為數據倉儲，欄位：日期、事件類型、動作、次數。</p>
+        </div>
+      </div>
+      <div class="make-step">
+        <div class="make-step-body">
+          <h4>建立 Webhook Scenario</h4>
+          <p>Make.com 新增 Scenario：Webhook 接收 → Google Sheets 新增一列。將 Webhook URL 填入 <span class="code-inline">index.html</span> 的 <span class="code-inline">trackEvent()</span> 函式中，每次點擊即時上傳。</p>
+        </div>
+      </div>
+      <div class="make-step">
+        <div class="make-step-body">
+          <h4>每日統計報告</h4>
+          <p>利用你現有的每日定時 Scenario，每天 23:55 統計 Google Sheets 當日數據，透過 LINE 傳送日報給你。格式：今日瀏覽 X 次、LINE 諮詢 X 次、物種辨識 X 次。</p>
+        </div>
+      </div>
+      <div class="make-step">
+        <div class="make-step-body">
+          <h4>儀表板讀取 Sheets</h4>
+          <p>在本後台頁面加入 Google Sheets API 讀取，讓儀表板數據從試算表載入，實現跨裝置、跨使用者的累計統計。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  萬壽社區發展協會 數據後台 · 資料儲存於使用者本地瀏覽器（localStorage）<br>
+  如需跨裝置統計，請設定 <a href="https://analytics.google.com" target="_blank">Google Analytics 4</a> 或接入 Make.com Webhook
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// 資料讀取 — 從 localStorage 取得 index.html 寫入的事件數據
+// ════════════════════════════════════════════════════════════
+
+let currentMode = 'today'; // 'today' | 'yesterday' | '7days'
+
+function getDateStr(offset) {
+  const d = new Date(Date.now() + 8 * 3600000 + offset * 86400000);
+  return d.toISOString().slice(0, 10);
+}
+
+function getStatsForDate(dateStr) {
+  try {
+    return JSON.parse(localStorage.getItem('ws_stats_' + dateStr) || '{}');
+  } catch(e) { return {}; }
+}
+
+// 合併多天數據
+function mergeStats(days) {
+  const merged = {};
+  for (const dateStr of days) {
+    const s = getStatsForDate(dateStr);
+    for (const [k, v] of Object.entries(s)) {
+      if (k === '_updated') continue;
+      merged[k] = (merged[k] || 0) + v;
+    }
+  }
+  return merged;
+}
+
+// 取得最近 7 天的日期陣列
+function last7Days() {
+  return Array.from({length: 7}, (_, i) => getDateStr(-6 + i));
+}
+
+// ── 日期選擇 ──────────────────────────────────────────────────
+function selectDate(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  if (mode === 0)       { document.getElementById('btn-today').classList.add('active'); }
+  else if (mode === -1) { document.getElementById('btn-yesterday').classList.add('active'); }
+  else if (mode === '7days') { document.getElementById('btn-7days').classList.add('active'); }
+
+  const labels = { 0: '今天 ' + getDateStr(0), '-1': '昨天 ' + getDateStr(-1), '7days': '最近 7 天' };
+  document.getElementById('selectedDateLabel').textContent = labels[String(mode)] || '';
+  document.getElementById('tableDate').textContent = labels[String(mode)] || '';
+
+  loadAll();
+}
+
+function getActiveStats() {
+  if (currentMode === '7days') return mergeStats(last7Days());
+  return getStatsForDate(getDateStr(currentMode));
+}
+
+// ── KPI 卡片 ──────────────────────────────────────────────────
+function loadKPIs(stats) {
+  const get = (cat, action) => stats[cat + '__' + action] || 0;
+
+  // 頁面瀏覽 = 所有 tab_view 加總
+  const pageViews = get('頁面瀏覽','tab_view') + get('頁面瀏覽','page_view');
+  const sessions  = get('訪客','session_start');
+  const line      = get('聯絡','line_click');
+  const species   = get('導覽','species_click');
+  const activity  = get('導覽','activity_click');
+
+  animCount('kpi-pageview', pageViews);
+  animCount('kpi-session',  sessions);
+  animCount('kpi-line',     line);
+  animCount('kpi-species',  species);
+  animCount('kpi-activity', activity);
+}
+
+function animCount(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let cur = 0;
+  const step = Math.max(1, Math.ceil(target / 30));
+  const timer = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur.toLocaleString();
+    if (cur >= target) clearInterval(timer);
+  }, 20);
+}
+
+// ── Tab 瀏覽分佈橫條圖 ────────────────────────────────────────
+function loadTabChart(stats) {
+  const tabs = [
+    { label: '天氣動態',  key: '頁面瀏覽__tab_view', filter: '天氣動態',  color: '#3b82f6' },
+    { label: '採集方式',  key: '頁面瀏覽__tab_view', filter: '採集方式',  color: '#22c55e' },
+    { label: '笠螺料理',  key: '頁面瀏覽__tab_view', filter: '笠螺料理',  color: '#f97316' },
+    { label: '採集歷史',  key: '頁面瀏覽__tab_view', filter: '採集歷史',  color: '#a855f7' },
+  ];
+  // 分開統計每個 tab（index.html 的 trackEvent 用 label 區分）
+  // 因為目前合併在同一個 key，用 label 單獨追蹤需要改 trackEvent 的 key
+  // 這裡先以「頁面瀏覽__tab_view__天氣動態」格式讀取
+  const rows = [
+    { label: '天氣動態', count: stats['頁面瀏覽__tab_view__天氣動態'] || stats['頁面瀏覽__page_view'] || 0, color: '#3b82f6' },
+    { label: '採集方式', count: stats['頁面瀏覽__tab_view__採集方式'] || 0, color: '#22c55e' },
+    { label: '笠螺料理', count: stats['頁面瀏覽__tab_view__笠螺料理'] || 0, color: '#f97316' },
+    { label: '採集歷史', count: stats['頁面瀏覽__tab_view__採集歷史'] || 0, color: '#a855f7' },
+  ];
+  const max = Math.max(...rows.map(r => r.count), 1);
+  const el = document.getElementById('tabChart');
+  if (rows.every(r => r.count === 0)) {
+    el.innerHTML = '<div class="empty-state"><span class="icon">📊</span>今日尚無頁面瀏覽記錄</div>';
+    return;
+  }
+  el.innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-row-label">${r.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round(r.count/max*100)}%;background:${r.color};"></div>
+      </div>
+      <div class="bar-count">${r.count}</div>
+    </div>`).join('');
+}
+
+// ── 互動行為橫條圖 ────────────────────────────────────────────
+function loadActionChart(stats) {
+  const rows = [
+    { label: 'LINE 諮詢',  count: stats['聯絡__line_click'] || 0,       color: '#06C755' },
+    { label: '物種辨識',   count: stats['導覽__species_click'] || 0,    color: '#22c55e' },
+    { label: '活動進程',   count: stats['導覽__activity_click'] || 0,   color: '#3b82f6' },
+    { label: '小旅行彈窗', count: stats['推廣__trip_popup_open'] || 0,  color: '#f97316' },
+  ];
+  const max = Math.max(...rows.map(r => r.count), 1);
+  const el = document.getElementById('actionChart');
+  if (rows.every(r => r.count === 0)) {
+    el.innerHTML = '<div class="empty-state"><span class="icon">🖱️</span>今日尚無互動記錄</div>';
+    return;
+  }
+  el.innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="bar-row-label">${r.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round(r.count/max*100)}%;background:${r.color};"></div>
+      </div>
+      <div class="bar-count">${r.count}</div>
+    </div>`).join('');
+}
+
+// ── 7日折線圖 ─────────────────────────────────────────────────
+function loadLineChart() {
+  const days = last7Days();
+  const pvData   = days.map(d => {
+    const s = getStatsForDate(d);
+    return (s['頁面瀏覽__tab_view'] || 0) + (s['頁面瀏覽__page_view'] || 0);
+  });
+  const lineData = days.map(d => getStatsForDate(d)['聯絡__line_click'] || 0);
+  const labels   = days.map(d => d.slice(5)); // MM-DD
+
+  document.getElementById('lineChartLabels').innerHTML =
+    labels.map(l => `<span>${l}</span>`).join('');
+
+  const canvas = document.getElementById('lineChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 600;
+  const H = 140;
+  canvas.width = W; canvas.height = H;
+
+  const pad = { t: 10, r: 10, b: 10, l: 10 };
+  const chartW = W - pad.l - pad.r;
+  const chartH = H - pad.t - pad.b;
+
+  const maxVal = Math.max(...pvData, ...lineData, 1);
+  const xStep  = chartW / (days.length - 1);
+  const toX = i => pad.l + i * xStep;
+  const toY = v => pad.t + chartH - (v / maxVal) * chartH;
+
+  // Grid lines
+  ctx.setLineDash([2, 4]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Draw line helper
+  function drawLine(data, color, fillColor) {
+    if (data.every(v => v === 0)) return;
+    // Fill
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(data[0]));
+    for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(data[i]));
+    ctx.lineTo(toX(data.length - 1), H - pad.b);
+    ctx.lineTo(pad.l, H - pad.b);
+    ctx.closePath();
+    ctx.fillStyle = fillColor; ctx.fill();
+    // Line
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(data[0]));
+    for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(data[i]));
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    // Dots
+    for (let i = 0; i < data.length; i++) {
+      ctx.beginPath(); ctx.arc(toX(i), toY(data[i]), 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = '#0c1829'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  }
+
+  drawLine(pvData,   '#3b82f6', 'rgba(59,130,246,0.1)');
+  drawLine(lineData, '#22c55e', 'rgba(34,197,94,0.08)');
+}
+
+// ── 事件明細表 ────────────────────────────────────────────────
+const EVENT_META = {
+  '頁面瀏覽__page_view':         { label: '頁面瀏覽', action: '首頁載入',       badge: 'blue'   },
+  '頁面瀏覽__tab_view':          { label: '頁面瀏覽', action: 'Tab 切換',       badge: 'blue'   },
+  '訪客__session_start':         { label: '訪客',     action: '新 Session',     badge: 'green'  },
+  '聯絡__line_click':            { label: '聯絡',     action: 'LINE 諮詢點擊',  badge: 'coral'  },
+  '導覽__species_click':         { label: '導覽',     action: '物種辨識點擊',   badge: 'purple' },
+  '導覽__activity_click':        { label: '導覽',     action: '活動進程點擊',   badge: 'blue'   },
+  '推廣__trip_popup_open':       { label: '推廣',     action: '小旅行彈窗開啟', badge: 'coral'  },
+};
+
+function loadEventTable(stats) {
+  const body = document.getElementById('eventTableBody');
+  const rows = [];
+  for (const [key, count] of Object.entries(stats)) {
+    if (key === '_updated') continue;
+    const meta = EVENT_META[key] || { label: key.split('__')[0], action: key.split('__')[1] || key, badge: 'blue' };
+    rows.push({ ...meta, count: count || 0, key });
+  }
+  rows.sort((a, b) => b.count - a.count);
+  if (rows.length === 0) {
+    body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><span class="icon">📭</span>尚無事件記錄<br><small>請先到主網站瀏覽，事件才會被記錄</small></div></td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="ev-badge ${r.badge}">${r.label}</span></td>
+      <td style="color:var(--text)">${r.action}</td>
+      <td style="color:var(--muted);font-size:0.75rem;">${r.key}</td>
+      <td style="text-align:right;"><span class="count-mono">${(r.count || 0).toLocaleString()}</span></td>
+    </tr>`).join('');
+}
+
+// ── 匯出功能 ──────────────────────────────────────────────────
+function getAllData() {
+  const result = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('ws_stats_')) {
+      try { result[k.replace('ws_stats_','')] = JSON.parse(localStorage.getItem(k)); } catch(e) {}
+    }
+  }
+  return result;
+}
+
+function exportCSV() {
+  const data = getAllData();
+  const rows = [['日期','事件類型','動作','次數']];
+  for (const [date, stats] of Object.entries(data)) {
+    for (const [key, count] of Object.entries(stats)) {
+      if (key === '_updated') continue;
+      const [cat, act] = key.split('__');
+      rows.push([date, cat || '', act || '', count]);
+    }
+  }
+  const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '萬壽社區網站統計_' + getDateStr(0) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportJSON() {
+  const data = getAllData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '萬壽社區網站統計_' + getDateStr(0) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearData() {
+  if (!confirm('確定要清除所有本地統計資料嗎？此操作無法復原。')) return;
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('ws_stats_')) keysToRemove.push(k);
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  loadAll();
+  alert('資料已清除');
+}
+
+// ── 主要載入函式 ──────────────────────────────────────────────
+function loadAll() {
+  const stats = getActiveStats();
+  loadKPIs(stats);
+  loadTabChart(stats);
+  loadActionChart(stats);
+  loadLineChart();
+  loadEventTable(stats);
+}
+
+// ── 時鐘 ──────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date(Date.now() + 8 * 3600000);
+  document.getElementById('topbarTime').textContent =
+    now.toISOString().slice(11, 19) + ' CST';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── 初始化 ────────────────────────────────────────────────────
+selectDate(0);
+</script>
+</body>
+</html>
