@@ -49,6 +49,21 @@
           }
         }
       } catch(e) {}
+
+      // ── Make.com Webhook（即時上傳點擊事件）──
+      // LINE 報名點擊時送出，其餘事件靜默記錄
+      const MAKE_WEBHOOK = 'https://hook.us2.make.com/24wq6yxxc1v18h28adllrtp7ofjgcwmj';
+      fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          category:  category,
+          action:    action,
+          label:     label || '',
+          page:      'index.html'
+        })
+      }).catch(() => {}); // 靜默失敗，不影響網站運作
     }
   </script>
   <style>
