@@ -1,0 +1,49 @@
+name: LINE 點擊即時通知
+
+on:
+  repository_dispatch:
+    types: [site_click]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 發送 LINE 即時通知
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          ACTION="${{ github.event.client_payload.action }}"
+          LABEL="${{ github.event.client_payload.label }}"
+          PAGE="${{ github.event.client_payload.page }}"
+          CATEGORY="${{ github.event.client_payload.category }}"
+          TIME=$(TZ='Asia/Taipei' date +'%m/%d %H:%M')
+
+          # 只有 line_click 才送即時通知，其他事件靜默
+          if [ "$ACTION" != "line_click" ]; then
+            echo "非 LINE 點擊事件（$ACTION），略過通知"
+            exit 0
+          fi
+
+          MESSAGE=$(printf "💬 有人點擊 LINE 報名！\n時間：%s\n來源：%s\n頁面：%s\n\n請儘快回覆洽詢！" \
+            "$TIME" "$LABEL" "$PAGE")
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST 'https://api.line.me/v2/bot/message/push' \
+            -H "Authorization: Bearer ${LINE_TOKEN}" \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -n \
+              --arg to "$LINE_USER_ID" \
+              --arg text "$MESSAGE" \
+              '{to: $to, messages: [{type: "text", text: $text}]}')")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+
+          echo "LINE API 回應：$HTTP_CODE"
+          echo "回應內容：$BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ 發送失敗"
+            exit 1
+          fi
+          echo "✅ 即時通知發送完成"
