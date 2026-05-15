@@ -17,6 +17,7 @@
 
     // ── 統一事件追蹤函式 ──────────────────────────────────────
     function trackEvent(category, action, label) {
+      // GA4 自訂事件
       if (typeof gtag !== 'undefined') {
         gtag('event', action, {
           event_category: category,
@@ -24,6 +25,7 @@
           value: 1,
         });
       }
+      // 本地 localStorage 累計計數
       try {
         const today = new Date(Date.now() + 8*3600000).toISOString().slice(0, 10);
         const key = 'ws_stats_' + today;
@@ -44,6 +46,7 @@
         }
       } catch(e) {}
 
+      // ── Make.com Webhook（credentials: omit 解決 CORS，keepalive 確保頁面跳轉時送出）──
       const MAKE_WEBHOOK = 'https://hook.us2.make.com/jvriie8in3g0hvxg7urbd2vjqdearfze';
       fetch(MAKE_WEBHOOK, {
         method: 'POST',
@@ -58,15 +61,6 @@
           page:      'index.html'
         })
       }).catch(() => {});
-    }
-
-    // 【修正】確保點擊事件發送後，再跳轉到 LINE
-    function handleLineClick(e) {
-      e.preventDefault();
-      trackEvent('聯絡','line_click','小旅行報名');
-      setTimeout(() => {
-        window.open('https://line.me/R/ti/p/@455jyydi', '_blank', 'noopener');
-      }, 300);
     }
   </script>
   <style>
@@ -480,7 +474,7 @@
       </div>
       <div class="weather-item" style="margin-top:10px; background: rgba(0,0,0,0.1);">
         <div class="weather-item-label">⚓ 採集評估</div>
-        <div class="weather-item-value" id="wxAdvice" style="color: var(--algae); font-size: 0.9rem;">評估中...</div>
+        <div class="weather-item-value" id="wxAdvice" style="color: var(--coral-light); font-size: 0.9rem;">評估中...</div>
       </div>
     </div>
 
@@ -698,11 +692,11 @@
     </div>
 
     <div class="trip-cta-row">
-      <!-- 【修正】使用自訂跳轉函式 -->
-      <button class="trip-btn-line" onclick="handleLineClick(event)">
+      <a href="https://line.me/R/ti/p/@wanshou" target="_blank" rel="noopener" class="trip-btn-line"
+         onclick="trackEvent('聯絡','line_click','小旅行報名')">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
         LINE 洽詢報名
-      </button>
+      </a>
       <button class="trip-btn-close" onclick="closeTrip()">稍後再說</button>
     </div>
 
@@ -744,7 +738,15 @@
 </div>
 
 <script>
-const tabMap = { weather: 'bnav-weather', collection: 'bnav-collection', recipe: 'bnav-recipe', history: 'bnav-history' };
+// ════════════════════════════════════════════════════════════
+// Tab 切換
+// ════════════════════════════════════════════════════════════
+const tabMap = {
+  weather: 'bnav-weather',
+  collection: 'bnav-collection',
+  recipe: 'bnav-recipe',
+  history: 'bnav-history'
+};
 function switchTab(name, navBtn, bnavId) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
@@ -758,6 +760,9 @@ function switchTab(name, navBtn, bnavId) {
   trackEvent('頁面瀏覽', 'tab_view', tabNames[name] || name);
 }
 
+// ════════════════════════════════════════════════════════════
+// 天氣 API
+// ════════════════════════════════════════════════════════════
 const CWA_KEY = 'CWA-1026E4AC-395E-4FAA-968D-54C85BCE7D56';
 const WX_ICON = { '晴': '☀️', '多雲': '⛅', '陰': '☁️', '雨': '🌧️', '雷': '⛈️', '霧': '🌫️', '雪': '🌨️', '短暫': '🌦️' };
 function getWxIcon(desc) {
@@ -794,6 +799,9 @@ async function loadWeather() {
   } catch(e) { document.getElementById('wxDesc').textContent = '資料連線中...'; }
 }
 
+// ════════════════════════════════════════════════════════════
+// 潮汐引擎 v4
+// ════════════════════════════════════════════════════════════
 const TIDE = (() => {
   const J1900 = Date.UTC(1900, 0, 1, 0, 0, 0);
   const DEG   = Math.PI / 180;
@@ -982,8 +990,9 @@ function renderTideForDate(ds) {
   if (isToday) _tidePts = pts;
   const officialDay = _cwaCache ? (_cwaCache[ds] || null) : null;
   const labelEl = document.getElementById('tideDateLabel');
-  if (isToday) { labelEl.style.display = 'none'; } 
-  else {
+  if (isToday) {
+    labelEl.style.display = 'none';
+  } else {
     const weekdays = ['日','一','二','三','四','五','六'];
     const dObj = new Date(ds + 'T12:00:00+08:00');
     const diffDays = Math.round((dObj - new Date(todayStr() + 'T12:00:00+08:00')) / 86400000);
@@ -1037,7 +1046,8 @@ function renderTideForDate(ds) {
       <div class="tide-event-time">${fmtTime(e.m)}</div>
       <div class="tide-event-height">${e.h.toFixed(0)} cm</div>
     </div>`).join('') || '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">載入中…</div>';
-  document.getElementById('tideUpdateTime').textContent = isToday ? `更新 ${nc.toISOString().slice(11, 16)} CST` : `諧波推算 · ${src}`;
+  document.getElementById('tideUpdateTime').textContent =
+    isToday ? `更新 ${nc.toISOString().slice(11, 16)} CST` : `諧波推算 · ${src}`;
   drawTideChart(pts, nowMin, officialDay);
 }
 
@@ -1074,8 +1084,12 @@ function tickTide() {
   else { badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高'; }
 }
 
+// ════════════════════════════════════════════════════════════
+// 小旅行彈出視窗
+// ════════════════════════════════════════════════════════════
 let _tripIdx = 0;
 const TRIP_TOTAL = 3;
+
 function tripGoTo(idx) {
   _tripIdx = (idx + TRIP_TOTAL) % TRIP_TOTAL;
   const slider = document.getElementById('tripSlider');
@@ -1083,9 +1097,11 @@ function tripGoTo(idx) {
   document.querySelectorAll('.trip-dot').forEach((d, i) => d.classList.toggle('active', i === _tripIdx));
 }
 function tripSlide(dir) { tripGoTo(_tripIdx + dir); }
+
 let _tripTimer = null;
 function startTripAuto() { stopTripAuto(); _tripTimer = setInterval(() => tripSlide(1), 3200); }
 function stopTripAuto() { if (_tripTimer) { clearInterval(_tripTimer); _tripTimer = null; } }
+
 function initTripSwipe() {
   const poster = document.querySelector('.trip-poster');
   if (!poster) return;
@@ -1097,26 +1113,42 @@ function initTripSwipe() {
     startTripAuto();
   }, { passive: true });
 }
+
 function openTrip() {
   const overlay = document.getElementById('tripOverlay');
-  overlay.style.display = 'flex'; overlay.classList.remove('hiding');
+  overlay.style.display = 'flex';
+  overlay.classList.remove('hiding');
   document.getElementById('tripSheet').classList.remove('hiding');
   document.body.style.overflow = 'hidden';
-  tripGoTo(0); initTripSwipe(); startTripAuto();
+  tripGoTo(0);
+  initTripSwipe();
+  startTripAuto();
 }
+
 function closeTrip() {
   const overlay = document.getElementById('tripOverlay');
   const sheet   = document.getElementById('tripSheet');
-  overlay.classList.add('hiding'); sheet.classList.add('hiding');
+  overlay.classList.add('hiding');
+  sheet.classList.add('hiding');
   stopTripAuto();
   setTimeout(() => { overlay.style.display = 'none'; document.body.style.overflow = ''; }, 350);
 }
-function handleOverlayClick(e) { if (e.target === document.getElementById('tripOverlay')) closeTrip(); }
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('tripOverlay')) closeTrip();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const seen = sessionStorage.getItem('trip_popup_seen');
-  if (!seen) { setTimeout(() => { openTrip(); sessionStorage.setItem('trip_popup_seen', '1'); }, 3000); }
-  loadWeather(); loadTides(); setInterval(tickTide, 60000);
+  if (!seen) {
+    setTimeout(() => { openTrip(); sessionStorage.setItem('trip_popup_seen', '1'); }, 3000);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadWeather();
+  loadTides();
+  setInterval(tickTide, 60000);
   trackEvent('頁面瀏覽', 'page_view', '首頁-天氣動態');
   if (!sessionStorage.getItem('ws_visited')) {
     sessionStorage.setItem('ws_visited', '1');
