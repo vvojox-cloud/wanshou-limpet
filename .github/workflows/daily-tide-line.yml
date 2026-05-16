@@ -2,7 +2,7 @@ name: 每日金山潮汐 LINE 日報
 
 on:
   schedule:
-    - cron: '30 23 * * *'  # UTC 23:30 = 台北 07:30（離峰，確保準時送達）
+    - cron: '30 23 * * *'  # UTC 23:30 = 台北 07:30
   workflow_dispatch:
 
 jobs:
