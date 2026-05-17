@@ -1,8 +1,8 @@
 name: 每日金山潮汐 LINE 日報
 
 on:
-  schedule:
-    - cron: '30 23 * * *'  # UTC 23:30 = 台北 07:30
+  repository_dispatch:
+    types: [daily_tide_report]
   workflow_dispatch:
 
 jobs:
