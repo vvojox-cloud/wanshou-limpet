@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動進程｜萬壽社區</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0faf4; color: #1a1a1a; padding-bottom: 90px; }
+
+  .header {
+    background: #1a6b4a;
+    color: white;
+    padding: 20px 16px 16px;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .header h1 { font-size: 20px; margin-bottom: 4px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+
+  .date-bar {
+    background: #155c3e;
+    color: #a8e6c8;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .container { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* ── 狀態橫幅（倒數 / 未開始 / 已結束）── */
+  .phase-card {
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    text-align: center;
+    border: 1.5px solid #86efac;
+    background: #ffffff;
+  }
+  .phase-card .ph-label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .phase-card .ph-main  { font-size: 19px; font-weight: 700; color: #1a6b4a; margin-bottom: 4px; }
+  .phase-card .ph-sub   { font-size: 13px; color: #555; line-height: 1.6; }
+  .phase-card.gray  { border-color: #d1d5db; }
+  .phase-card.gray .ph-main { color: #6b7280; }
+
+  /* ── 進度條 ── */
+  .prog-wrap { margin-bottom: 14px; }
+  .prog-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; color: #6b7280; margin-bottom: 6px;
+  }
+  .prog-bar { height: 8px; background: #d1fae5; border-radius: 20px; overflow: hidden; }
+  .prog-fill { height: 100%; background: #1a6b4a; border-radius: 20px; transition: width 0.4s; width: 0; }
+
+  /* ── 安全燈號 ── */
+  .safety-card {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .safety-card.green  { background: #dcfce7; border: 1.5px solid #16a34a; }
+  .safety-card.yellow { background: #fef9c3; border: 1.5px solid #ca8a04; }
+  .safety-card.red    { background: #fee2e2; border: 1.5px solid #dc2626; }
+  .safety-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+  .safety-card.green  .safety-dot { background: #16a34a; }
+  .safety-card.yellow .safety-dot { background: #ca8a04; }
+  .safety-card.red    .safety-dot { background: #dc2626; }
+  .safety-text strong { font-size: 15px; display: block; margin-bottom: 2px; }
+  .safety-text span   { font-size: 12px; color: #555; }
+
+  /* ── 主持人公告 ── */
+  .notice {
+    background: #eff6ff;
+    border: 1.5px solid #60a5fa;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #1e40af;
+    line-height: 1.6;
+  }
+  .notice b { display: block; font-size: 11px; opacity: 0.8; margin-bottom: 3px; }
+
+  /* ── 時間軸 ── */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: #d1fae5;
+  }
+
+  .step {
+    position: relative;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid #e5e7eb;
+    transition: border-color 0.2s;
+    scroll-margin-top: 100px;
+  }
+  .step.done    { border-color: #86efac; background: #f0fdf4; }
+  .step.current { border-color: #1a6b4a; background: #ecfdf5; box-shadow: 0 2px 8px #1a6b4a22; }
+  .step.upcoming{ border-color: #e5e7eb; opacity: 0.7; }
+
+  .step-dot {
+    position: absolute;
+    left: -26px; top: 14px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+  .step.done     .step-dot { background: #16a34a; }
+  .step.current  .step-dot { background: #1a6b4a; box-shadow: 0 0 0 3px #bbf7d0; }
+  .step.upcoming .step-dot { background: #d1d5db; }
+
+  .step-time { font-size: 11px; color: #6b7280; margin-bottom: 3px; }
+  .step-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .step-desc  { font-size: 12px; color: #555; line-height: 1.5; }
+  .step.current .step-title { color: #1a6b4a; }
+
+  .current-badge {
+    display: inline-block;
+    background: #1a6b4a;
+    color: white;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    margin-bottom: 4px;
+  }
+  .done-badge {
+    display: inline-block;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    margin-bottom: 4px;
+  }
+
+  /* ── 未來場次清單 ── */
+  .next-list { margin-top: 18px; }
+  .next-list h3 { font-size: 13px; color: #1a6b4a; margin-bottom: 8px; }
+  .next-item {
+    background: white; border: 1.5px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+  }
+  .next-item .ni-date { font-weight: 600; color: #1a6b4a; }
+  .next-item .ni-days { font-size: 12px; color: #6b7280; }
+
+  /* ── 緊急聯絡 ── */
+  .emergency {
+    margin-top: 20px;
+    background: #fff7ed;
+    border: 1.5px solid #fb923c;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .emergency h3 { font-size: 13px; color: #c2410c; margin-bottom: 8px; }
+  .emergency a {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #c2410c;
+    text-decoration: none;
+    margin-bottom: 4px;
+  }
+
+  .update-bar {
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    padding: 16px 0 24px;
+    line-height: 1.6;
+  }
+  .sync-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+  .sync-dot.on  { background:#16a34a; }
+  .sync-dot.off { background:#d1d5db; }
+  .sync-dot.err { background:#dc2626; }
+
+  /* ════════════ 主持人控制面板 ════════════ */
+  .host-panel {
+    position: fixed;
+    left: 0; right: 0; bottom: 62px;
+    background: #0f2f22;
+    color: #d1fae5;
+    z-index: 95;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+    max-height: 72vh;
+    overflow-y: auto;
+    display: none;
+  }
+  .host-panel.open { display: block; }
+  .hp-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; background: #14472f; font-size: 13px; font-weight: 700;
+    position: sticky; top: 0;
+  }
+  .hp-close { background: none; border: none; color: #a8e6c8; font-size: 20px; cursor: pointer; line-height: 1; }
+  .hp-body { padding: 12px 14px 16px; }
+  .hp-sec { margin-bottom: 14px; }
+  .hp-sec > label { display: block; font-size: 11px; color: #86efac; margin-bottom: 6px; letter-spacing: .05em; }
+  .hp-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hp-btn {
+    flex: 1; min-width: 72px;
+    background: #1a6b4a; color: #fff; border: 1.5px solid #2f8b64;
+    border-radius: 8px; padding: 10px 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .hp-btn:active { transform: scale(0.97); }
+  .hp-btn.ghost { background: transparent; color: #a8e6c8; }
+  .hp-btn.on { background: #a8e6c8; color: #0f2f22; border-color: #a8e6c8; }
+  .hp-btn.red    { background:#dc2626; border-color:#ef4444; }
+  .hp-btn.yellow { background:#ca8a04; border-color:#eab308; }
+  .hp-btn.green  { background:#16a34a; border-color:#22c55e; }
+  .hp-select, .hp-input {
+    width: 100%; padding: 10px; border-radius: 8px; font-size: 14px;
+    border: 1.5px solid #2f8b64; background: #0b241a; color: #e7fff3;
+  }
+  .hp-status { font-size: 12px; color: #86efac; margin-top: 4px; line-height: 1.6; }
+
+  /* 面板分頁 */
+  .hp-tabs { display: flex; gap: 6px; padding: 10px 14px 0; }
+  .hp-tab {
+    flex: 1; padding: 9px 6px; text-align: center; font-size: 13px; font-weight: 600;
+    background: #14472f; color: #86efac; border: 1.5px solid #2f8b64;
+    border-radius: 8px; cursor: pointer;
+  }
+  .hp-tab.on { background: #a8e6c8; color: #0f2f22; border-color: #a8e6c8; }
+  .hp-pane { display: none; }
+  .hp-pane.on { display: block; }
+
+  /* 編輯器 */
+  .ed-block {
+    background: #0b241a; border: 1.5px solid #2f8b64; border-radius: 10px;
+    padding: 10px; margin-bottom: 10px;
+  }
+  .ed-line { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .ed-line:last-child { margin-bottom: 0; }
+  .ed-num {
+    width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+    background: #1a6b4a; color: #fff; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ed-in {
+    flex: 1; min-width: 0; padding: 8px; border-radius: 6px; font-size: 14px;
+    border: 1.5px solid #2f8b64; background: #06170f; color: #e7fff3;
+  }
+  .ed-in.time { flex: 1 1 0; min-width: 0; padding: 8px 4px; text-align: center; }
+  .ed-in.small { font-size: 12px; }
+  .ed-mini {
+    flex-shrink: 0; width: 32px; height: 32px; padding: 0;
+    background: #14472f; color: #a8e6c8; border: 1.5px solid #2f8b64;
+    border-radius: 6px; font-size: 14px; cursor: pointer;
+  }
+  .ed-mini.del { color: #fca5a5; border-color: #7f1d1d; }
+  .ed-sep { color: #86efac; font-size: 13px; flex-shrink: 0; }
+  .ed-add {
+    width: 100%; padding: 10px; background: transparent; color: #a8e6c8;
+    border: 1.5px dashed #2f8b64; border-radius: 8px; font-size: 13px;
+    font-weight: 600; cursor: pointer; margin-bottom: 12px;
+  }
+  .ed-save {
+    position: sticky; bottom: 0; background: #0f2f22;
+    padding: 10px 0 4px; margin-top: 4px;
+  }
+  .ed-hint { font-size: 11px; color: #6ee7b7; line-height: 1.6; margin-bottom: 8px; }
+
+  /* ── QR Code ── */
+  .qr-panel { text-align: center; }
+  .qr-frame {
+    display: inline-block; background: #fff; padding: 12px;
+    border-radius: 12px; line-height: 0; margin-bottom: 8px;
+  }
+  .qr-frame img, .qr-frame canvas { display: block; }
+  .qr-valid {
+    font-size: 12px; color: #a8e6c8; line-height: 1.6; margin-bottom: 8px;
+  }
+  .qr-valid b { color: #fff; }
+  .qr-url {
+    font-size: 10px; color: #6ee7b7; word-break: break-all;
+    background: #06170f; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px;
+  }
+
+  /* 放大顯示 / 列印 */
+  .qr-big {
+    position: fixed; inset: 0; background: #fff; z-index: 200;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+  }
+  .qr-big.open { display: flex; }
+  .qr-big h2 { font-size: 22px; color: #1a6b4a; margin-bottom: 4px; }
+  .qr-big .qb-date { font-size: 16px; color: #444; margin-bottom: 18px; }
+  .qr-big .qb-code { border: 3px solid #1a6b4a; border-radius: 14px; padding: 14px; line-height: 0; }
+  .qr-big .qb-tip { font-size: 15px; color: #1a6b4a; margin-top: 18px; font-weight: 600; }
+  .qr-big .qb-sub { font-size: 12px; color: #777; margin-top: 6px; }
+  .qr-big .qb-close {
+    position: absolute; top: 14px; right: 16px; background: #f3f4f6; border: none;
+    border-radius: 8px; padding: 8px 14px; font-size: 14px; cursor: pointer; color: #444;
+  }
+  @media print {
+    body > *:not(.qr-big) { display: none !important; }
+    .qr-big { position: static; display: flex !important; padding: 40px 0; }
+    .qr-big .qb-close { display: none; }
+  }
+
+  /* 參與者報到狀態 */
+  .checkin-card {
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .checkin-card.ok   { background: #dcfce7; border: 1.5px solid #16a34a; color: #166534; }
+  .checkin-card.wait { background: #f1f5f9; border: 1.5px solid #cbd5e1; color: #475569; }
+  .checkin-card.bad  { background: #fef9c3; border: 1.5px solid #ca8a04; color: #854d0e; }
+  .checkin-card b { display: block; margin-bottom: 2px; }
+  .hp-mode {
+    display:inline-block; font-size:11px; padding:2px 8px; border-radius:20px;
+    background:#a8e6c8; color:#0f2f22; font-weight:700;
+  }
+  .hp-mode.manual { background:#fbbf24; }
+
+  /* PIN 登入 */
+  .pin-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    display: none; align-items: center; justify-content: center; z-index: 120; padding: 24px;
+  }
+  .pin-overlay.open { display: flex; }
+  .pin-box { background: white; border-radius: 14px; padding: 20px; width: 100%; max-width: 300px; text-align: center; }
+  .pin-box h3 { font-size: 15px; color: #1a6b4a; margin-bottom: 12px; }
+  .pin-box input {
+    width: 100%; padding: 12px; font-size: 20px; text-align: center; letter-spacing: .3em;
+    border: 1.5px solid #d1d5db; border-radius: 8px; margin-bottom: 12px;
+  }
+  .pin-box button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .pin-box .ok { background: #1a6b4a; color: white; margin-bottom: 8px; }
+  .pin-box .cancel { background: #f3f4f6; color: #6b7280; }
+  .pin-err { color: #dc2626; font-size: 12px; min-height: 16px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header" id="pageHeader">
+  <h1 id="pageTitle">🐚 中角灣笠螺採集體驗</h1>
+  <p>萬壽社區發展協會 · 活動進程追蹤</p>
+</div>
+
+<div class="date-bar" id="dateBar">載入中...</div>
+
+<div class="container">
+
+  <div id="checkinSlot"></div>
+
+  <div id="phaseSlot"></div>
+
+  <div class="prog-wrap" id="progWrap" style="display:none;">
+    <div class="prog-head">
+      <span id="progLabel">活動進度</span>
+      <span id="progCount"></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+
+  <div class="safety-card" id="safetyCard">
+    <div class="safety-dot"></div>
+    <div class="safety-text">
+      <strong id="safetyTitle">確認海況中...</strong>
+      <span id="safetyDesc">請稍候</span>
+    </div>
+  </div>
+
+  <div class="notice" id="noticeBox" style="display:none;">
+    <b>📢 主持人公告</b>
+    <span id="noticeText"></span>
+  </div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <div class="next-list" id="nextList" style="display:none;">
+    <h3>📅 接下來的場次</h3>
+    <div id="nextItems"></div>
+  </div>
+
+  <div class="emergency">
+    <h3>緊急聯絡</h3>
+    <a href="tel:118">海巡署 118</a>
+    <a href="tel:0958565930">活動負責人：趙理事長 0958-565-930</a>
+  </div>
+
+</div>
+
+<div class="update-bar" id="updateBar">載入中...</div>
+
+<!-- ════════════ 主持人控制面板 ════════════ -->
+<div class="host-panel" id="hostPanel">
+  <div class="hp-head">
+    <span>🎛️ 主持人控制台 <span class="hp-mode" id="hpMode">自動</span></span>
+    <button class="hp-close" onclick="closeHost()">×</button>
+  </div>
+  <div class="hp-tabs">
+    <div class="hp-tab on" id="tabLive"  onclick="hpTab('live')">🎬 現場控制</div>
+    <div class="hp-tab"    id="tabEdit"  onclick="hpTab('edit')">✏️ 編輯活動</div>
+  </div>
+
+  <div class="hp-body hp-pane on" id="paneLive">
+
+    <div class="hp-sec qr-panel">
+      <label style="text-align:left;">今日報到 QR Code（每一場自動換新）</label>
+      <div id="qrSlot"></div>
+      <div class="hp-row" id="qrBtns" style="display:none;">
+        <button class="hp-btn" onclick="openQrBig()">🔍 放大顯示</button>
+        <button class="hp-btn ghost" onclick="printQr()">🖨️ 列印</button>
+      </div>
+    </div>
+
+    <div class="hp-sec">
+      <label>目前階段（手動指定後會同步給所有人）</label>
+      <select class="hp-select" id="hpStepSelect" onchange="hostSetStep(this.value)"></select>
+      <div class="hp-row" style="margin-top:8px;">
+        <button class="hp-btn" onclick="hostStep(-1)">◀ 上一階段</button>
+        <button class="hp-btn" onclick="hostStep(1)">下一階段 ▶</button>
+      </div>
+    </div>
+
+    <div class="hp-sec">
+      <label>整體時間平移（例如活動延後開始）</label>
+      <div class="hp-row">
+        <button class="hp-btn ghost" onclick="hostOffset(-10)">－10 分</button>
+        <button class="hp-btn ghost" onclick="hostOffset(10)">＋10 分</button>
+        <button class="hp-btn ghost" onclick="hostOffset(30)">＋30 分</button>
+      </div>
+      <div class="hp-status" id="hpOffsetInfo">目前平移：0 分鐘</div>
+    </div>
+
+    <div class="hp-sec">
+      <label>安全燈號</label>
+      <div class="hp-row">
+        <button class="hp-btn green"  onclick="hostSafety('green')">🟢 良好</button>
+        <button class="hp-btn yellow" onclick="hostSafety('yellow')">🟡 注意</button>
+        <button class="hp-btn red"    onclick="hostSafety('red')">🔴 停止</button>
+      </div>
+    </div>
+
+    <div class="hp-sec">
+      <label>臨時公告（留白則不顯示）</label>
+      <input class="hp-input" id="hpNotice" placeholder="例：因下雨，採集延後 20 分鐘">
+      <div class="hp-row" style="margin-top:8px;">
+        <button class="hp-btn" onclick="hostNotice()">發布公告</button>
+        <button class="hp-btn ghost" onclick="hostClearNotice()">清除公告</button>
+      </div>
+    </div>
+
+    <div class="hp-sec">
+      <label>今天不是預排的活動日時</label>
+      <div class="hp-row">
+        <button class="hp-btn ghost" id="hpForceBtn" onclick="hostToggleForce()">▶ 今天強制開跑</button>
+      </div>
+    </div>
+
+    <div class="hp-sec">
+      <div class="hp-row">
+        <button class="hp-btn ghost" onclick="hostReset()">↺ 全部恢復自動</button>
+      </div>
+      <div class="hp-status" id="hpSyncInfo"></div>
+    </div>
+
+  </div>
+
+  <!-- ── 編輯活動 ── -->
+  <div class="hp-body hp-pane" id="paneEdit">
+
+    <div class="hp-sec">
+      <label>活動場次日期（可以排很多場）</label>
+      <div class="ed-hint">改好日期後記得按最下面的「儲存並同步」。時間可以是上午或下午，用 24 小時制。</div>
+      <div id="edEvents"></div>
+      <button class="ed-add" onclick="edAddEvent()">＋ 新增一場</button>
+    </div>
+
+    <div class="hp-sec">
+      <label>活動流程（所有場次共用）</label>
+      <div id="edSteps"></div>
+      <button class="ed-add" onclick="edAddStep()">＋ 新增一個階段</button>
+    </div>
+
+    <div class="ed-save">
+      <div class="hp-row">
+        <button class="hp-btn" onclick="edSave()">💾 儲存並同步</button>
+        <button class="hp-btn ghost" onclick="edLoad()">取消變更</button>
+      </div>
+      <div class="hp-row" style="margin-top:8px;">
+        <button class="hp-btn ghost" onclick="edRestoreDefault()">↺ 還原成程式碼預設</button>
+      </div>
+      <div class="hp-status" id="edMsg"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- QR Code 放大 / 列印 -->
+<div class="qr-big" id="qrBig">
+  <button class="qb-close" onclick="closeQrBig()">關閉</button>
+  <h2 id="qbTitle">🐚 中角灣笠螺採集體驗</h2>
+  <div class="qb-date" id="qbDate"></div>
+  <div class="qb-code" id="qbCode"></div>
+  <div class="qb-tip">請掃描 QR Code 進入活動進程</div>
+  <div class="qb-sub" id="qbSub"></div>
+</div>
+
+<!-- PIN 登入 -->
+<div class="pin-overlay" id="pinOverlay">
+  <div class="pin-box">
+    <h3>🎛️ 主持人模式</h3>
+    <input type="tel" id="pinInput" maxlength="8" placeholder="輸入密碼" inputmode="numeric">
+    <div class="pin-err" id="pinErr"></div>
+    <button class="ok" onclick="checkPin()">進入</button>
+    <button class="cancel" onclick="closePin()">取消</button>
+  </div>
+</div>
+
+<!-- QR Code 產生器（qrcode-generator 2.0.4, MIT 授權，已內建，不需網路）-->
+<script>var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   ★★★ 講師 / 主持人修改區 ★★★
+   只要改這一段，其他都不用動
+   ═══════════════════════════════════════════════════════════ */
+
+// ── ① 活動場次日期（可以放很多場，網頁會自動比對「今天」）────
+//     格式：{ date: '西元年-月-日', name: '場次名稱' }
+//     過去的場次可以留著不用刪，網頁會自動略過
+//     ※ 主持人也可以直接在網頁上的「✏️ 編輯活動」修改，不必動這裡
+const EVENTS_DEFAULT = [
+  { date: '2026-07-20', name: '中角灣笠螺採集體驗' },
+  // { date: '2026-10-18', name: '中角灣笠螺採集體驗' },   // ← 複製這行、改日期，就多一場
+  // { date: '2026-11-15', name: '中角灣笠螺採集體驗' },
+];
+
+// ── ② 每一場的活動流程（所有場次共用）────────────────────
+//     start / end 用 24 小時制，格式 '時:分'（上午場就寫 '09:00' 這樣）
+//     ※ 主持人也可以直接在網頁上的「✏️ 編輯活動」修改，不必動這裡
+const SCHEDULE_DEFAULT = [
+  { start: '13:00', end: '13:30',
+    title: '報到 · 掃碼進入活動頁面',
+    desc:  '領取名牌，工作人員協助長者操作手機' },
+
+  { start: '13:30', end: '14:00',
+    title: '笠螺文化介紹 · 海洋安全教育',
+    desc:  '江淑珍講師主講，說明潮汐安全燈號使用方式' },
+
+  { start: '14:00', end: '15:30',
+    title: '🌊 中角灣潮間帶採集體驗',
+    desc:  '低潮黃金採集時段！長者文化嚮導帶領，請穿防滑鞋' },
+
+  { start: '15:30', end: '16:00',
+    title: '淨灘行動',
+    desc:  '廢棄物分類統計，用手機填寫淨灘回報表' },
+
+  { start: '16:00', end: '16:30',
+    title: '笠螺料理 DIY',
+    desc:  '社區志工媽媽示範傳統醃漬作法，現場試吃' },
+
+  { start: '16:30', end: '17:00',
+    title: '成果分享 · 填寫回饋問卷',
+    desc:  '個人採集記錄表填寫，生成你的體驗成果卡' },
+
+  { start: '17:00', end: '17:30',
+    title: '回饋與展望',
+    desc:  '感謝參與！宣傳下一場活動資訊' },
+];
+
+// ── ③ 預設安全燈號（主持人可在現場用控制台即時改）────────
+const SAFETY_PRESET = {
+  green:  { title: '採集條件良好', desc: '今日潮位適合，浪況平穩，請跟隨講師進行採集' },
+  yellow: { title: '請特別注意',   desc: '浪況或潮位變化中，請留在講師視線範圍內' },
+  red:    { title: '暫停採集',     desc: '請立即回到岸上，聽從工作人員指示' },
+};
+const SAFETY_DEFAULT_LEVEL = 'green';
+
+// ── ④ 主持人控制台密碼 ────────────────────────────────
+const HOST_PIN = '2026';
+
+// ── ⑤ QR Code 驗證用的暗碼（隨便打一串英數字就好，改了舊 QR 就失效）──
+const QR_SALT = 'wanshou-limpet-2026';
+
+// ── ⑥ 雲端同步網址（貼上 Google Apps Script 的 /exec 網址）──
+//     留空 = 只在主持人自己手機上生效
+//     填入 = 主持人一按，現場所有人的手機都會跟著更新
+const SYNC_URL = '';
+
+/* ═══════════════════════════════════════════════════════════
+   以下不需要修改
+   ═══════════════════════════════════════════════════════════ */
+
+const LS_KEY = 'ws_activity_state_v1';
+const WEEK = ['日','一','二','三','四','五','六'];
+
+let state = {
+  mode: 'auto',        // auto | manual
+  stepIndex: 0,
+  offsetMin: 0,
+  forceToday: '',      // 'YYYY-MM-DD' 或 ''
+  safety: null,        // {level} 或 null（用預設）
+  notice: '',
+  events: null,        // 主持人在網頁上改過的場次；null = 用程式碼預設
+  schedule: null,      // 主持人在網頁上改過的流程；null = 用程式碼預設
+  updatedAt: 0,
+};
+let isHost = false;
+let syncStatus = SYNC_URL ? 'connecting' : 'off';
+
+// 實際使用的資料（主持人編輯過就用編輯後的）
+let EVENTS = EVENTS_DEFAULT.slice();
+let SCHEDULE = SCHEDULE_DEFAULT.slice();
+function applyState() {
+  EVENTS   = Array.isArray(state.events) ? state.events : EVENTS_DEFAULT;
+  SCHEDULE = (state.schedule && state.schedule.length) ? state.schedule : SCHEDULE_DEFAULT;
+  if (state.stepIndex > SCHEDULE.length - 1) state.stepIndex = SCHEDULE.length - 1;
+  if (state.stepIndex < 0) state.stepIndex = 0;
+}
+
+/* ── 台北時間 ────────────────────────────────────────── */
+function tpNow() {
+  const f = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+  });
+  const p = {};
+  f.formatToParts(new Date()).forEach(x => { p[x.type] = x.value; });
+  return {
+    date: `${p.year}-${p.month}-${p.day}`,
+    min: (+p.hour) * 60 + (+p.minute),
+    hh: p.hour, mm: p.minute
+  };
+}
+function toMin(hhmm) { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; }
+function fmtMin(m) {
+  m = ((m % 1440) + 1440) % 1440;
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+function dateNum(d) { const [y, m, dd] = d.split('-').map(Number); return Date.UTC(y, m - 1, dd); }
+function daysBetween(a, b) { return Math.round((dateNum(b) - dateNum(a)) / 86400000); }
+function weekdayOf(d) { return WEEK[new Date(dateNum(d)).getUTCDay()]; }
+function prettyDate(d) { const [y, m, dd] = d.split('-'); return `${+m}月${+dd}日（${weekdayOf(d)}）`; }
+
+/* ── 狀態存取 ────────────────────────────────────────── */
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) state = Object.assign(state, JSON.parse(raw));
+  } catch (e) {}
+}
+function saveLocal() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function touch() { state.updatedAt = Date.now(); saveLocal(); pushRemote(); render(); }
+
+/* ── QR Code 報到 ────────────────────────────────────── */
+const CK_KEY = 'ws_checkin_v1';
+let scanMsg = null;          // 掃碼進來時要顯示的訊息
+let qrShownFor = null;       // 目前畫出來的 QR 是哪一天的
+
+/** 依日期算出一組驗證碼，換一天就換一組 */
+function qrToken(date) {
+  const s = QR_SALT + '|' + date;
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return h.toString(36);
+}
+function baseUrl() { return location.origin + location.pathname; }
+function qrUrlFor(date) { return baseUrl() + '?e=' + date + '&k=' + qrToken(date); }
+
+function getCheckin() { try { return JSON.parse(localStorage.getItem(CK_KEY) || 'null'); } catch (e) { return null; } }
+function checkedInToday() { const c = getCheckin(); return !!(c && c.date === tpNow().date); }
+function synced() { return isHost || checkedInToday(); }
+
+/** 網址帶 ?e=日期&k=驗證碼 時處理報到 */
+function handleScan() {
+  const q = new URLSearchParams(location.search);
+  const e = q.get('e'), k = q.get('k');
+  if (!e || !k) return;
+  const today = tpNow().date;
+  if (k !== qrToken(e)) scanMsg = { type: 'bad' };
+  else if (e === today) {
+    try { localStorage.setItem(CK_KEY, JSON.stringify({ date: e })); } catch (err) {}
+    scanMsg = { type: 'ok', date: e };
+  }
+  else if (e > today) scanMsg = { type: 'early', date: e };
+  else scanMsg = { type: 'late', date: e };
+  try { history.replaceState(null, '', baseUrl() + (q.get('host') === '1' ? '?host=1' : '')); } catch (err) {}
+}
+
+/** 產生 QR Code 的 SVG（產生器已內建在這個檔案裡，不需要網路） */
+function qrSvg(text, px) {
+  const q = qrcode(0, 'M');
+  q.addData(text);
+  q.make();
+  const n = q.getModuleCount();
+  const cell = Math.max(2, Math.round(px / (n + 8)));
+  return q.createSvgTag({ cellSize: cell, margin: cell * 4, scalable: false });
+}
+
+function renderQrPanel(phase, ev) {
+  if (!isHost) return;
+  const slot = document.getElementById('qrSlot');
+  const btns = document.getElementById('qrBtns');
+
+  let d = null, isToday = false;
+  if (phase === 'live') { d = tpNow().date; isToday = true; }
+  else if (phase === 'before') { d = ev.date; }
+
+  if (!d) {
+    slot.innerHTML = '<div class="hp-status">目前沒有安排場次。請到「✏️ 編輯活動」新增日期，或按下面的「今天強制開跑」。</div>';
+    btns.style.display = 'none'; qrShownFor = null; return;
+  }
+  if (qrShownFor === d) return;   // 同一天不重畫
+  qrShownFor = d;
+
+  const url = qrUrlFor(d);
+  slot.innerHTML =
+    '<div class="qr-frame">' + qrSvg(url, 180) + '</div>' +
+    '<div class="qr-valid">' +
+      (isToday ? '✅ <b>今天</b>就是活動日，現在就能讓大家掃'
+               : `⚠️ 這張 QR Code 只在 <b>${prettyDate(d)}</b> 當天有效`) +
+    '</div>' +
+    `<div class="qr-url">${url}</div>`;
+  btns.style.display = 'flex';
+}
+
+function openQrBig() {
+  if (!qrShownFor) return;
+  document.getElementById('qbCode').innerHTML = qrSvg(qrUrlFor(qrShownFor), 300);
+  document.getElementById('qbTitle').textContent = document.getElementById('pageTitle').textContent;
+  document.getElementById('qbDate').textContent = prettyDate(qrShownFor) + '　·　中角灣';
+  document.getElementById('qbSub').textContent = '此 QR Code 僅限 ' + prettyDate(qrShownFor) + ' 當天使用';
+  document.getElementById('qrBig').classList.add('open');
+}
+function closeQrBig() { document.getElementById('qrBig').classList.remove('open'); }
+function printQr() { openQrBig(); setTimeout(() => window.print(), 400); }
+
+/** 報到狀態卡 */
+function renderCheckin(phase) {
+  const slot = document.getElementById('checkinSlot');
+  let html = '';
+  if (scanMsg && scanMsg.type === 'bad') {
+    html = `<div class="checkin-card bad"><b>⚠️ 這個 QR Code 無法辨識</b>請向現場工作人員重新掃描。</div>`;
+  } else if (scanMsg && scanMsg.type === 'early') {
+    html = `<div class="checkin-card bad"><b>📅 這是 ${prettyDate(scanMsg.date)} 的 QR Code</b>當天到現場再掃一次就會生效。</div>`;
+  } else if (scanMsg && scanMsg.type === 'late') {
+    html = `<div class="checkin-card bad"><b>⌛ 這張 QR Code 已過期</b>它是 ${prettyDate(scanMsg.date)} 那一場的，請掃現場最新的 QR Code。</div>`;
+  } else if (phase === 'live' && checkedInToday()) {
+    html = `<div class="checkin-card ok"><b>✅ 已完成報到</b>主持人調整進度時，這個畫面會自動跟著更新。</div>`;
+  } else if (phase === 'live' && !isHost) {
+    html = `<div class="checkin-card wait"><b>📱 請掃描現場的 QR Code</b>掃碼後才會跟著主持人的實際進度即時更新，目前顯示的是預定時間表。</div>`;
+  }
+  slot.innerHTML = html;
+}
+
+/* ── 雲端同步 ────────────────────────────────────────── */
+let lastRemoteRaw = null;
+let hostHasPushed = false;   // 主持人改過之後就以自己的畫面為準，不再被雲端蓋回去
+
+async function pullRemote() {
+  if (!SYNC_URL) return;
+  if (isHost && hostHasPushed) { syncStatus = 'on'; renderSyncBar(); return; }
+  try {
+    const res = await fetch(SYNC_URL + '?key=activity_state&t=' + Date.now(), { cache: 'no-store' });
+    const raw = await res.text();
+    syncStatus = 'on';
+    if (raw === lastRemoteRaw) { renderSyncBar(); return; }
+    lastRemoteRaw = raw;
+    let remote = null;
+    try { remote = JSON.parse(raw); } catch (e) {}
+    if (remote && remote.updatedAt) {
+      // 活動日期與流程（內容）大家都會收到
+      if ('events' in remote) state.events = remote.events;
+      if ('schedule' in remote) state.schedule = remote.schedule;
+      // 主持人的即時控制，只有掃過碼的人（和主持人自己）才套用
+      if (synced()) {
+        ['mode', 'stepIndex', 'offsetMin', 'forceToday', 'safety', 'notice'].forEach(k => {
+          if (k in remote) state[k] = remote[k];
+        });
+      }
+      state.updatedAt = remote.updatedAt;
+      saveLocal();
+      render();
+    } else {
+      renderSyncBar();
+    }
+  } catch (e) {
+    syncStatus = 'err';
+    renderSyncBar();
+  }
+}
+async function pushRemote() {
+  if (!SYNC_URL || !isHost) return;
+  try {
+    await fetch(SYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ pin: HOST_PIN, key: 'activity_state', value: state })
+    });
+    hostHasPushed = true;
+    syncStatus = 'on';
+  } catch (e) {
+    syncStatus = 'err';
+  }
+  renderSyncBar();
+}
+
+/* ── 找出今天要顯示哪一場 ───────────────────────────── */
+function resolveEvent(today) {
+  const list = EVENTS.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+
+  if (state.forceToday === today) {
+    return { phase: 'live', ev: { date: today, name: EVENTS[0] ? EVENTS[0].name : '活動進行中' }, list };
+  }
+  const hit = list.find(e => e.date === today);
+  if (hit) return { phase: 'live', ev: hit, list };
+
+  const next = list.find(e => e.date > today);
+  if (next) return { phase: 'before', ev: next, list };
+
+  if (list.length) return { phase: 'after', ev: list[list.length - 1], list };
+  return { phase: 'none', ev: null, list };
+}
+
+/* ── 主渲染 ──────────────────────────────────────────── */
+function render() {
+  applyState();
+  const now = tpNow();
+  const { phase, ev, list } = resolveEvent(now.date);
+  const off = state.offsetMin || 0;
+
+  // 標題（跟著場次名稱走）
+  if (ev && ev.name) document.getElementById('pageTitle').textContent = '🐚 ' + ev.name;
+
+  // 日期列
+  const dateBar = document.getElementById('dateBar');
+  if (phase === 'live') {
+    dateBar.textContent = `${ev.date}（${weekdayOf(ev.date)}）· 中角灣 · 活動日`;
+  } else if (phase === 'before') {
+    dateBar.textContent = `今天 ${now.date}（${weekdayOf(now.date)}）· 下一場 ${prettyDate(ev.date)}`;
+  } else {
+    dateBar.textContent = `今天 ${now.date}（${weekdayOf(now.date)}）· 中角灣 · 萬壽社區`;
+  }
+
+  // 計算階段狀態
+  const startMins = SCHEDULE.map(s => toMin(s.start) + off);
+  const endMins = SCHEDULE.map(s => toMin(s.end) + off);
+  let curIdx = -1;          // -1 = 尚未開始，SCHEDULE.length = 已結束
+  let inGap = false;        // 兩個階段之間的空檔（例如中間休息）
+  if (phase === 'live') {
+    if (state.mode === 'manual') {
+      curIdx = Math.max(0, Math.min(SCHEDULE.length - 1, state.stepIndex));
+    } else {
+      if (now.min < startMins[0]) curIdx = -1;
+      else if (now.min >= endMins[endMins.length - 1]) curIdx = SCHEDULE.length;
+      else {
+        curIdx = SCHEDULE.findIndex((s, i) => now.min < endMins[i]);
+        if (curIdx < 0) curIdx = SCHEDULE.length;
+        else if (now.min < startMins[curIdx]) inGap = true;
+      }
+    }
+  }
+
+  // 狀態橫幅
+  const slot = document.getElementById('phaseSlot');
+  let html = '';
+  if (phase === 'none') {
+    html = `<div class="phase-card gray">
+      <div class="ph-label">活動進程</div>
+      <div class="ph-main">目前尚未安排場次</div>
+      <div class="ph-sub">新場次確定後會在這裡公布，歡迎先加 LINE 追蹤</div></div>`;
+  } else if (phase === 'before') {
+    const d = daysBetween(now.date, ev.date);
+    html = `<div class="phase-card">
+      <div class="ph-label">下一場活動</div>
+      <div class="ph-main">${prettyDate(ev.date)}</div>
+      <div class="ph-sub">${d === 1 ? '就在明天！' : `還有 ${d} 天`}　·　${SCHEDULE[0].start} 開始報到<br>下方是當天的完整流程</div></div>`;
+  } else if (phase === 'after') {
+    const d = daysBetween(ev.date, now.date);
+    html = `<div class="phase-card gray">
+      <div class="ph-label">最近一場活動</div>
+      <div class="ph-main">已於 ${prettyDate(ev.date)} 圓滿結束</div>
+      <div class="ph-sub">${d} 天前　·　下一場活動籌備中，敬請期待</div></div>`;
+  } else if (curIdx === -1) {
+    const wait = startMins[0] - now.min;
+    html = `<div class="phase-card">
+      <div class="ph-label">今天是活動日 🎉</div>
+      <div class="ph-main">${fmtMin(startMins[0])} 開始報到</div>
+      <div class="ph-sub">還有 ${Math.floor(wait / 60)} 小時 ${wait % 60} 分鐘${off ? `　·　已整體延後 ${off} 分鐘` : ''}</div></div>`;
+  } else if (curIdx >= SCHEDULE.length) {
+    html = `<div class="phase-card">
+      <div class="ph-label">今日活動</div>
+      <div class="ph-main">已圓滿結束，感謝參與 🐚</div>
+      <div class="ph-sub">別忘了填寫回饋問卷，我們下次見！</div></div>`;
+  } else if (inGap) {
+    const wait = startMins[curIdx] - now.min;
+    html = `<div class="phase-card">
+      <div class="ph-label">中場休息</div>
+      <div class="ph-main">下一階段：${SCHEDULE[curIdx].title}</div>
+      <div class="ph-sub">${fmtMin(startMins[curIdx])} 開始，還有 ${wait} 分鐘${off ? `　·　已整體延後 ${off} 分鐘` : ''}</div></div>`;
+  } else {
+    const left = endMins[curIdx] - now.min;
+    html = `<div class="phase-card">
+      <div class="ph-label">現在進行中（第 ${curIdx + 1} / ${SCHEDULE.length} 階段）</div>
+      <div class="ph-main">${SCHEDULE[curIdx].title}</div>
+      <div class="ph-sub">${state.mode === 'manual'
+        ? '主持人手動指定中'
+        : `距離下一階段還有 ${left} 分鐘`}${off ? `　·　已整體延後 ${off} 分鐘` : ''}</div></div>`;
+  }
+  slot.innerHTML = html;
+
+  // 進度條
+  const pw = document.getElementById('progWrap');
+  if (phase === 'live') {
+    pw.style.display = 'block';
+    const doneCount = Math.max(0, Math.min(SCHEDULE.length, curIdx));
+    document.getElementById('progCount').textContent = `${doneCount} / ${SCHEDULE.length} 階段完成`;
+    document.getElementById('progFill').style.width = (doneCount / SCHEDULE.length * 100) + '%';
+  } else {
+    pw.style.display = 'none';
+  }
+
+  // 安全燈號（活動日才顯示）
+  const card = document.getElementById('safetyCard');
+  if (phase === 'live') {
+    card.style.display = 'flex';
+    const lv = (state.safety && state.safety.level) || SAFETY_DEFAULT_LEVEL;
+    const p = SAFETY_PRESET[lv] || SAFETY_PRESET.green;
+    card.className = 'safety-card ' + lv;
+    document.getElementById('safetyTitle').textContent = p.title;
+    document.getElementById('safetyDesc').textContent = p.desc;
+  } else {
+    card.style.display = 'none';
+  }
+
+  // 公告
+  const nb = document.getElementById('noticeBox');
+  if (state.notice) {
+    nb.style.display = 'block';
+    document.getElementById('noticeText').textContent = state.notice;
+  } else {
+    nb.style.display = 'none';
+  }
+
+  // 時間軸
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  if (phase !== 'none') {
+    SCHEDULE.forEach((s, i) => {
+      let st;
+      if (phase !== 'live') st = 'upcoming';
+      else if (i < curIdx) st = 'done';
+      else if (i === curIdx) st = inGap ? 'upcoming' : 'current';
+      else st = 'upcoming';
+
+      const div = document.createElement('div');
+      div.className = 'step ' + st;
+      if (st === 'current') div.id = 'currentStep';
+      div.innerHTML =
+        '<div class="step-dot"></div>' +
+        (st === 'current' ? '<span class="current-badge">▶ 進行中</span>' : '') +
+        (st === 'done' ? '<span class="done-badge">✓ 已完成</span>' : '') +
+        `<div class="step-time">${fmtMin(toMin(s.start) + off)} - ${fmtMin(toMin(s.end) + off)}</div>` +
+        `<div class="step-title">${s.title}</div>` +
+        `<div class="step-desc">${s.desc}</div>`;
+      tl.appendChild(div);
+    });
+  }
+
+  // 未來場次清單
+  const nl = document.getElementById('nextList');
+  const future = list.filter(e => e.date > now.date);
+  if (future.length && phase !== 'live') {
+    nl.style.display = 'block';
+    document.getElementById('nextItems').innerHTML = future.slice(0, 4).map(e =>
+      `<div class="next-item"><span class="ni-date">${prettyDate(e.date)}</span>
+       <span class="ni-days">還有 ${daysBetween(now.date, e.date)} 天</span></div>`).join('');
+  } else {
+    nl.style.display = 'none';
+  }
+
+  renderCheckin(phase);
+  renderSyncBar();
+  renderHostPanel(curIdx);
+  renderQrPanel(phase, ev);
+
+  // 自動捲到進行中的階段（只捲一次）
+  if (!render._scrolled && phase === 'live') {
+    const cur = document.getElementById('currentStep');
+    if (cur) { render._scrolled = true; setTimeout(() => cur.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400); }
+  }
+}
+
+function renderSyncBar() {
+  const now = tpNow();
+  let sync;
+  if (!SYNC_URL) sync = '<span class="sync-dot off"></span>本機模式';
+  else if (syncStatus === 'on') sync = '<span class="sync-dot on"></span>已連線同步';
+  else if (syncStatus === 'err') sync = '<span class="sync-dot err"></span>同步異常';
+  else sync = '<span class="sync-dot off"></span>連線中...';
+
+  if (!isHost) sync = checkedInToday()
+    ? '<span class="sync-dot on"></span>已報到 · 即時同步中'
+    : '<span class="sync-dot off"></span>未掃碼 · 顯示預定時間表';
+
+  document.getElementById('updateBar').innerHTML =
+    `最後更新：${now.hh}:${now.mm} · 每分鐘自動更新<br>${sync}` +
+    (state.mode === 'manual' ? ' · 主持人手動控制中' : '');
+}
+
+/* ── 主持人控制台 ───────────────────────────────────── */
+function renderHostPanel(curIdx) {
+  if (!isHost) return;
+  const sel = document.getElementById('hpStepSelect');
+  const want = state.mode === 'manual' ? state.stepIndex : Math.max(0, Math.min(SCHEDULE.length - 1, curIdx));
+  const sig = SCHEDULE.map(s => s.start + s.title).join('|');
+  if (sel.dataset.sig !== sig) {
+    sel.innerHTML = SCHEDULE.map((s, i) => `<option value="${i}">${i + 1}. ${s.start} ${s.title}</option>`).join('');
+    sel.dataset.sig = sig;
+  }
+  sel.value = want;
+  const m = document.getElementById('hpMode');
+  m.textContent = state.mode === 'manual' ? '手動' : '自動';
+  m.className = 'hp-mode' + (state.mode === 'manual' ? ' manual' : '');
+  document.getElementById('hpOffsetInfo').textContent = `目前平移：${state.offsetMin || 0} 分鐘`;
+  document.getElementById('hpForceBtn').classList.toggle('on', state.forceToday === tpNow().date);
+  document.getElementById('hpSyncInfo').textContent =
+    SYNC_URL ? (syncStatus === 'on' ? '✅ 已同步給現場所有人' : '⚠️ 同步連線異常，目前只在本機生效')
+             : 'ℹ️ 尚未設定雲端同步，變更只在這支手機上生效';
+}
+
+function hostSetStep(v) { state.mode = 'manual'; state.stepIndex = +v; touch(); }
+function hostStep(d) {
+  const now = tpNow();
+  if (state.mode !== 'manual') {
+    // 從自動切手動時，先接續目前階段
+    const off = state.offsetMin || 0;
+    let i = SCHEDULE.findIndex((s, k) => now.min < toMin(SCHEDULE[k].end) + off);
+    if (i < 0) i = SCHEDULE.length - 1;
+    state.stepIndex = i;
+    state.mode = 'manual';
+  }
+  state.stepIndex = Math.max(0, Math.min(SCHEDULE.length - 1, state.stepIndex + d));
+  touch();
+}
+function hostOffset(d) { state.offsetMin = (state.offsetMin || 0) + d; touch(); }
+function hostSafety(lv) { state.safety = { level: lv }; touch(); }
+function hostNotice() {
+  state.notice = document.getElementById('hpNotice').value.trim();
+  touch();
+}
+function hostClearNotice() { state.notice = ''; document.getElementById('hpNotice').value = ''; touch(); }
+function hostToggleForce() {
+  const t = tpNow().date;
+  state.forceToday = (state.forceToday === t) ? '' : t;
+  render._scrolled = false;
+  touch();
+}
+function hostReset() {
+  // 只把「現場控制」歸零，主持人編輯過的日期/流程保留
+  state.mode = 'auto';
+  state.stepIndex = 0;
+  state.offsetMin = 0;
+  state.forceToday = '';
+  state.safety = null;
+  state.notice = '';
+  const n = document.getElementById('hpNotice'); if (n) n.value = '';
+  render._scrolled = false;
+  touch();
+}
+
+/* ═══════════ 編輯活動（日期 / 時間 / 項目）═══════════ */
+let edEvents = [];
+let edSteps = [];
+
+function hpTab(which) {
+  const live = which === 'live';
+  document.getElementById('tabLive').classList.toggle('on', live);
+  document.getElementById('tabEdit').classList.toggle('on', !live);
+  document.getElementById('paneLive').classList.toggle('on', live);
+  document.getElementById('paneEdit').classList.toggle('on', !live);
+  if (!live) edLoad();
+}
+
+/** 從目前狀態載入到編輯器 */
+function edLoad() {
+  applyState();
+  edEvents = EVENTS.map(e => ({ date: e.date, name: e.name || '' }));
+  edSteps = SCHEDULE.map(s => ({ start: s.start, end: s.end, title: s.title, desc: s.desc || '' }));
+  edRender();
+  edMsg('');
+}
+
+/** 把畫面上輸入框的值收回陣列（在重畫或儲存前一定要先做） */
+function edCollect() {
+  document.querySelectorAll('#edEvents .ed-block').forEach((b, i) => {
+    if (!edEvents[i]) return;
+    edEvents[i].date = b.querySelector('.ev-date').value;
+    edEvents[i].name = b.querySelector('.ev-name').value;
+  });
+  document.querySelectorAll('#edSteps .ed-block').forEach((b, i) => {
+    if (!edSteps[i]) return;
+    edSteps[i].start = b.querySelector('.st-start').value;
+    edSteps[i].end = b.querySelector('.st-end').value;
+    edSteps[i].title = b.querySelector('.st-title').value;
+    edSteps[i].desc = b.querySelector('.st-desc').value;
+  });
+}
+
+function esc(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+function edRender() {
+  document.getElementById('edEvents').innerHTML = edEvents.map((e, i) => `
+    <div class="ed-block">
+      <div class="ed-line">
+        <span class="ed-num">${i + 1}</span>
+        <input type="date" class="ed-in ev-date" value="${esc(e.date)}">
+        <button class="ed-mini del" onclick="edDelEvent(${i})" title="刪除">✕</button>
+      </div>
+      <div class="ed-line">
+        <input type="text" class="ed-in small ev-name" placeholder="場次名稱（可留白）" value="${esc(e.name)}">
+      </div>
+    </div>`).join('') || '<div class="ed-hint">目前沒有場次，按下面「＋ 新增一場」。</div>';
+
+  document.getElementById('edSteps').innerHTML = edSteps.map((s, i) => `
+    <div class="ed-block">
+      <div class="ed-line">
+        <span class="ed-num">${i + 1}</span>
+        <input type="time" class="ed-in time st-start" value="${esc(s.start)}">
+        <span class="ed-sep">～</span>
+        <input type="time" class="ed-in time st-end" value="${esc(s.end)}">
+      </div>
+      <div class="ed-line">
+        <input type="text" class="ed-in st-title" placeholder="活動項目名稱" value="${esc(s.title)}">
+      </div>
+      <div class="ed-line">
+        <input type="text" class="ed-in small st-desc" placeholder="補充說明（可留白）" value="${esc(s.desc)}">
+        <button class="ed-mini" onclick="edMove(${i},-1)" title="上移">↑</button>
+        <button class="ed-mini" onclick="edMove(${i},1)" title="下移">↓</button>
+        <button class="ed-mini del" onclick="edDelStep(${i})" title="刪除">✕</button>
+      </div>
+    </div>`).join('') || '<div class="ed-hint">目前沒有階段，按下面「＋ 新增一個階段」。</div>';
+}
+
+function edAddEvent() {
+  edCollect();
+  const base = tpNow().date;
+  edEvents.push({ date: base, name: edEvents[0] ? edEvents[0].name : '中角灣笠螺採集體驗' });
+  edEvents.sort((a, b) => a.date < b.date ? -1 : 1);
+  edRender(); edMsg('已新增一場，記得按「儲存並同步」');
+}
+function edDelEvent(i) { edCollect(); edEvents.splice(i, 1); edRender(); }
+
+function edAddStep() {
+  edCollect();
+  const last = edSteps[edSteps.length - 1];
+  const st = last ? last.end : '09:00';
+  const en = fmtMin(toMin(st) + 30);
+  edSteps.push({ start: st, end: en, title: '新的活動項目', desc: '' });
+  edRender(); edMsg('已新增一個階段，記得按「儲存並同步」');
+}
+function edDelStep(i) { edCollect(); edSteps.splice(i, 1); edRender(); }
+function edMove(i, d) {
+  edCollect();
+  const j = i + d;
+  if (j < 0 || j >= edSteps.length) return;
+  const t = edSteps[i]; edSteps[i] = edSteps[j]; edSteps[j] = t;
+  edRender();
+}
+
+function edMsg(t, bad) {
+  const el = document.getElementById('edMsg');
+  el.textContent = t;
+  el.style.color = bad ? '#fca5a5' : '#86efac';
+}
+
+function edSave() {
+  edCollect();
+
+  const evs = edEvents
+    .filter(e => /^\d{4}-\d{2}-\d{2}$/.test(e.date))
+    .map(e => ({ date: e.date, name: (e.name || '').trim() || '社區活動' }))
+    .sort((a, b) => a.date < b.date ? -1 : 1);
+
+  const sts = edSteps
+    .filter(s => /^\d{2}:\d{2}$/.test(s.start) && /^\d{2}:\d{2}$/.test(s.end))
+    .map(s => ({
+      start: s.start, end: s.end,
+      title: (s.title || '').trim() || '活動項目',
+      desc: (s.desc || '').trim()
+    }));
+
+  if (!sts.length) { edMsg('至少要留一個階段，而且開始／結束時間都要填', true); return; }
+
+  // 時間順序檢查
+  for (let i = 0; i < sts.length; i++) {
+    if (toMin(sts[i].end) <= toMin(sts[i].start)) {
+      edMsg(`第 ${i + 1} 個階段的結束時間要晚於開始時間`, true); return;
+    }
+    if (i > 0 && toMin(sts[i].start) < toMin(sts[i - 1].start)) {
+      edMsg(`第 ${i + 1} 個階段比前一個早，請用 ↑↓ 調整順序`, true); return;
+    }
+  }
+
+  state.events = evs;
+  state.schedule = sts;
+  render._scrolled = false;
+  touch();
+  edLoad();
+  edMsg('✅ 已儲存' + (SYNC_URL ? '，並同步給現場所有人' : '（本機模式，只在這支手機生效）'));
+}
+
+function edRestoreDefault() {
+  state.events = null;
+  state.schedule = null;
+  render._scrolled = false;
+  touch();
+  edLoad();
+  edMsg('已還原成程式碼裡的預設內容');
+}
+
+/* ── 進入主持人模式：網址 ?host=1 或長按標題 1.2 秒 ── */
+function openPin() { document.getElementById('pinOverlay').classList.add('open'); document.getElementById('pinInput').focus(); }
+function closePin() { document.getElementById('pinOverlay').classList.remove('open'); document.getElementById('pinErr').textContent = ''; }
+function checkPin() {
+  if (document.getElementById('pinInput').value.trim() === HOST_PIN) {
+    sessionStorage.setItem('ws_host', '1');
+    closePin(); enableHost();
+  } else {
+    document.getElementById('pinErr').textContent = '密碼不正確';
+  }
+}
+function enableHost() {
+  isHost = true;
+  document.getElementById('hostPanel').classList.add('open');
+  document.body.style.paddingBottom = '60vh';
+  render();
+}
+function closeHost() {
+  document.getElementById('hostPanel').classList.remove('open');
+  document.body.style.paddingBottom = '90px';
+}
+
+(function initHostEntry() {
+  const params = new URLSearchParams(location.search);
+  if (sessionStorage.getItem('ws_host') === '1') { setTimeout(enableHost, 100); return; }
+  if (params.get('host') === '1') { setTimeout(openPin, 300); }
+
+  let timer = null;
+  const h = document.getElementById('pageHeader');
+  const start = () => { timer = setTimeout(openPin, 1200); };
+  const stop = () => { clearTimeout(timer); };
+  h.addEventListener('touchstart', start, { passive: true });
+  h.addEventListener('touchend', stop);
+  h.addEventListener('touchmove', stop, { passive: true });
+  h.addEventListener('mousedown', start);
+  h.addEventListener('mouseup', stop);
+  h.addEventListener('mouseleave', stop);
+})();
+
+document.getElementById('pinInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
+
+/* ── 啟動 ────────────────────────────────────────────── */
+loadLocal();
+handleScan();
+// 沒掃碼的人（也不是主持人）不套用主持人的即時控制，只看預定時間表
+if (sessionStorage.getItem('ws_host') !== '1' && !checkedInToday()) {
+  state.mode = 'auto'; state.stepIndex = 0; state.offsetMin = 0;
+  state.forceToday = ''; state.safety = null; state.notice = '';
+}
+render();
+pullRemote();
+setInterval(render, 30000);       // 每 30 秒重畫
+setInterval(pullRemote, 15000);   // 每 15 秒向雲端拿最新狀態
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); pullRemote(); } });
+</script>
+
+<!-- 底部導覽列 -->
+<nav style="position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;display:flex;justify-content:space-around;align-items:center;padding:8px 0 12px;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.08);">
+  <a href="index.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🐚</span>首頁
+  </a>
+  <a href="species.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🔍</span>圖鑑
+  </a>
+  <a href="activity.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#1a6b4a;font-size:11px;padding:4px 12px;font-weight:700;">
+    <span style="font-size:22px;">📅</span>活動進程
+  </a>
+  <a href="admin.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">🎛️</span>主持人
+  </a>
+  <a href="guide-volunteer.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:#6b7280;font-size:11px;padding:4px 12px;">
+    <span style="font-size:22px;">📖</span>手冊
+  </a>
+</nav>
+</body>
+</html>
