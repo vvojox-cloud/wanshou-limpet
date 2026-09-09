@@ -1,0 +1,2278 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>笠螺採集導覽｜萬壽社區</title>
+  <!-- ══ Google Analytics 4 ══ -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SL4W2CJ697"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-SL4W2CJ697', {
+      page_title: '笠螺採集導覽｜萬壽社區',
+      page_location: window.location.href,
+    });
+
+    // ── 統一事件追蹤函式 ──────────────────────────────────────
+    function trackEvent(category, action, label) {
+      // GA4 自訂事件
+      if (typeof gtag !== 'undefined') {
+        gtag('event', action, {
+          event_category: category,
+          event_label: label,
+          value: 1,
+        });
+      }
+      // 本地 localStorage 累計計數
+      try {
+        const today = new Date(Date.now() + 8*3600000).toISOString().slice(0, 10);
+        const key = 'ws_stats_' + today;
+        const stats = JSON.parse(localStorage.getItem(key) || '{}');
+        const eventKey = label
+          ? category + '__' + action + '__' + label
+          : category + '__' + action;
+        stats[eventKey] = (stats[eventKey] || 0) + 1;
+        stats['_updated'] = new Date().toISOString();
+        localStorage.setItem(key, JSON.stringify(stats));
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('ws_stats_')) {
+            const dateStr = k.replace('ws_stats_', '');
+            const diff = (new Date(today) - new Date(dateStr)) / 86400000;
+            if (diff > 30) localStorage.removeItem(k);
+          }
+        }
+      } catch(e) {}
+
+      // ── Make.com Webhook（credentials: omit 解決 CORS，keepalive 確保頁面跳轉時送出）──
+      const MAKE_WEBHOOK = 'https://hook.us2.make.com/jvriie8in3g0hvxg7urbd2vjqdearfze';
+      fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        keepalive: true,
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          category:  category,
+          action:    action,
+          label:     label || '',
+          page:      'index.html'
+        })
+      }).catch(() => {});
+    }
+  </script>
+  <style>
+    :root {
+      --navy: #0d2b4e;
+      --navy-mid: #1a4a7a;
+      --navy-light: #1e5a8e;
+      --coral: #e8825a;
+      --coral-light: #f0a882;
+      --algae: #2ecc8e;
+      --algae-dim: #1aaa70;
+      --text-bright: #f0f6ff;
+      --text-dim: #a8c0d8;
+      --card-bg: rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--navy);
+      color: var(--text-bright);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background: linear-gradient(180deg, #0a1f38 0%, var(--navy) 100%);
+      padding: 20px 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .header-title { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
+    .header-sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.05em; }
+
+    nav {
+      background: rgba(13,43,78,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-inner {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 8px;
+      gap: 4px;
+      scrollbar-width: none;
+    }
+    .nav-inner::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active { color: var(--coral-light); border-bottom-color: var(--coral); }
+
+    .tab-panel { display: none; padding: 16px; max-width: 640px; margin: 0 auto; }
+    .tab-panel.active { display: block; }
+
+    .media-content {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .activity-floater {
+      position: fixed;
+      top: 130px;
+      left: 16px;
+      background: rgba(232, 130, 90, 0.95);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 60;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.3);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-hero { text-align: center; padding: 16px 0; }
+    .section-hero-icon { font-size: 3rem; margin-bottom: 8px; }
+    .section-hero-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .section-hero-sub { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.05em; }
+
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--coral-light); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .card-icon { font-size: 1.1rem; }
+
+    .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .weather-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+    .weather-item-label { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .weather-item-value { font-size: 1rem; font-weight: 600; }
+    .weather-big { display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; }
+    .weather-big-icon { font-size: 3.5rem; }
+    .weather-big-temp { font-size: 2.5rem; font-weight: 700; }
+    .weather-big-desc { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+    .weather-big-loc { font-size: 0.75rem; color: var(--coral-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+    .tide-bar-wrap { margin: 8px 0; }
+    .tide-bar-label { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .tide-bar-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .tide-bar-fill { height: 100%; border-radius: 4px; background: var(--algae); transition: width 0.5s; }
+
+    .highlight-box { border-left: 3px solid var(--coral); background: rgba(232,130,90,0.1); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 0.85rem; color: var(--text-dim); }
+    .safety-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px; }
+    .safety-badge.green { background: rgba(46,204,142,0.15); color: var(--algae); border: 1px solid var(--algae); }
+    .safety-badge.yellow { background: rgba(250,204,21,0.15); color: #fbbf24; border: 1px solid #fbbf24; }
+    .safety-badge.red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid #ef4444; }
+    .safety-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .tide-events {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .tide-event-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+      border-top: 2px solid transparent;
+    }
+    .tide-event-item.high { border-top-color: #e8825a; }
+    .tide-event-item.low  { border-top-color: #2ecc8e; }
+    .tide-event-type {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+    .tide-event-item.high .tide-event-type { color: #f0a882; }
+    .tide-event-item.low  .tide-event-type { color: #2ecc8e; }
+    .tide-event-time { font-size: 1.1rem; font-weight: 600; color: var(--text-bright); }
+    .tide-event-height { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+
+    #tideCanvas {
+      width: 100%;
+      height: 90px;
+      display: block;
+      border-radius: 8px;
+      margin: 10px 0 4px;
+    }
+
+    .tide-date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .tide-date-row input[type="date"] {
+      flex: 1;
+      min-width: 140px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: var(--text-bright);
+      font-size: 0.85rem;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      color-scheme: dark;
+    }
+    .tide-date-row input[type="date"]:focus { border-color: var(--algae); }
+
+    /* ── 農曆日期按鈕 ── */
+    .tide-date-btn {
+      flex: 1; min-width: 168px;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text-bright);
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .18s;
+    }
+    .tide-date-btn:hover, .tide-date-btn.open { border-color: var(--algae); }
+    .tdb-text { flex: 1; min-width: 0; line-height: 1.25; }
+    .tdb-main { display: block; font-size: 0.85rem; font-weight: 600; }
+    .tdb-sub  { display: block; font-size: 0.68rem; color: var(--algae); }
+    .tdb-caret { font-size: 0.7rem; color: var(--text-dim); transition: transform .18s; }
+    .tide-date-btn.open .tdb-caret { transform: rotate(180deg); }
+
+    /* ── 農曆月相日曆 ── */
+    .lunar-cal {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 8px 8px;
+      margin-bottom: 12px;
+    }
+    .lc-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .lc-title { flex: 1; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--text-bright); }
+    .lc-nav {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text-bright); border-radius: 7px; width: 30px; height: 30px;
+      font-size: 1rem; cursor: pointer; line-height: 1;
+    }
+    .lc-nav:hover { border-color: var(--algae); }
+    .lc-week, .lc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .lc-week span { text-align: center; font-size: 0.65rem; color: var(--text-dim); padding-bottom: 4px; }
+    .lc-week span:first-child, .lc-week span:last-child { color: var(--coral-light); }
+
+    .lc-day {
+      position: relative;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 3px 1px 4px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.03);
+      transition: background .15s, border-color .15s;
+      min-height: 52px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px;
+    }
+    .lc-day:hover { background: rgba(255,255,255,0.1); }
+    .lc-day.out { opacity: 0.28; }
+    .lc-d-num { font-size: 0.82rem; font-weight: 600; color: var(--text-bright); line-height: 1.1; }
+    .lc-d-lun { font-size: 0.56rem; color: var(--text-dim); line-height: 1.1; white-space: nowrap; }
+    .lc-d-lun.term  { color: var(--coral-light); }
+    .lc-d-lun.first { color: var(--text-bright); font-weight: 600; }
+    .lc-moon { line-height: 0; margin-top: 1px; }
+
+    .lc-day.spring { background: rgba(232,130,90,0.16); border-color: rgba(232,130,90,0.4); }
+    .lc-day.neap   { background: rgba(110,165,220,0.20); border-color: rgba(110,165,220,0.35); }
+    .lc-day.today  { border-color: var(--algae); }
+    .lc-day.sel    { background: var(--algae); border-color: var(--algae); }
+    .lc-day.sel .lc-d-num, .lc-day.sel .lc-d-lun { color: #05261a; }
+
+    .lc-legend {
+      margin-top: 8px; font-size: 0.62rem; color: var(--text-dim);
+      line-height: 1.9; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+    }
+    .lc-lg { border-radius: 4px; padding: 1px 6px; font-size: 0.6rem; color: var(--text-bright); }
+    .lc-lg.spring { background: rgba(232,130,90,0.35); }
+    .lc-lg.neap   { background: rgba(110,165,220,0.4); margin-left: 8px; }
+
+    .tide-date-shortcut { display: flex; gap: 6px; }
+    .tide-sc-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
+      padding: 5px 12px;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .tide-sc-btn:hover,
+    .tide-sc-btn.active {
+      background: rgba(46,204,142,0.15);
+      border-color: var(--algae);
+      color: var(--algae);
+    }
+    .tide-live-only { transition: opacity 0.2s; }
+    .tide-live-only.hidden { opacity: 0.3; pointer-events: none; }
+
+    .tide-source-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      opacity: 0.7;
+    }
+    .tide-source-badge {
+      background: rgba(46,204,142,0.12);
+      border: 1px solid rgba(46,204,142,0.3);
+      color: var(--algae);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 0.65rem;
+    }
+
+    .step-list { display: flex; flex-direction: column; gap: 10px; }
+    .step-item { display: flex; gap: 12px; align-items: flex-start; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--coral); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .step-content { flex: 1; }
+    .step-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+    .step-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+
+    .size-demo { display: flex; justify-content: center; gap: 24px; padding: 16px 0; flex-wrap: wrap; }
+    .size-circle { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .size-ring { border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
+    .size-label { font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--card-border); }
+    .tl-item { position: relative; padding: 0 0 20px 16px; }
+    .tl-item::before { content: ''; position: absolute; left: -5px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--coral); border: 2px solid var(--navy); }
+    .tl-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; }
+    .tl-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+
+    .trip-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5, 15, 35, 0.82);
+      z-index: 200;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 0;
+      animation: overlayIn 0.3s ease;
+    }
+    .trip-overlay.hiding { animation: overlayOut 0.35s ease forwards; }
+    @keyframes overlayIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+
+    .trip-sheet {
+      background: linear-gradient(170deg, #0d2b4e 0%, #0a1f38 100%);
+      border-radius: 24px 24px 0 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-bottom: none;
+      width: 100%; max-width: 520px; max-height: 92vh;
+      overflow-y: auto; padding: 0 0 32px;
+      animation: sheetUp 0.38s cubic-bezier(0.22,1,0.36,1);
+      scrollbar-width: none;
+    }
+    .trip-sheet::-webkit-scrollbar { display: none; }
+    .trip-sheet.hiding { animation: sheetDown 0.32s ease forwards; }
+    @keyframes sheetUp   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes sheetDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+    .trip-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.22); border-radius: 2px; margin: 12px auto 0; }
+
+    .trip-poster {
+      position: relative; margin: 16px 16px 0;
+      border-radius: 16px; overflow: hidden;
+      background: #0a2540; touch-action: pan-y;
+    }
+    .trip-slider { display: flex; width: 300%; transition: transform 0.38s cubic-bezier(0.25,0.8,0.25,1); will-change: transform; }
+    .trip-slide { width: 33.333%; flex-shrink: 0; position: relative; overflow: hidden; background: #06131f; }
+    .trip-slide img { width: 100%; height: 300px; object-fit: contain; object-position: center center; display: block; background: #06131f; }
+    .trip-slide-caption { display: block; text-align: center; padding: 8px 14px 4px; font-size: 0.8rem; font-weight: 700; color: #a8c0d8; letter-spacing: 0.05em; background: #06131f; }
+    .trip-dots { display: flex; justify-content: center; gap: 6px; padding: 6px 0 8px; background: #06131f; }
+    .trip-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background 0.25s, transform 0.25s; cursor: pointer; }
+    .trip-dot.active { background: var(--coral-light); transform: scale(1.3); }
+    .trip-arrow {
+      position: absolute; top: 150px; transform: translateY(-50%);
+      background: rgba(13,43,78,0.75); border: 1px solid rgba(255,255,255,0.2);
+      color: white; font-size: 1.1rem; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      z-index: 5; transition: background 0.18s;
+    }
+    .trip-arrow:hover { background: rgba(0,0,0,0.6); }
+    .trip-arrow-prev { left: 8px; }
+    .trip-arrow-next { right: 8px; }
+    .trip-poster-tag {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(232,130,90,0.92); backdrop-filter: blur(4px);
+      color: #fff; font-size: 0.72rem; font-weight: 700;
+      padding: 4px 10px; border-radius: 20px; letter-spacing: 0.05em; z-index: 5;
+    }
+
+    .trip-body { padding: 18px 18px 0; }
+    .trip-title { font-size: 1.25rem; font-weight: 800; color: #f0f6ff; letter-spacing: 0.02em; line-height: 1.3; margin-bottom: 4px; }
+    .trip-sub { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 16px; }
+
+    .trip-price-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, rgba(232,130,90,0.18), rgba(232,130,90,0.08));
+      border: 1px solid rgba(232,130,90,0.35); border-radius: 12px;
+      padding: 12px 16px; margin-bottom: 16px;
+    }
+    .trip-price-label { font-size: 0.7rem; color: var(--coral-light); letter-spacing: 0.05em; margin-bottom: 2px; }
+    .trip-price-num { font-size: 1.8rem; font-weight: 800; color: #f0a882; line-height: 1; }
+    .trip-price-unit { font-size: 0.8rem; color: var(--text-dim); }
+    .trip-price-right { text-align: right; }
+    .trip-min-badge { display: inline-block; background: rgba(46,204,142,0.15); border: 1px solid var(--algae); color: var(--algae); font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 20px; margin-bottom: 4px; }
+    .trip-time-badge { font-size: 0.72rem; color: var(--text-dim); }
+
+    .trip-includes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .trip-inc-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+    .trip-inc-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .trip-inc-text { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; }
+    .trip-inc-text strong { display: block; color: var(--text-bright); font-size: 0.82rem; margin-bottom: 1px; }
+
+    .trip-cta-row { display: flex; gap: 10px; margin: 0 18px; }
+    .trip-btn-line {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #06C755; color: white; font-size: 0.95rem; font-weight: 700;
+      padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+      text-decoration: none; transition: filter 0.2s;
+    }
+    .trip-btn-line:hover { filter: brightness(1.1); }
+    .trip-btn-line svg { width: 22px; height: 22px; }
+    .trip-btn-close { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: var(--text-dim); font-size: 0.85rem; padding: 14px 18px; border-radius: 12px; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .trip-btn-close:hover { background: rgba(255,255,255,0.13); }
+    .trip-note { text-align: center; font-size: 0.68rem; color: rgba(168,192,216,0.55); margin: 10px 18px 0; line-height: 1.7; }
+
+    .trip-trigger {
+      position: fixed; bottom: 88px; left: 16px; z-index: 80;
+      background: linear-gradient(135deg, #e8825a, #d4643a);
+      color: white; border: none; border-radius: 20px; padding: 9px 16px;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 3px 14px rgba(232,130,90,0.5);
+      display: flex; align-items: center; gap: 6px;
+      animation: triggerPulse 2.8s ease-in-out infinite;
+      transition: transform 0.15s;
+    }
+    .trip-trigger:hover { transform: scale(1.05); }
+    @keyframes triggerPulse {
+      0%,100% { box-shadow: 0 3px 14px rgba(232,130,90,0.5); }
+      50%      { box-shadow: 0 3px 22px rgba(232,130,90,0.82); }
+    }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,30,55,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; align-items: center; padding: 8px 0 12px; z-index: 90; }
+    .bottom-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 0.65rem; padding: 4px 8px; text-decoration: none; }
+    .bottom-nav-btn.active { color: var(--coral-light); }
+    .bnav-icon { font-size: 1.35rem; line-height: 1; }
+  </style>
+<!-- 農曆換算（solarlunar 3.1.0, ISC 授權，已內建，不需網路）-->
+<script>(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.solarLunar = {}));
+})(this, (function (exports) { 'use strict';
+
+  /**
+   * 农历 1900-2100 的润大小信息表
+   * @return Array
+   */
+  var lunarInfo = [0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,//1900-1909
+    0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977,//1910-1919
+    0x04970, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970,//1920-1929
+    0x06566, 0x0d4a0, 0x0ea50, 0x06e95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,//1930-1939
+    0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557,//1940-1949
+    0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5b0, 0x14573, 0x052b0, 0x0a9a8, 0x0e950, 0x06aa0,//1950-1959
+    0x0aea6, 0x0ab50, 0x04b60, 0x0aae4, 0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0,//1960-1969
+    0x096d0, 0x04dd5, 0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b6a0, 0x195a6,//1970-1979
+    0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46, 0x0ab60, 0x09570,//1980-1989
+    0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58, 0x05ac0, 0x0ab60, 0x096d5, 0x092e0,//1990-1999
+    0x0c960, 0x0d954, 0x0d4a0, 0x0da50, 0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5,//2000-2009
+    0x0a950, 0x0b4a0, 0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,//2010-2019
+    0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530,//2020-2029
+    0x05aa0, 0x076a3, 0x096d0, 0x04afb, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45,//2030-2039
+    0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,//2040-2049
+    /**Add By JJonline@JJonline.Cn**/
+    0x14b63, 0x09370, 0x049f8, 0x04970, 0x064b0, 0x168a6, 0x0ea50, 0x06b20, 0x1a6c4, 0x0aae0,//2050-2059
+    0x092e0, 0x0d2e3, 0x0c960, 0x0d557, 0x0d4a0, 0x0da50, 0x05d55, 0x056a0, 0x0a6d0, 0x055d4,//2060-2069
+    0x052d0, 0x0a9b8, 0x0a950, 0x0b4a0, 0x0b6a6, 0x0ad50, 0x055a0, 0x0aba4, 0x0a5b0, 0x052b0,//2070-2079
+    0x0b273, 0x06930, 0x07337, 0x06aa0, 0x0ad50, 0x14b55, 0x04b60, 0x0a570, 0x054e4, 0x0d160,//2080-2089
+    0x0e968, 0x0d520, 0x0daa0, 0x16aa6, 0x056d0, 0x04ae0, 0x0a9d4, 0x0a4d0, 0x0d150, 0x0f252,//2090-2099
+    0x0d520];//2100;
+
+  /**
+   * 公历每个月份的天数普通表
+   * @Array Of Property
+   * @return Number
+   */
+  var solarMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  /**
+   * 天干地支之天干速查表
+   * @Array Of Property trans['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']
+   * @return Cn string
+   */
+  var gan = [
+    '\u7532',
+    '\u4e59',
+    '\u4e19',
+    '\u4e01',
+    '\u620a',
+    '\u5df1',
+    '\u5e9a',
+    '\u8f9b',
+    '\u58ec',
+    '\u7678'
+  ];
+
+  /**
+   * 天干地支之地支速查表
+   * @Array Of Property
+   * @trans['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']
+   * @return Cn string
+   */
+  var zhi = [
+    '\u5b50',
+    '\u4e11',
+    '\u5bc5',
+    '\u536f',
+    '\u8fb0',
+    '\u5df3',
+    '\u5348',
+    '\u672a',
+    '\u7533',
+    '\u9149',
+    '\u620c',
+    '\u4ea5'
+  ];
+
+  /**
+   * 天干地支之地支速查表<=>生肖
+   * @Array Of Property
+   * @trans['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪']
+   * @return Cn string
+   */
+  var animals = [
+    '\u9f20',
+    '\u725b',
+    '\u864e',
+    '\u5154',
+    '\u9f99',
+    '\u86c7',
+    '\u9a6c',
+    '\u7f8a',
+    '\u7334',
+    '\u9e21',
+    '\u72d7',
+    '\u732a'
+  ];
+
+  /**
+   * 24节气速查表
+   * @Array Of Property
+   * @trans['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至']
+   * @return Cn string
+   */
+  var lunarTerm = [
+    '\u5c0f\u5bd2', '\u5927\u5bd2', '\u7acb\u6625', '\u96e8\u6c34', '\u60ca\u86f0', '\u6625\u5206', '\u6e05\u660e', '\u8c37\u96e8', '\u7acb\u590f', '\u5c0f\u6ee1', '\u8292\u79cd', '\u590f\u81f3', '\u5c0f\u6691', '\u5927\u6691', '\u7acb\u79cb', '\u5904\u6691', '\u767d\u9732', '\u79cb\u5206', '\u5bd2\u9732', '\u971c\u964d', '\u7acb\u51ac', '\u5c0f\u96ea', '\u5927\u96ea', '\u51ac\u81f3'
+  ];
+
+  /**
+   * 1900-2100各年的24节气日期速查表
+   * @Array Of Property
+   * @return 0x string For splice
+   */
+  var lTermInfo = [
+    '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e', '97bcf97c3598082c95f8c965cc920f',
+    '97bd0b06bdb0722c965ce1cfcc920f', 'b027097bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e',
+    '97bcf97c359801ec95f8c965cc920f', '97bd0b06bdb0722c965ce1cfcc920f', 'b027097bd097c36b0b6fc9274c91aa',
+    '97b6b97bd19801ec9210c965cc920e', '97bcf97c359801ec95f8c965cc920f', '97bd0b06bdb0722c965ce1cfcc920f',
+    'b027097bd097c36b0b6fc9274c91aa', '9778397bd19801ec9210c965cc920e', '97b6b97bd19801ec95f8c965cc920f',
+    '97bd09801d98082c95f8e1cfcc920f', '97bd097bd097c36b0b6fc9210c8dc2', '9778397bd197c36c9210c9274c91aa',
+    '97b6b97bd19801ec95f8c965cc920e', '97bd09801d98082c95f8e1cfcc920f', '97bd097bd097c36b0b6fc9210c8dc2',
+    '9778397bd097c36c9210c9274c91aa', '97b6b97bd19801ec95f8c965cc920e', '97bcf97c3598082c95f8e1cfcc920f',
+    '97bd097bd097c36b0b6fc9210c8dc2', '9778397bd097c36c9210c9274c91aa', '97b6b97bd19801ec9210c965cc920e',
+    '97bcf97c3598082c95f8c965cc920f', '97bd097bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b97bd19801ec9210c965cc920e', '97bcf97c3598082c95f8c965cc920f', '97bd097bd097c35b0b6fc920fb0722',
+    '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e', '97bcf97c359801ec95f8c965cc920f',
+    '97bd097bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e',
+    '97bcf97c359801ec95f8c965cc920f', '97bd097bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b97bd19801ec9210c965cc920e', '97bcf97c359801ec95f8c965cc920f', '97bd097bd07f595b0b6fc920fb0722',
+    '9778397bd097c36b0b6fc9210c8dc2', '9778397bd19801ec9210c9274c920e', '97b6b97bd19801ec95f8c965cc920f',
+    '97bd07f5307f595b0b0bc920fb0722', '7f0e397bd097c36b0b6fc9210c8dc2', '9778397bd097c36c9210c9274c920e',
+    '97b6b97bd19801ec95f8c965cc920f', '97bd07f5307f595b0b0bc920fb0722', '7f0e397bd097c36b0b6fc9210c8dc2',
+    '9778397bd097c36c9210c9274c91aa', '97b6b97bd19801ec9210c965cc920e', '97bd07f1487f595b0b0bc920fb0722',
+    '7f0e397bd097c36b0b6fc9210c8dc2', '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e',
+    '97bcf7f1487f595b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b97bd19801ec9210c965cc920e', '97bcf7f1487f595b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722',
+    '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e', '97bcf7f1487f531b0b0bb0b6fb0722',
+    '7f0e397bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa', '97b6b97bd19801ec9210c965cc920e',
+    '97bcf7f1487f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b97bd19801ec9210c9274c920e', '97bcf7f0e47f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b0bc920fb0722',
+    '9778397bd097c36b0b6fc9210c91aa', '97b6b97bd197c36c9210c9274c920e', '97bcf7f0e47f531b0b0bb0b6fb0722',
+    '7f0e397bd07f595b0b0bc920fb0722', '9778397bd097c36b0b6fc9210c8dc2', '9778397bd097c36c9210c9274c920e',
+    '97b6b7f0e47f531b0723b0b6fb0722', '7f0e37f5307f595b0b0bc920fb0722', '7f0e397bd097c36b0b6fc9210c8dc2',
+    '9778397bd097c36b0b70c9274c91aa', '97b6b7f0e47f531b0723b0b6fb0721', '7f0e37f1487f595b0b0bb0b6fb0722',
+    '7f0e397bd097c35b0b6fc9210c8dc2', '9778397bd097c36b0b6fc9274c91aa', '97b6b7f0e47f531b0723b0b6fb0721',
+    '7f0e27f1487f595b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722',
+    '9778397bd097c36b0b6fc9274c91aa', '97b6b7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722',
+    '7f0e397bd097c35b0b6fc920fb0722', '9778397bd097c36b0b6fc9274c91aa', '97b6b7f0e47f531b0723b0b6fb0721',
+    '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b0bc920fb0722', '9778397bd097c36b0b6fc9274c91aa',
+    '97b6b7f0e47f531b0723b0787b0721', '7f0e27f0e47f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b0bc920fb0722',
+    '9778397bd097c36b0b6fc9210c91aa', '97b6b7f0e47f149b0723b0787b0721', '7f0e27f0e47f531b0723b0b6fb0722',
+    '7f0e397bd07f595b0b0bc920fb0722', '9778397bd097c36b0b6fc9210c8dc2', '977837f0e37f149b0723b0787b0721',
+    '7f07e7f0e47f531b0723b0b6fb0722', '7f0e37f5307f595b0b0bc920fb0722', '7f0e397bd097c35b0b6fc9210c8dc2',
+    '977837f0e37f14998082b0787b0721', '7f07e7f0e47f531b0723b0b6fb0721', '7f0e37f1487f595b0b0bb0b6fb0722',
+    '7f0e397bd097c35b0b6fc9210c8dc2', '977837f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721',
+    '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722', '977837f0e37f14998082b0787b06bd',
+    '7f07e7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e397bd097c35b0b6fc920fb0722',
+    '977837f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722',
+    '7f0e397bd07f595b0b0bc920fb0722', '977837f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721',
+    '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b0bc920fb0722', '977837f0e37f14998082b0787b06bd',
+    '7f07e7f0e47f149b0723b0787b0721', '7f0e27f0e47f531b0b0bb0b6fb0722', '7f0e397bd07f595b0b0bc920fb0722',
+    '977837f0e37f14998082b0723b06bd', '7f07e7f0e37f149b0723b0787b0721', '7f0e27f0e47f531b0723b0b6fb0722',
+    '7f0e397bd07f595b0b0bc920fb0722', '977837f0e37f14898082b0723b02d5', '7ec967f0e37f14998082b0787b0721',
+    '7f07e7f0e47f531b0723b0b6fb0722', '7f0e37f1487f595b0b0bb0b6fb0722', '7f0e37f0e37f14898082b0723b02d5',
+    '7ec967f0e37f14998082b0787b0721', '7f07e7f0e47f531b0723b0b6fb0722', '7f0e37f1487f531b0b0bb0b6fb0722',
+    '7f0e37f0e37f14898082b0723b02d5', '7ec967f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721',
+    '7f0e37f1487f531b0b0bb0b6fb0722', '7f0e37f0e37f14898082b072297c35', '7ec967f0e37f14998082b0787b06bd',
+    '7f07e7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e37f0e37f14898082b072297c35',
+    '7ec967f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722',
+    '7f0e37f0e366aa89801eb072297c35', '7ec967f0e37f14998082b0787b06bd', '7f07e7f0e47f149b0723b0787b0721',
+    '7f0e27f1487f531b0b0bb0b6fb0722', '7f0e37f0e366aa89801eb072297c35', '7ec967f0e37f14998082b0723b06bd',
+    '7f07e7f0e47f149b0723b0787b0721', '7f0e27f0e47f531b0723b0b6fb0722', '7f0e37f0e366aa89801eb072297c35',
+    '7ec967f0e37f14998082b0723b06bd', '7f07e7f0e37f14998083b0787b0721', '7f0e27f0e47f531b0723b0b6fb0722',
+    '7f0e37f0e366aa89801eb072297c35', '7ec967f0e37f14898082b0723b02d5', '7f07e7f0e37f14998082b0787b0721',
+    '7f07e7f0e47f531b0723b0b6fb0722', '7f0e36665b66aa89801e9808297c35', '665f67f0e37f14898082b0723b02d5',
+    '7ec967f0e37f14998082b0787b0721', '7f07e7f0e47f531b0723b0b6fb0722', '7f0e36665b66a449801e9808297c35',
+    '665f67f0e37f14898082b0723b02d5', '7ec967f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721',
+    '7f0e36665b66a449801e9808297c35', '665f67f0e37f14898082b072297c35', '7ec967f0e37f14998082b0787b06bd',
+    '7f07e7f0e47f531b0723b0b6fb0721', '7f0e26665b66a449801e9808297c35', '665f67f0e37f1489801eb072297c35',
+    '7ec967f0e37f14998082b0787b06bd', '7f07e7f0e47f531b0723b0b6fb0721', '7f0e27f1487f531b0b0bb0b6fb0722'
+  ];
+
+  /**
+   * 数字转中文速查表
+   * @Array Of Property
+   * @trans ['日','一','二','三','四','五','六','七','八','九','十']
+   * @return Cn string
+   */
+  var nStr1 = [
+    '\u65e5',
+    '\u4e00',
+    '\u4e8c',
+    '\u4e09',
+    '\u56db',
+    '\u4e94',
+    '\u516d',
+    '\u4e03',
+    '\u516b',
+    '\u4e5d',
+    '\u5341'
+  ];
+
+  /**
+   * 日期转农历称呼速查表
+   * @Array Of Property
+   * @trans ['初','十','廿','卅']
+   * @return Cn string
+   */
+  var nStr2 = ['\u521d', '\u5341', '\u5eff', '\u5345'];
+
+  /**
+   * 月份转农历称呼速查表
+   * @Array Of Property
+   * @trans ['正','一','二','三','四','五','六','七','八','九','十','冬','腊']
+   * @return Cn string
+   */
+  var nStr3 = [
+    '\u6b63',
+    '\u4e8c',
+    '\u4e09',
+    '\u56db',
+    '\u4e94',
+    '\u516d',
+    '\u4e03',
+    '\u516b',
+    '\u4e5d',
+    '\u5341',
+    '\u51ac',
+    '\u814a'
+  ];
+
+  /**
+   * 年份数字转中文速查表
+   * @Array Of Property
+   * @trans ['零','一','二','三','四','五','六','七','八','九','十']
+   * @return Cn string
+   */
+  var nStr4 = [
+    '\u96f6',
+    '\u4e00',
+    '\u4e8c',
+    '\u4e09',
+    '\u56db',
+    '\u4e94',
+    '\u516d',
+    '\u4e03',
+    '\u516b',
+    '\u4e5d',
+    '\u5341'
+  ];
+
+  /**
+   * @1900-2100区间内的公历、农历互转
+   * @charset  UTF-8
+   * @author  Ajing(JJonline@JJonline.Cn), Modernized by OpenCode
+   * @Time  2014-7-21
+   * @Version  $ID$
+   * @公历转农历：solarLunar.solar2lunar(1987,11,01); //[you can ignore params of prefix 0]
+   * @农历转公历：solarLunar.lunar2solar(1987,09,10); //[you can ignore params of prefix 0]
+   * @link http://blog.jjonline.cn/userInterFace/173.html
+   */
+
+
+  const solarLunar = {
+    lunarInfo,
+    solarMonth,
+    gan,
+    zhi,
+    animals,
+    lunarTerm,
+    lTermInfo,
+    nStr1,
+    nStr2,
+    nStr3,
+    nStr4,
+
+    /**
+     * 返回农历y年一整年的总天数
+     * @param {number} y - lunar Year
+     * @returns {number}
+     * @eg:var count = solarLunar.lYearDays(1987) ;//count=387
+     */
+    lYearDays(y) {
+      let sum = 348;
+      const info = lunarInfo[y - 1900];
+      // 优化：直接计算位数，减少循环
+      sum += info & 0x8000 ? 1 : 0;
+      sum += info & 0x4000 ? 1 : 0;
+      sum += info & 0x2000 ? 1 : 0;
+      sum += info & 0x1000 ? 1 : 0;
+      sum += info & 0x0800 ? 1 : 0;
+      sum += info & 0x0400 ? 1 : 0;
+      sum += info & 0x0200 ? 1 : 0;
+      sum += info & 0x0100 ? 1 : 0;
+      sum += info & 0x0080 ? 1 : 0;
+      sum += info & 0x0040 ? 1 : 0;
+      sum += info & 0x0020 ? 1 : 0;
+      sum += info & 0x0010 ? 1 : 0;
+      return sum + solarLunar.leapDays(y);
+    },
+
+    /**
+     * 返回农历y年闰月是哪个月；若y年没有闰月 则返回0
+     * @param {number} y - lunar Year
+     * @returns {number} (0-12)
+     * @eg:var leapMonth = solarLunar.leapMonth(1987) ;//leapMonth=6
+     */
+    leapMonth(y) {
+      //闰字编码 \u95f0
+      return lunarInfo[y - 1900] & 0xf;
+    },
+
+    /**
+     * 返回农历y年闰月的天数 若该年没有闰月则返回0
+     * @param {number} y - lunar Year
+     * @returns {number} (0、29、30)
+     * @eg:var leapMonthDay = solarLunar.leapDays(1987) ;//leapMonthDay=29
+     */
+    leapDays(y) {
+      if (solarLunar.leapMonth(y)) {
+        return lunarInfo[y - 1900] & 0x10000 ? 30 : 29;
+      }
+      return 0;
+    },
+
+    /**
+     * 返回农历 y 年 m 月（非闰月）的总天数，计算 m 为闰月时的天数请使用 leapDays 方法
+     * @param {number} y - lunar Year
+     * @param {number} m - lunar Month
+     * @returns {number} (-1、29、30)
+     * @eg:var MonthDay = solarLunar.monthDays(1987,9) ;//MonthDay=29
+     */
+    monthDays(y, m) {
+      if (m > 12 || m < 1) {
+        return -1;
+      } //月份参数从1至12，参数错误返回-1
+      return lunarInfo[y - 1900] & (0x10000 >> m) ? 30 : 29;
+    },
+
+    /**
+     * 获取时辰干支
+     * @param {number} h - 公历小时 (0-23)
+     * @param {number} dayGanIndex - 日干索引 (0-9)，0=甲，1=乙，...，9=癸
+     * @returns {string} 时辰干支，如 "甲子"
+     * @eg:var shichen = solarLunar.getShiChen(23, 0); // 23:00 的子时，日干为甲时
+     */
+    getShiChen(h, dayGanIndex) {
+      const hourZhiIndex = (h + 1) / 2 >= 24 ? 0 : Math.floor((h + 1) / 2) % 12;
+      const hourGanIndex = (dayGanIndex * 2 + hourZhiIndex) % 10;
+      return gan[hourGanIndex] + zhi[hourZhiIndex];
+    },
+
+    /**
+     * 返回公历(!)y年m月的天数
+     * @param {number} y - solar Year
+     * @param {number} m - solar Month
+     * @returns {number} (-1、28、29、30、31)
+     * @eg:var solarMonthDay = solarLunar.solarDays(1987) ;//solarMonthDay=30
+     */
+    solarDays(y, m) {
+      if (m > 12 || m < 1) {
+        return -1;
+      } //若参数错误 返回-1
+      const ms = m - 1;
+      if (ms === 1) {
+        //2月份的闰平规律测算后确认返回28或29
+        return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28;
+      } else {
+        return solarMonth[ms];
+      }
+    },
+
+    /**
+     * 传入offset偏移量返回干支
+     * @param {number} offset - 相对甲子的偏移量
+     * @returns {string} Cn string
+     */
+    toGanZhi(offset) {
+      return gan[offset % 10] + zhi[offset % 12];
+    },
+
+    /**
+     * 传入公历(!) y 年获得该年第 n 个节气的公历日期
+     * @param {number} y - 公历年(1900-2100)；n二十四节气中的第几个节气(1~24)；从n=1(小寒)算起
+     * @param {number} n - 二十四节气中的第几个节气(1~24)
+     * @returns {number}
+     * @eg:var _24 = solarLunar.getTerm(1987,3) ;//_24=4;意即1987年2月4日立春
+     */
+    getTerm(y, n) {
+      if (y < 1900 || y > 2100) {
+        return -1;
+      }
+      if (n < 1 || n > 24) {
+        return -1;
+      }
+      const _table = lTermInfo[y - 1900];
+      const _info = [
+        parseInt('0x' + _table.substr(0, 5)).toString(),
+        parseInt('0x' + _table.substr(5, 5)).toString(),
+        parseInt('0x' + _table.substr(10, 5)).toString(),
+        parseInt('0x' + _table.substr(15, 5)).toString(),
+        parseInt('0x' + _table.substr(20, 5)).toString(),
+        parseInt('0x' + _table.substr(25, 5)).toString(),
+      ];
+      const _calDay = [
+        _info[0].substr(0, 1),
+        _info[0].substr(1, 2),
+        _info[0].substr(3, 1),
+        _info[0].substr(4, 2),
+
+        _info[1].substr(0, 1),
+        _info[1].substr(1, 2),
+        _info[1].substr(3, 1),
+        _info[1].substr(4, 2),
+
+        _info[2].substr(0, 1),
+        _info[2].substr(1, 2),
+        _info[2].substr(3, 1),
+        _info[2].substr(4, 2),
+
+        _info[3].substr(0, 1),
+        _info[3].substr(1, 2),
+        _info[3].substr(3, 1),
+        _info[3].substr(4, 2),
+
+        _info[4].substr(0, 1),
+        _info[4].substr(1, 2),
+        _info[4].substr(3, 1),
+        _info[4].substr(4, 2),
+
+        _info[5].substr(0, 1),
+        _info[5].substr(1, 2),
+        _info[5].substr(3, 1),
+        _info[5].substr(4, 2),
+      ];
+      return parseInt(_calDay[n - 1]);
+    },
+
+    /**
+     * 传入农历年份数字返回汉语通俗表示法
+     * @param {number} y - lunar year
+     * @returns {string}
+     * @eg:
+     */
+    toChinaYear(y) {
+      //年 => \u5E74
+      const oxxx = Math.floor(y / 1000);
+      const xoxx = Math.floor((y % 1000) / 100);
+      const xxox = Math.floor((y % 100) / 10);
+      const xxxo = y % 10;
+
+      return nStr4[oxxx] + nStr4[xoxx] + nStr4[xxox] + nStr4[xxxo] + '\u5E74';
+    },
+
+    /**
+     * 传入农历数字月份返回汉语通俗表示法
+     * @param {number} m - lunar month
+     * @returns {string}
+     * @eg:var cnMonth = solarLunar.toChinaMonth(12) ;//cnMonth='腊月'
+     */
+    toChinaMonth(m) {
+      // 月 => \u6708
+      if (m > 12 || m < 1) {
+        return -1;
+      } //若参数错误 返回-1
+      let s = nStr3[m - 1];
+      s += '\u6708'; //加上月字
+      return s;
+    },
+
+    /**
+     * 传入农历日期数字返回汉字表示法
+     * @param {number} d - lunar day
+     * @returns {string} Cn string
+     * @eg:var cnDay = solarLunar.toChinaDay(21) ;//cnMonth='廿一'
+     */
+    toChinaDay(d) {
+      //日 => \u65e5
+      let s = '';
+      switch (d) {
+      case 10:
+        s = '\u521d\u5341';
+        break;
+      case 20:
+        s = '\u4e8c\u5341';
+        break;
+      case 30:
+        s = '\u4e09\u5341';
+        break;
+      default:
+        s = nStr2[Math.floor(d / 10)];
+        s += nStr1[d % 10];
+      }
+      return s;
+    },
+
+    /**
+     * 年份转生肖 => 精确划分生肖分界线是"立春"
+     * @param {number} y - year
+     * @param {number} [m] - month (可选，用于精确计算)
+     * @param {number} [d] - day (可选，用于精确计算)
+     * @returns {string} Cn string
+     * @eg:var animal = solarLunar.getAnimal(1987) ;//animal='兔'
+     */
+    getAnimal(y, m, d) {
+      // 如果提供了月日参数，基于立春进行精确计算
+      if (m !== undefined && d !== undefined) {
+        const term3 = solarLunar.getTerm(y, 3); // 立春日期
+        // 如果日期在立春之前，则生肖按上一年计算
+        if (m < 2 || (m === 2 && d < term3)) {
+          y = y - 1;
+        }
+      }
+      return animals[(y - 4) % 12];
+    },
+
+    /**
+     * 传入公历年月日获得详细的公历、农历object信息 <=>JSON
+     * @param {number} y - solar year
+     * @param {number} m - solar month
+     * @param {number} d - solar day
+     * @returns {object} JSON object
+     * @eg:console.log(solarLunar.solar2lunar(1987,11,01));
+     */
+    solar2lunar(y, m, d) {
+      //参数区间1900.1.31~2100.12.31
+      // 输入验证
+      if (y == null || m == null || d == null) {
+        const objDate = new Date();
+        y = objDate.getFullYear();
+        m = objDate.getMonth() + 1;
+        d = objDate.getDate();
+      }
+
+      // 类型转换和验证
+      y = Number(y);
+      m = Number(m);
+      d = Number(d);
+
+      if (isNaN(y) || isNaN(m) || isNaN(d)) {
+        return -1;
+      }
+
+      if (y < 1900 || y > 2100) {
+        return -1;
+      } //年份限定、上限
+      if (y === 1900 && m === 1 && d < 31) {
+        return -1;
+      } //下限
+
+      // 验证月份和日期的有效性
+      if (m < 1 || m > 12) {
+        return -1;
+      }
+      const maxDay = solarLunar.solarDays(y, m);
+      if (d < 1 || d > maxDay) {
+        return -1;
+      }
+
+      const objDate = new Date(y, parseInt(m) - 1, d);
+      let i,
+        temp = 0;
+      //修正ymd参数
+      y = objDate.getFullYear();
+      m = objDate.getMonth() + 1;
+      d = objDate.getDate();
+      let offset =
+        (Date.UTC(objDate.getFullYear(), objDate.getMonth(), objDate.getDate()) -
+          Date.UTC(1900, 0, 31)) /
+        86400000;
+
+      // 使用原有的线性搜索算法以保持兼容性，但修复变量重声明问题
+      temp = 0;
+      for (i = 1900; i < 2101 && offset > 0; i++) {
+        temp = solarLunar.lYearDays(i);
+        offset -= temp;
+      }
+      if (offset < 0) {
+        offset += temp;
+        i--;
+      }
+
+      const finalYear = i;
+
+      //是否今天
+      const isTodayObj = new Date();
+      let isToday = false;
+      if (
+        isTodayObj.getFullYear() === y &&
+        isTodayObj.getMonth() + 1 === m &&
+        isTodayObj.getDate() === d
+      ) {
+        isToday = true;
+      }
+      //星期几
+      const nWeek = objDate.getDay();
+      const cWeek = nStr1[nWeek];
+      const nWeekAdjusted = nWeek === 0 ? 7 : nWeek; //数字表示周几顺应天朝周一开始的惯例
+
+      //农历年
+      const year = finalYear;
+
+      const leapMonth = solarLunar.leapMonth(finalYear); //闰哪个月
+
+      let isLeap = false;
+
+      //效验闰月
+      for (i = 1; i < 13 && offset > 0; i++) {
+        //闰月
+        if (leapMonth > 0 && i === leapMonth + 1 && isLeap === false) {
+          --i;
+          isLeap = true;
+          temp = solarLunar.leapDays(year); //计算农历闰月天数
+        } else {
+          temp = solarLunar.monthDays(year, i); //计算农历普通月天数
+        }
+        //解除闰月
+        if (isLeap === true && i === leapMonth + 1) {
+          isLeap = false;
+        }
+        offset -= temp;
+      }
+
+      if (offset === 0 && leapMonth > 0 && i === leapMonth + 1) {
+        if (isLeap) {
+          isLeap = false;
+        } else {
+          isLeap = true;
+          --i;
+        }
+      }
+      if (offset < 0) {
+        offset += temp;
+        --i;
+      }
+      //农历月
+      const month = i;
+      //农历日
+      const day = offset + 1;
+
+      //天干地支处理
+      // 注意：干支年以立春为分界线，这是中国传统历法
+      // 立春通常在2月3-5日之间，立春之前出生的人，干支属上一年
+      const sm = m - 1;
+      const term3 = solarLunar.getTerm(y, 3); //该公历年立春日期
+      let gzY = solarLunar.toGanZhi(y - 4); //普通按年份计算，下方尚需按立春节气来修正
+      //依据立春日进行修正gzY
+      // 立春通常在2月3-5日之间，如果日期早于立春，应按上一年计算
+      if (m < 2 || (m === 2 && d < term3)) {
+        gzY = solarLunar.toGanZhi(y - 1 - 4);
+      }
+
+      //月柱 1900年1月小寒以前为 丙子月(60进制12)
+      const firstNode = solarLunar.getTerm(y, m * 2 - 1); //返回当月「节」为几日开始
+      const secondNode = solarLunar.getTerm(y, m * 2); //返回当月「节」为几日开始
+
+      //依据12节气修正干支月
+      // 使用原始的正确算法：年干支索引*12 + 月份 + 偏移
+      let gzM = solarLunar.toGanZhi((y - 1900) * 12 + m + 11);
+      if (d >= firstNode) {
+        gzM = solarLunar.toGanZhi((y - 1900) * 12 + m + 12);
+      }
+
+      //传入的日期的节气与否
+      let isTerm = false;
+      let term = '';
+      if (firstNode === d) {
+        isTerm = true;
+        term = lunarTerm[m * 2 - 2];
+      }
+      if (secondNode === d) {
+        isTerm = true;
+        term = lunarTerm[m * 2 - 1];
+      }
+      //日柱 当月一日与 1900/1/1 相差天数
+      const dayCyclical = Date.UTC(y, sm, 1, 0, 0, 0, 0) / 86400000 + 25567 + 10;
+      const gzD = solarLunar.toGanZhi(dayCyclical + d - 1);
+      return {
+        lYear: year,
+        lMonth: month,
+        lDay: day,
+        animal: solarLunar.getAnimal(year),
+        yearCn: solarLunar.toChinaYear(year),
+        monthCn: (isLeap && leapMonth === month ? '\u95f0' : '') + solarLunar.toChinaMonth(month),
+        dayCn: solarLunar.toChinaDay(day),
+        cYear: y,
+        cMonth: m,
+        cDay: d,
+        gzYear: gzY,
+        gzMonth: gzM,
+        gzDay: gzD,
+        isToday,
+        isLeap,
+        nWeek: nWeekAdjusted, //数字表示周几顺应天朝周一开始的惯例
+        ncWeek: '\u661f\u671f' + cWeek,
+        isTerm,
+        term,
+      };
+    },
+
+    /**
+     * 传入公历年月日以及传入的月份是否闰月获得详细的公历、农历object信息 <=>JSON
+     * @param {number} y - lunar year
+     * @param {number} m - lunar month
+     * @param {number} d - lunar day
+     * @param {boolean} isLeapMonth - lunar month is leap or not.
+     * @returns {object} JSON object
+     * @eg:console.log(solarLunar.lunar2solar(1987,9,10));
+     */
+    lunar2solar(y, m, d, isLeapMonth) {
+      //参数区间1900.1.31~2100.12.1
+      // 输入验证
+      y = Number(y);
+      m = Number(m);
+      d = Number(d);
+      isLeapMonth = Boolean(isLeapMonth); // 确保是布尔值
+
+      if (isNaN(y) || isNaN(m) || isNaN(d)) {
+        return -1;
+      }
+      const leapMonth = solarLunar.leapMonth(y);
+      if (isLeapMonth && leapMonth !== m) {
+        return -1;
+      } //传参要求计算该闰月公历 但该年得出的闰月与传参的月份并不同
+      if ((y === 2100 && m === 12 && d > 1) || (y === 1900 && m === 1 && d < 31)) {
+        return -1;
+      } //超出了最大极限值
+      const day = solarLunar.monthDays(y, m);
+      if (y < 1900 || y > 2100 || d > day) {
+        return -1;
+      } //参数合法性效验
+
+      //计算农历的时间差
+      let offset = 0;
+      for (let i = 1900; i < y; i++) {
+        offset += solarLunar.lYearDays(i);
+      }
+      let leap = 0,
+        isAdd = false;
+      for (let i = 1; i < m; i++) {
+        leap = solarLunar.leapMonth(y);
+        if (!isAdd) {
+          //处理闰月
+          if (leap <= i && leap > 0) {
+            offset += solarLunar.leapDays(y);
+            isAdd = true;
+          }
+        }
+        offset += solarLunar.monthDays(y, i);
+      }
+      //转换闰月农历 需补充该年闰月的前一个月的时差
+      if (isLeapMonth) {
+        offset += day;
+      }
+      //1900年农历正月一日的公历时间为1900年1月30日0时0分0秒(该时间也是本农历的最开始起始点)
+      const stmap = Date.UTC(1900, 1, 30, 0, 0, 0);
+      const calObj = new Date((offset + d - 31) * 86400000 + stmap);
+      const cY = calObj.getUTCFullYear();
+      const cM = calObj.getUTCMonth() + 1;
+      const cD = calObj.getUTCDate();
+
+      return solarLunar.solar2lunar(cY, cM, cD);
+    },
+
+    /**
+     * 获取指定日期的传统节日
+     * @param {number} year - 公历年
+     * @param {number} month - 公历月
+     * @param {number} day - 公历日
+     * @returns {string[]} 传统节日数组
+     */
+    getFestivals(year, month, day) {
+      const festivals = [];
+      const lunar = solarLunar.solar2lunar(year, month, day);
+      if (lunar === -1) return festivals;
+
+      const { lMonth, lDay } = lunar;
+
+      const fixedFestivals = {
+        '1-1': '春节',
+        '1-15': '元宵节',
+        '5-5': '端午节',
+        '7-7': '七夕节',
+        '8-15': '中秋节',
+        '9-9': '重阳节',
+        '12-8': '腊八节',
+        '12-23': '小年',
+      };
+
+      const key = `${lMonth}-${lDay}`;
+      if (fixedFestivals[key]) {
+        festivals.push(fixedFestivals[key]);
+      }
+
+      if (lMonth === 1 && lDay === 1) {
+        festivals.push('农历新年');
+      }
+
+      if (solarLunar.customFestivals) {
+        solarLunar.customFestivals.forEach((f) => {
+          if (f.month === lMonth && f.day === lDay) {
+            festivals.push(f.name);
+          }
+        });
+      }
+
+      return festivals;
+    },
+
+    /**
+     * 添加自定义农历节日
+     * @param {string} name - 节日名称
+     * @param {number} month - 农历月
+     * @param {number} day - 农历日
+     */
+    addFestival(name, month, day) {
+      if (!solarLunar.customFestivals) {
+        solarLunar.customFestivals = [];
+      }
+      solarLunar.customFestivals.push({ name, month, day });
+    },
+
+    /**
+     * 清除所有自定义节日
+     */
+    clearFestivals() {
+      solarLunar.customFestivals = [];
+    },
+  };
+
+  exports.default = solarLunar;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+}));</script>
+</head>
+<body>
+
+<header>
+  <div class="header-title">🐚 笠螺採集導覽</div>
+  <div class="header-sub">萬壽社區發展協會 · 金山中角灣</div>
+</header>
+
+<a href="activity.html" class="activity-floater" onclick="trackEvent('導覽','activity_click','活動進程浮動按鈕')">
+  📍 點此查看活動進程 ➔
+</a>
+
+<nav>
+  <div class="nav-inner">
+    <button class="tab-btn active" onclick="switchTab('weather', this)">⛅ 天氣動態</button>
+    <button class="tab-btn" onclick="switchTab('collection', this)">🪨 採集方式</button>
+    <button class="tab-btn" onclick="switchTab('recipe', this)">🍽️ 笠螺料理</button>
+    <button class="tab-btn" onclick="switchTab('history', this)">📜 採集歷史</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ══ TAB 1: 天氣動態 ══ -->
+  <div id="tab-weather" class="tab-panel active">
+    <video class="media-content" src="intro-video.mp4" autoplay loop muted playsinline controls></video>
+
+    <div class="section-hero" style="padding-top: 0;">
+      <div class="section-hero-icon">⛵</div>
+      <div class="section-hero-title">中角灣即時資訊與安全</div>
+      <div class="section-hero-sub">天氣潮汐 · 海域安全</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="card-icon">⛅</span>天氣預報</div>
+      <div class="weather-big">
+        <div class="weather-big-icon" id="wxIcon">⛅</div>
+        <div>
+          <div class="weather-big-temp" id="wxTemp">--°C</div>
+          <div class="weather-big-desc" id="wxDesc">載入中...</div>
+          <div class="weather-big-loc">📍 金山區 · 中角灣</div>
+        </div>
+      </div>
+      <div class="weather-grid" style="margin-top: 12px;">
+        <div class="weather-item">
+          <div class="weather-item-label">🌡️ 體感舒適度</div>
+          <div class="weather-item-value" id="wxComfort">--</div>
+        </div>
+        <div class="weather-item">
+          <div class="weather-item-label">🌧️ 降雨機率</div>
+          <div class="weather-item-value" id="wxRain">--%</div>
+        </div>
+      </div>
+      <div class="weather-item" style="margin-top:10px; background: rgba(0,0,0,0.1);">
+        <div class="weather-item-label">⚓ 採集評估</div>
+        <div class="weather-item-value" id="wxAdvice" style="color: var(--coral-light); font-size: 0.9rem;">評估中...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="card-icon">🌊</span>今日潮汐
+        <span id="tideSourceBadge" class="tide-source-badge" style="margin-left:auto;font-size:0.65rem;">載入中…</span>
+      </div>
+      <div class="tide-date-row">
+        <input type="date" id="tideDatePicker" onchange="onTideDateChange()" hidden>
+        <button type="button" class="tide-date-btn" id="tideDateBtn" onclick="toggleLunarCal()">
+          <span class="tdb-text">
+            <span class="tdb-main" id="tdbMain">—</span>
+            <span class="tdb-sub"  id="tdbSub">農曆載入中…</span>
+          </span>
+          <span class="tdb-caret" id="tdbCaret">▾</span>
+        </button>
+        <div class="tide-date-shortcut">
+          <button class="tide-sc-btn active" id="tideScToday" onclick="setTideDate('today')">今天</button>
+          <button class="tide-sc-btn" id="tideScTmr"   onclick="setTideDate('tomorrow')">明天</button>
+          <button class="tide-sc-btn" id="tideScWk"    onclick="setTideDate('week')">+7天</button>
+        </div>
+      </div>
+
+      <!-- 農曆月相日曆 -->
+      <div class="lunar-cal" id="lunarCal" hidden>
+        <div class="lc-head">
+          <button type="button" class="lc-nav" onclick="lcMonth(-1)" aria-label="上個月">‹</button>
+          <div class="lc-title" id="lcTitle">—</div>
+          <button type="button" class="lc-nav" onclick="lcMonth(1)" aria-label="下個月">›</button>
+        </div>
+        <div class="lc-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="lc-grid" id="lcGrid"></div>
+        <div class="lc-legend">
+          <span class="lc-lg spring">大潮</span>潮差最大、退得最遠，適合採集
+          <span class="lc-lg neap">小潮</span>潮差小
+          <span style="opacity:.75;">月亮圖示為當日月相（初一朔、十五望）</span>
+        </div>
+      </div>
+      <div id="tideDateLabel" style="font-size:0.8rem;color:var(--algae);margin-bottom:8px;display:none;"></div>
+      <div id="safetyBadge" class="safety-badge green">
+        <div class="safety-dot"></div>
+        <span id="safetyText">確認中...</span>
+      </div>
+      <div class="tide-bar-wrap tide-live-only" id="tideLiveBar">
+        <div class="tide-bar-label">
+          <span id="tideBarLabel">目前潮高</span>
+          <span id="tideNowVal">-- cm</span>
+        </div>
+        <div class="tide-bar-track">
+          <div class="tide-bar-fill" id="tideBar" style="width:0%"></div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;text-align:right;" id="tideDirection"></div>
+      </div>
+      <canvas id="tideCanvas"></canvas>
+      <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-dim);padding:0 2px;">
+        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+      </div>
+      <div class="tide-events" id="tideEvents">
+        <div style="font-size:0.8rem;color:var(--text-dim);grid-column:1/-1;text-align:center;padding:8px;">載入潮汐資料中…</div>
+      </div>
+      <div class="highlight-box" style="margin-top:12px;">
+        ⏰ 建議採集時段：退潮後 1 小時（潮高 &lt; 30cm）至潮水回漲前
+      </div>
+      <div class="tide-source-row">
+        <span id="tideUpdateTime">—</span>
+        <span>基準：相對當地平均海面</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="card-icon">⚠️</span>離岸流安全教育</div>
+      <img class="media-content" src="rip-current.jpg" alt="離岸流示意圖">
+      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;">
+        離岸流是從海岸向外海流動的強勁水流，速度可達 <strong>每秒 2 公尺</strong>。中角灣礁石縫隙處特別容易形成離岸流。若不幸被捲入，<strong style="color:#ef4444;">切勿頂著水流游</strong>，應保持冷靜，斜向（平行海岸）游出流速帶後再游回岸邊。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 2: 採集方式 ══ -->
+  <div id="tab-collection" class="tab-panel">
+    <div class="section-hero">
+      <div class="section-hero-icon">🪨</div>
+      <div class="section-hero-title">正確採集與規範</div>
+      <div class="section-hero-sub">永續共生 · 保護海洋</div>
+    </div>
+    <video class="media-content" src="collect-video.mp4" controls></video>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">📏</span>大小規範 (手機螢幕 3 公分)</div>
+      <div class="size-demo">
+        <div class="size-circle">
+          <div class="size-ring" style="width:3cm; height:3cm; border-color:var(--algae); color:var(--algae);"><span>3cm</span></div>
+          <div class="size-label">✅ 最低標準 (請以螢幕實際大小比對)</div>
+        </div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.7;margin-top:12px;">
+        請將找到的笠螺直接放在螢幕上的圓圈比對。若小於這個圓圈（3公分），請輕輕放回原礁石，讓牠繼續生長。
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🔧</span>正確採集步驟</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">鐵片貼緊礁石表面</div>
+            <div class="step-desc">從笠螺側邊水平插入，勿從正上方垂直戳入，以免破壞礁面。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">快速側向撥動</div>
+            <div class="step-desc">一次快速動作讓笠螺脫落，避免反覆撬動。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 3: 笠螺料理 ══ -->
+  <div id="tab-recipe" class="tab-panel">
+    <div class="section-hero">
+      <div class="section-hero-icon">🍽️</div>
+      <div class="section-hero-title">在地笠螺料理</div>
+      <div class="section-hero-sub">品嚐海的滋味</div>
+    </div>
+    <img class="media-content" src="recipe.jpg" alt="笠螺料理食譜">
+    <div class="card">
+      <div class="card-title"><span class="card-icon">🧑‍🍳</span>台灣常見料理方式</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">蒜味醬醃 (在地最推)</div>
+            <div class="step-desc">汆燙後加入醬油、蒜頭、辣椒與香油，冰鎮醃漬一晚，是最棒的下酒菜。花笠螺帶微苦甘味，斗笠螺鮮甜爽脆。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">九層塔快炒</div>
+            <div class="step-desc">熱鍋爆香薑絲與蒜末，大火快炒笠螺，起鍋前加入大量九層塔，香氣四溢。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">原味清湯</div>
+            <div class="step-desc">加入薑絲煮成清湯，最能品嚐到笠螺本身的鮮甜與海味。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB 4: 採集歷史 ══ -->
+  <div id="tab-history" class="tab-panel">
+    <div class="section-hero">
+      <div class="section-hero-icon">📜</div>
+      <div class="section-hero-title">中角灣採集文化</div>
+      <div class="section-hero-sub">在地記憶 · 世代傳承</div>
+    </div>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-title">「苦丕仔」的滋味</div>
+          <div class="tl-desc">金山長輩將花笠螺稱為「苦丕仔」。退潮後家家戶戶下礁採集，是夏日餐桌上的常客。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-title">老一輩的規矩</div>
+          <div class="tl-desc">長輩流傳：「大的採，小的留」「春天不採」。這些智慧正是現代海洋保育的精神所在。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ 小旅行觸發按鈕 ══ -->
+<button class="trip-trigger" onclick="trackEvent('推廣','trip_popup_open','觸發按鈕');openTrip()">
+  🐚 凸丕仔小旅行
+</button>
+
+<!-- ══ 小旅行彈出視窗 ══ -->
+<div class="trip-overlay" id="tripOverlay" style="display:none;" onclick="handleOverlayClick(event)">
+  <div class="trip-sheet" id="tripSheet">
+    <div class="trip-handle"></div>
+    <div class="trip-poster">
+      <div class="trip-poster-tag">🗓 限定名額・報名中</div>
+      <button class="trip-arrow trip-arrow-prev" onclick="tripSlide(-1)">&#8249;</button>
+      <button class="trip-arrow trip-arrow-next" onclick="tripSlide(1)">&#8250;</button>
+      <div class="trip-slider" id="tripSlider">
+        <div class="trip-slide">
+          <img src="trip-poster.jpg" alt="活動海報">
+          <div class="trip-slide-caption">🌊 中角灣凸丕仔體驗</div>
+        </div>
+        <div class="trip-slide">
+          <img src="trip-activity.jpg" alt="採集活動">
+          <div class="trip-slide-caption">🐚 笠螺採集・海洋教育</div>
+        </div>
+        <div class="trip-slide">
+          <img src="trip-food.jpg" alt="丕仔料理">
+          <div class="trip-slide-caption">🍽️ 凸丕仔料理・粉彩手作</div>
+        </div>
+      </div>
+      <div class="trip-dots" id="tripDots">
+        <div class="trip-dot active" onclick="tripGoTo(0)"></div>
+        <div class="trip-dot" onclick="tripGoTo(1)"></div>
+        <div class="trip-dot" onclick="tripGoTo(2)"></div>
+      </div>
+    </div>
+
+    <div class="trip-body">
+      <div class="trip-title">新北市金山萬壽社區<br>凸丕仔海岸小旅行</div>
+      <div class="trip-sub">萬壽社區發展協會 · 中角灣潮間帶體驗</div>
+      <div class="trip-price-banner">
+        <div class="trip-price-left">
+          <div class="trip-price-label">每人費用（含保險）</div>
+          <div>
+            <span class="trip-price-num">699</span>
+            <span class="trip-price-unit"> 元／人</span>
+          </div>
+        </div>
+        <div class="trip-price-right">
+          <div class="trip-min-badge">4 人成團</div>
+          <div class="trip-time-badge">⏱ 活動時間約 3 小時</div>
+        </div>
+      </div>
+      <div class="trip-includes">
+        <div class="trip-inc-item"><span class="trip-inc-icon">🛡️</span><div class="trip-inc-text"><strong>旅遊保險</strong>含意外險保障</div></div>
+        <div class="trip-inc-item"><span class="trip-inc-icon">🐚</span><div class="trip-inc-text"><strong>丕仔料理</strong>現採現煮品嚐</div></div>
+        <div class="trip-inc-item"><span class="trip-inc-icon">🧃</span><div class="trip-inc-text"><strong>飲料點心</strong>茶點同樂</div></div>
+        <div class="trip-inc-item"><span class="trip-inc-icon">🎨</span><div class="trip-inc-text"><strong>粉彩手作</strong>笠螺紀念明信片</div></div>
+        <div class="trip-inc-item"><span class="trip-inc-icon">🌊</span><div class="trip-inc-text"><strong>海洋導覽</strong>潮間帶生態教育</div></div>
+        <div class="trip-inc-item"><span class="trip-inc-icon">🗺️</span><div class="trip-inc-text"><strong>金山導覽</strong>在地故事分享</div></div>
+      </div>
+    </div>
+
+    <div class="trip-cta-row">
+      <a href="https://line.me/R/ti/p/@455jyydi" target="_blank" rel="noopener" class="trip-btn-line"
+         onclick="trackEvent('聯絡','line_click','小旅行報名')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        LINE 洽詢報名
+      </a>
+      <button class="trip-btn-close" onclick="closeTrip()">稍後再說</button>
+    </div>
+
+    <p class="trip-note">
+      📍 集合地點：金山中角灣停車場入口<br>
+      🗓 日期時間：歡迎來訊預約，依潮汐彈性安排<br>
+      👥 每梯次上限 20 人，歡迎親子、銀髮團體報名
+    </p>
+  </div>
+</div>
+
+<div onclick="trackEvent('導覽','species_click','物種辨識');window.location.href='species.html'" style="
+  position:fixed;bottom:100px;right:16px;z-index:50;
+  background:#1a6b4a;color:white;
+  border-radius:16px 16px 4px 16px;
+  padding:14px 16px;max-width:185px;
+  font-size:16px;font-weight:700;line-height:1.5;
+  box-shadow:0 4px 16px rgba(0,0,0,0.35);cursor:pointer;">
+  📷 拍下生物照片<br>
+  <span style="font-size:13px;font-weight:400;opacity:0.9;">我來幫您辨識物種！</span>
+</div>
+
+<div class="bottom-nav">
+  <button class="bottom-nav-btn active" id="bnav-weather" onclick="switchTab('weather', null, 'bnav-weather')">
+    <span class="bnav-icon">⛅</span>天氣動態
+  </button>
+  <button class="bottom-nav-btn" id="bnav-collection" onclick="switchTab('collection', null, 'bnav-collection')">
+    <span class="bnav-icon">🪨</span>採集方式
+  </button>
+  <button class="bottom-nav-btn" id="bnav-recipe" onclick="switchTab('recipe', null, 'bnav-recipe')">
+    <span class="bnav-icon">🍽️</span>料理
+  </button>
+  <button class="bottom-nav-btn" id="bnav-history" onclick="switchTab('history', null, 'bnav-history')">
+    <span class="bnav-icon">📜</span>歷史
+  </button>
+  <a href="activity.html" class="bottom-nav-btn" style="color:inherit;" onclick="trackEvent('導覽','activity_click','底部導覽列')">
+    <span class="bnav-icon">📅</span>活動進程
+  </a>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// Tab 切換
+// ════════════════════════════════════════════════════════════
+const tabMap = {
+  weather: 'bnav-weather',
+  collection: 'bnav-collection',
+  recipe: 'bnav-recipe',
+  history: 'bnav-history'
+};
+function switchTab(name, navBtn, bnavId) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (navBtn) navBtn.classList.add('active');
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  const bid = bnavId || tabMap[name];
+  if (bid) document.getElementById(bid)?.classList.add('active');
+  document.querySelectorAll('video').forEach(v => { if (!v.autoplay) v.pause(); });
+  const tabNames = { weather:'天氣動態', collection:'採集方式', recipe:'笠螺料理', history:'採集歷史' };
+  trackEvent('頁面瀏覽', 'tab_view', tabNames[name] || name);
+}
+
+// ════════════════════════════════════════════════════════════
+// 天氣 API
+// ════════════════════════════════════════════════════════════
+const CWA_KEY = 'CWA-1026E4AC-395E-4FAA-968D-54C85BCE7D56';
+const WX_ICON = { '晴': '☀️', '多雲': '⛅', '陰': '☁️', '雨': '🌧️', '雷': '⛈️', '霧': '🌫️', '雪': '🌨️', '短暫': '🌦️' };
+function getWxIcon(desc) {
+  for (const [k, v] of Object.entries(WX_ICON)) { if (desc.includes(k)) return v; }
+  return '🌡️';
+}
+async function loadWeather() {
+  try {
+    const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${CWA_KEY}&locationName=新北市&elementName=Wx,PoP,CI`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network error');
+    const json = await res.json();
+    const loc = json.records.location[0];
+    const elements = {};
+    loc.weatherElement.forEach(e => elements[e.elementName] = e.time[0].parameter);
+    const wx = elements['Wx']?.parameterName || '--';
+    const pop = elements['PoP']?.parameterName || '--';
+    const ci = elements['CI']?.parameterName || '--';
+    document.getElementById('wxIcon').textContent = getWxIcon(wx);
+    document.getElementById('wxDesc').textContent = wx;
+    document.getElementById('wxRain').textContent = pop + '%';
+    document.getElementById('wxComfort').textContent = ci;
+    const tempMap = { '晴': '26–30°C', '多雲': '24–28°C', '陰': '22–26°C', '雨': '20–24°C' };
+    let temp = '22–28°C';
+    for (const [k, v] of Object.entries(tempMap)) { if (wx.includes(k)) { temp = v; break; } }
+    document.getElementById('wxTemp').textContent = temp;
+    const rainChance = parseInt(pop) || 0;
+    let advice = '天氣良好，適合前往採集';
+    let adviceColor = 'var(--algae)';
+    if (rainChance > 50) { advice = '天氣偏差，請謹慎評估'; adviceColor = '#ef4444'; }
+    else if (rainChance > 20) { advice = '可能降雨，請攜帶雨具'; adviceColor = '#fbbf24'; }
+    document.getElementById('wxAdvice').textContent = advice;
+    document.getElementById('wxAdvice').style.color = adviceColor;
+  } catch(e) { document.getElementById('wxDesc').textContent = '資料連線中...'; }
+}
+
+// ════════════════════════════════════════════════════════════
+// 潮汐引擎 v4
+// ════════════════════════════════════════════════════════════
+const TIDE = (() => {
+  const J1900 = Date.UTC(1900, 0, 1, 0, 0, 0);
+  const DEG   = Math.PI / 180;
+  let DC = (() => {
+    try {
+      const saved = localStorage.getItem('tide_dc');
+      const savedDate = localStorage.getItem('tide_dc_date');
+      if (saved && savedDate) {
+        const ageDays = (Date.now() - new Date(savedDate).getTime()) / 86400000;
+        if (ageDays < 35) return parseFloat(saved);
+      }
+    } catch(e) {}
+    return 9.2718;
+  })();
+  const C = [
+    { a: 36.4704, p:  35.0489, s: 28.9841042 },
+    { a: 14.1058, p:   6.5807, s: 30.0000000 },
+    { a: 10.9160, p: 329.0760, s: 28.4397295 },
+    { a: 28.3464, p:  88.5826, s: 15.0410686 },
+    { a: 30.2038, p:  85.5780, s: 13.9430356 },
+    { a:  6.0081, p: 110.5001, s: 30.0821373 },
+    { a: 10.5554, p: 138.6562, s: 14.9589314 },
+    { a:  6.8689, p:  39.3351, s: 13.3986609 },
+    { a:  5.6236, p: 316.6118, s: 57.9682084 },
+    { a:  3.0552, p: 258.1443, s: 58.9841042 },
+    { a:  7.9305, p: 185.1380, s:  1.0980331 },
+    { a:  6.3437, p:  55.2399, s:  0.5443747 },
+  ];
+  function at(utcMs) {
+    const t = (utcMs - J1900) / 3600000;
+    let h = DC;
+    for (const c of C) h += c.a * Math.cos(c.s * t * DEG - c.p * DEG);
+    return h;
+  }
+  function dayPts(dateStr) {
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    const t0 = Date.UTC(y, mo - 1, d, -8, 0, 0);
+    return Array.from({ length: 1441 }, (_, m) => ({ m, h: at(t0 + m * 60000) }));
+  }
+  function events(pts) {
+    const ev = [];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i-1].h, c = pts[i].h, n = pts[i+1].h;
+      if (c > p && c > n) ev.push({ m: pts[i].m, h: c, type: 'high' });
+      if (c < p && c < n) ev.push({ m: pts[i].m, h: c, type: 'low'  });
+    }
+    return ev;
+  }
+  function calibrate(dateStr, officialArr) {
+    if (!officialArr || officialArr.length < 2) return;
+    const [y, mo, d] = dateStr.split('-').map(Number);
+    const t0 = Date.UTC(y, mo - 1, d, -8, 0, 0);
+    let sumDiff = 0;
+    for (const { timeMin, heightMSL } of officialArr) {
+      sumDiff += heightMSL - at(t0 + timeMin * 60000);
+    }
+    const correction = sumDiff / officialArr.length;
+    if (Math.abs(correction) < 20) {
+      DC += correction * 0.4;
+      try {
+        localStorage.setItem('tide_dc', DC.toFixed(6));
+        localStorage.setItem('tide_dc_date', dateStr);
+      } catch(e) {}
+    }
+  }
+  return { at, dayPts, events, calibrate };
+})();
+
+async function fetchCWATide() {
+  const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-A0021-001?Authorization=${CWA_KEY}&format=JSON&locationName=金山`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`CWA API ${res.status}`);
+  return await res.json();
+}
+
+function parseCWATide(json) {
+  const result = {};
+  try {
+    const locs = json?.records?.Location ?? [];
+    for (const loc of locs) {
+      for (const daily of (loc.TideForecasts ?? [])) {
+        const date = daily.Date;
+        if (!result[date]) result[date] = [];
+        for (const t of (daily.Tide ?? [])) {
+          const [hh, mm] = (t.DateTime ?? '00:00').split(':').map(Number);
+          result[date].push({
+            timeMin:   hh * 60 + mm,
+            heightMSL: parseFloat(t.RelativeMeanSeaLevel ?? 0),
+            type:      t.TideType === '滿潮' ? 'high' : 'low',
+          });
+        }
+      }
+    }
+  } catch(e) {}
+  return result;
+}
+
+// nowCST：回傳台灣時間 (UTC+8) 的 Date 物件，用 .toISOString() 讀取日期與時間
+// 注意：.getHours() 會因瀏覽器時區而異，一律改用 nowCSTHour() / nowCSTMinute()
+function nowCST() { return new Date(Date.now() + 8 * 3600000); }
+function nowCSTMs() { return Date.now() + 8 * 3600000; }
+function nowCSTHour()   { return Math.floor(nowCSTMs() / 3600000) % 24; }
+function nowCSTMinute() { return Math.floor(nowCSTMs() /   60000) % 60; }
+function todayStr() { return nowCST().toISOString().slice(0, 10); }
+function fmtTime(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+function offsetDateStr(n) { return new Date(nowCSTMs() + n * 86400000).toISOString().slice(0, 10); }
+
+let _cwaCache = null;
+let _tidePts  = null;
+let _viewDate = '';
+
+/* ══════════════════════════════════════════════════════════
+   農曆 · 月相 · 大小潮
+   ══════════════════════════════════════════════════════════ */
+const SL = (window.solarLunar && window.solarLunar.default) || window.solarLunar;
+
+// solarlunar 回傳簡體，這裡轉成正體
+const CN_FIX = { '闰':'閏', '腊':'臘', '惊蛰':'驚蟄', '谷雨':'穀雨',
+                 '小满':'小滿', '芒种':'芒種', '处暑':'處暑' };
+function toTW(s) {
+  s = String(s || '');
+  for (const k in CN_FIX) s = s.split(k).join(CN_FIX[k]);
+  return s;
+}
+
+/** 取得某一天的農曆資訊、月相與大小潮 */
+function lunarOf(ds) {
+  const [y, m, d] = ds.split('-').map(Number);
+  let L;
+  try { L = SL.solar2lunar(y, m, d); } catch (e) { L = null; }
+  if (!L || L === -1) return null;
+
+  const day = L.lDay;
+  const monthName = toTW((L.isLeap ? '閏' : '') + L.monthCn).replace('月月', '月');
+  const phase = ((day - 1) % 29.53) / 29.53;      // 0 = 朔，0.5 = 望
+
+  let tide = '中潮', tideCls = '';
+  if ((day >= 1 && day <= 4) || (day >= 15 && day <= 18))       { tide = '大潮'; tideCls = 'spring'; }
+  else if ((day >= 7 && day <= 10) || (day >= 22 && day <= 25)) { tide = '小潮'; tideCls = 'neap'; }
+
+  let phaseName = '';
+  if (day === 1) phaseName = '朔·新月';
+  else if (day === 8) phaseName = '上弦';
+  else if (day === 15 || day === 16) phaseName = '望·滿月';
+  else if (day === 23) phaseName = '下弦';
+
+  return {
+    lDay: day,
+    dayCn: toTW(L.dayCn),
+    monthCn: monthName,
+    term: L.isTerm ? toTW(L.term) : '',
+    text: monthName + toTW(L.dayCn),
+    phase, phaseName, tide, tideCls
+  };
+}
+
+/** 用 SVG 畫出月相（p：0=朔 0.5=望） */
+function moonSvg(p, size) {
+  const r = size / 2 - 0.6;
+  const t = 2 * Math.PI * p;
+  const c = Math.cos(t);
+  const rx = Math.abs(c) * r;
+  const waxing = p < 0.5;
+  const outer = waxing ? 1 : 0;
+  const inner = ((c > 0) === waxing) ? 0 : 1;
+  const lit = '#f2e8c4';
+  return '<svg width="' + size + '" height="' + size + '" viewBox="' +
+    (-size / 2) + ' ' + (-size / 2) + ' ' + size + ' ' + size + '" aria-hidden="true">' +
+    '<circle r="' + r + '" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.28)" stroke-width="0.6"/>' +
+    (Math.abs(p - 0) < 0.017 || Math.abs(p - 1) < 0.017 ? '' :
+      '<path d="M0,' + (-r) + ' A' + r + ',' + r + ' 0 0 ' + outer + ' 0,' + r +
+      ' A' + rx + ',' + r + ' 0 0 ' + inner + ' 0,' + (-r) + ' Z" fill="' + lit + '"/>') +
+    '</svg>';
+}
+
+/* ── 日曆 ── */
+let _lcYear = 0, _lcMonth = 0;   // 目前顯示的月份
+
+function toggleLunarCal() {
+  const box = document.getElementById('lunarCal');
+  const btn = document.getElementById('tideDateBtn');
+  const open = box.hidden;
+  box.hidden = !open;
+  btn.classList.toggle('open', open);
+  if (open) {
+    const ds = document.getElementById('tideDatePicker').value || todayStr();
+    const [y, m] = ds.split('-').map(Number);
+    _lcYear = y; _lcMonth = m;
+    renderLunarCal();
+    trackEvent('潮汐', 'lunar_cal_open', '農曆日曆');
+  }
+}
+
+function lcMonth(delta) {
+  _lcMonth += delta;
+  if (_lcMonth > 12) { _lcMonth = 1; _lcYear++; }
+  if (_lcMonth < 1)  { _lcMonth = 12; _lcYear--; }
+  renderLunarCal();
+}
+
+function renderLunarCal() {
+  const grid = document.getElementById('lcGrid');
+  if (!grid) return;
+  const sel = document.getElementById('tideDatePicker').value;
+  const today = todayStr();
+
+  document.getElementById('lcTitle').textContent = _lcYear + ' 年 ' + _lcMonth + ' 月';
+
+  const first = new Date(Date.UTC(_lcYear, _lcMonth - 1, 1));
+  const start = first.getUTCDay();                       // 當月 1 號是星期幾
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const dt = new Date(Date.UTC(_lcYear, _lcMonth - 1, 1 - start + i));
+    const y = dt.getUTCFullYear(), m = dt.getUTCMonth() + 1, d = dt.getUTCDate();
+    const ds = y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const info = lunarOf(ds);
+
+    let sub = '', subCls = '';
+    if (info) {
+      if (info.term) { sub = info.term; subCls = ' term'; }
+      else if (info.lDay === 1) { sub = info.monthCn; subCls = ' first'; }
+      else { sub = info.dayCn; }
+    }
+    const cls = ['lc-day'];
+    if (m !== _lcMonth) cls.push('out');
+    if (info && info.tideCls) cls.push(info.tideCls);
+    if (ds === today) cls.push('today');
+    if (ds === sel) cls.push('sel');
+
+    const title = info ? (ds + ' ' + info.text + (info.term ? ' ' + info.term : '') +
+                          ' · ' + info.tide + (info.phaseName ? ' · ' + info.phaseName : '')) : ds;
+
+    cells.push(
+      '<div class="' + cls.join(' ') + '" title="' + title + '" onclick="lcPick(\'' + ds + '\')">' +
+        '<span class="lc-d-num">' + d + '</span>' +
+        (info ? moonSvg(info.phase, 13) : '') +
+        '<span class="lc-d-lun' + subCls + '">' + sub + '</span>' +
+      '</div>');
+
+    // 最後一週如果整週都是下個月就不畫
+    if (i === 34 && new Date(Date.UTC(_lcYear, _lcMonth - 1, 1 - start + 35)).getUTCMonth() + 1 !== _lcMonth) break;
+  }
+  grid.innerHTML = cells.join('');
+}
+
+function lcPick(ds) {
+  setTideDate(ds);
+  const box = document.getElementById('lunarCal');
+  box.hidden = true;
+  document.getElementById('tideDateBtn').classList.remove('open');
+  trackEvent('潮汐', 'lunar_cal_pick', ds);
+}
+
+/** 更新日期按鈕上的文字 */
+function updateDateBtn(ds) {
+  const wd = ['日','一','二','三','四','五','六'];
+  const dObj = new Date(ds + 'T12:00:00+08:00');
+  const rel = ds === todayStr() ? '今天'
+            : ds === offsetDateStr(1) ? '明天'
+            : ds === offsetDateStr(-1) ? '昨天' : '';
+  document.getElementById('tdbMain').textContent =
+    ds.replace(/-/g, '/') + '（' + wd[dObj.getDay()] + '）' + (rel ? ' · ' + rel : '');
+
+  const info = lunarOf(ds);
+  document.getElementById('tdbSub').innerHTML = info
+    ? '農曆' + info.text + (info.term ? ' · ' + info.term : '') +
+      ' · ' + info.tide + (info.phaseName ? '（' + info.phaseName + '）' : '')
+    : '';
+}
+
+function setTideDate(mode) {
+  let ds;
+  if      (mode === 'today')    ds = todayStr();
+  else if (mode === 'tomorrow') ds = offsetDateStr(1);
+  else if (mode === 'week')     ds = offsetDateStr(7);
+  else                          ds = mode;
+  document.getElementById('tideDatePicker').value = ds;
+  document.getElementById('tideScToday').classList.toggle('active', ds === todayStr());
+  document.getElementById('tideScTmr').classList.toggle('active', ds === offsetDateStr(1));
+  document.getElementById('tideScWk').classList.toggle('active', ds === offsetDateStr(7));
+  updateDateBtn(ds);
+  if (!document.getElementById('lunarCal').hidden) renderLunarCal();
+  renderTideForDate(ds);
+}
+
+function onTideDateChange() {
+  const ds = document.getElementById('tideDatePicker').value;
+  if (ds) setTideDate(ds);
+}
+
+function drawTideChart(pts, nowMin, officialEvts) {
+  const canvas = document.getElementById('tideCanvas');
+  if (!canvas) return;
+  // 確保 canvas 寬度已由 CSS 決定；若尚未就緒則延一幀重試
+  const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 0;
+  if (W === 0) {
+    requestAnimationFrame(() => drawTideChart(pts, nowMin, officialEvts));
+    return;
+  }
+  const ctx = canvas.getContext('2d');
+  const H = 90;
+  canvas.width = W; canvas.height = H;
+  const vals = pts.map(p => p.h);
+  const lo = Math.min(...vals) - 5;
+  const hi = Math.max(...vals) + 5;
+  const tx = m => m / 1440 * W;
+  const ty = h => H - (h - lo) / (hi - lo) * (H - 18) - 9;
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(46,204,142,0.35)');
+  g.addColorStop(1, 'rgba(13,43,78,0.05)');
+  ctx.beginPath();
+  ctx.moveTo(0, ty(pts[0].h));
+  for (const p of pts) ctx.lineTo(tx(p.m), ty(p.h));
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(0, ty(pts[0].h));
+  for (const p of pts) ctx.lineTo(tx(p.m), ty(p.h));
+  ctx.strokeStyle = '#2ecc8e'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath(); ctx.moveTo(0, ty(0)); ctx.lineTo(W, ty(0));
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.setLineDash([2, 4]);
+  ctx.beginPath(); ctx.moveTo(0, ty(30)); ctx.lineTo(W, ty(30));
+  ctx.strokeStyle = 'rgba(46,204,142,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(46,204,142,0.5)'; ctx.font = '8px system-ui';
+  ctx.fillText('採集線 30cm', 3, ty(30) - 2);
+  if (officialEvts && officialEvts.length > 0) {
+    for (const ev of officialEvts) {
+      const ex = tx(ev.timeMin), ey = ty(ev.heightMSL);
+      ctx.save(); ctx.translate(ex, ey); ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = ev.type === 'high' ? '#e8825a' : '#2ecc8e';
+      ctx.fillRect(-4, -4, 8, 8); ctx.restore();
+    }
+  }
+  if (nowMin >= 0 && nowMin <= 1440) {
+    const xn = tx(nowMin), yn = ty(pts[Math.min(nowMin, 1440)].h);
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xn, 0); ctx.lineTo(xn, H);
+    ctx.strokeStyle = 'rgba(240,192,96,0.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(xn, yn, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#f0c060'; ctx.fill();
+    ctx.strokeStyle = '#0a1f38'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+}
+
+function renderTideForDate(ds) {
+  _viewDate = ds;
+  const isToday = (ds === todayStr());
+  const nc      = nowCST();
+  const nowMin  = isToday ? nowCSTHour() * 60 + nowCSTMinute() : -1;
+  const pts     = TIDE.dayPts(ds);
+  const calcEv  = TIDE.events(pts);
+  if (isToday) _tidePts = pts;
+  const officialDay = _cwaCache ? (_cwaCache[ds] || null) : null;
+  const labelEl = document.getElementById('tideDateLabel');
+  if (isToday) {
+    labelEl.style.display = 'none';
+  } else {
+    const weekdays = ['日','一','二','三','四','五','六'];
+    const dObj = new Date(ds + 'T12:00:00+08:00');
+    const diffDays = Math.round((dObj - new Date(todayStr() + 'T12:00:00+08:00')) / 86400000);
+    const diffLabel = diffDays === 1 ? '（明天）' : diffDays === -1 ? '（昨天）' : `（${diffDays > 0 ? '+' : ''}${diffDays}天）`;
+    labelEl.textContent = `📅 ${ds.replace(/-/g,'/')} 週${weekdays[dObj.getDay()]} ${diffLabel}`;
+    labelEl.style.display = 'block';
+  }
+  const liveBar = document.getElementById('tideLiveBar');
+  liveBar.classList.toggle('hidden', !isToday);
+  if (isToday) {
+    const curH  = pts[Math.min(nowMin, 1440)].h;
+    const dayLo = Math.min(...pts.map(p => p.h));
+    const dayHi = Math.max(...pts.map(p => p.h));
+    const pct   = Math.max(0, Math.min(100, (curH - dayLo) / (dayHi - dayLo) * 100));
+    document.getElementById('tideNowVal').textContent = curH.toFixed(0) + ' cm';
+    document.getElementById('tideBar').style.width = pct + '%';
+    const rising = pts[Math.min(nowMin + 3, 1440)].h > pts[Math.max(nowMin - 3, 0)].h;
+    document.getElementById('tideDirection').textContent = rising ? '⬆ 漲潮中' : '⬇ 退潮中';
+    document.getElementById('tideBarLabel').textContent = '目前潮高';
+    const badge = document.getElementById('safetyBadge');
+    const safetyText = document.getElementById('safetyText');
+    if (curH < 30 && !rising) { badge.className = 'safety-badge green'; safetyText.textContent = '✅ 採集條件良好'; }
+    else if (curH < 60) { badge.className = 'safety-badge yellow'; safetyText.textContent = '⚠️ 待退潮，請注意'; }
+    else { badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高'; }
+  } else {
+    const h14   = pts[840].h;
+    const dayLo = Math.min(...pts.map(p => p.h));
+    const dayHi = Math.max(...pts.map(p => p.h));
+    const pct   = Math.max(0, Math.min(100, (h14 - dayLo) / (dayHi - dayLo) * 100));
+    document.getElementById('tideNowVal').textContent = h14.toFixed(0) + ' cm';
+    document.getElementById('tideBar').style.width = pct + '%';
+    document.getElementById('tideBarLabel').textContent = '14:00 潮高';
+    document.getElementById('tideDirection').textContent = '';
+    liveBar.classList.remove('hidden');
+    const badge = document.getElementById('safetyBadge');
+    const safetyText = document.getElementById('safetyText');
+    const lowEvts = calcEv.filter(e => e.type === 'low');
+    const bestLow = lowEvts.reduce((a, b) => (!a || b.h < a.h ? b : a), null);
+    if (bestLow && bestLow.h < 30) { badge.className = 'safety-badge green'; safetyText.textContent = `預估 ${fmtTime(Math.max(0, bestLow.m - 60))}–${fmtTime(Math.min(1440, bestLow.m + 60))} 可採集`; }
+    else if (bestLow && bestLow.h < 60) { badge.className = 'safety-badge yellow'; safetyText.textContent = `最低潮 ${fmtTime(bestLow.m)}，潮差偏小`; }
+    else { badge.className = 'safety-badge red'; safetyText.textContent = '該日潮位偏高，不建議採集'; }
+  }
+  const displayEvts = officialDay && officialDay.length > 0
+    ? officialDay.map(e => ({ m: e.timeMin, h: e.heightMSL, type: e.type }))
+    : calcEv;
+  const src = officialDay && officialDay.length > 0 ? '✅ CWA 官方' : '📐 諧波計算';
+  document.getElementById('tideSourceBadge').textContent = src;
+  document.getElementById('tideEvents').innerHTML = displayEvts.map(e => `
+    <div class="tide-event-item ${e.type}">
+      <div class="tide-event-type">${e.type === 'high' ? '▲ 滿潮' : '▼ 乾潮'}</div>
+      <div class="tide-event-time">${fmtTime(e.m)}</div>
+      <div class="tide-event-height">${e.h.toFixed(0)} cm</div>
+    </div>`).join('') || '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">載入中…</div>';
+  document.getElementById('tideUpdateTime').textContent =
+    isToday ? `更新 ${String(nowCSTHour()).padStart(2,'0')}:${String(nowCSTMinute()).padStart(2,'0')} CST` : `諧波推算 · ${src}`;
+  drawTideChart(pts, nowMin, officialDay);
+}
+
+async function loadTides() {
+  const today = todayStr();
+  document.getElementById('tideDatePicker').value = today;
+  updateDateBtn(today);
+  renderTideForDate(today);
+  try {
+    const json   = await fetchCWATide();
+    const parsed = parseCWATide(json);
+    _cwaCache    = parsed;
+    const todayOff = parsed[today];
+    if (todayOff && todayOff.length >= 2) {
+      TIDE.calibrate(today, todayOff);
+      if (_viewDate === today) renderTideForDate(today);
+    }
+  } catch(err) {}
+}
+
+function tickTide() {
+  if (!_tidePts || _viewDate !== todayStr()) return;
+  const nowMin = nowCSTHour() * 60 + nowCSTMinute();
+  const curH   = _tidePts[Math.min(nowMin, 1440)].h;
+  const rising = _tidePts[Math.min(nowMin + 3, 1440)].h > _tidePts[Math.max(nowMin - 3, 0)].h;
+  document.getElementById('tideNowVal').textContent = curH.toFixed(0) + ' cm';
+  document.getElementById('tideDirection').textContent = rising ? '⬆ 漲潮中' : '⬇ 退潮中';
+  document.getElementById('tideUpdateTime').textContent = `更新 ${String(nowCSTHour()).padStart(2,'0')}:${String(nowCSTMinute()).padStart(2,'0')} CST`;
+  drawTideChart(_tidePts, nowMin, _cwaCache ? (_cwaCache[todayStr()] || null) : null);
+  const badge = document.getElementById('safetyBadge');
+  const safetyText = document.getElementById('safetyText');
+  if (curH < 30 && !rising) { badge.className = 'safety-badge green'; safetyText.textContent = '✅ 採集條件良好'; }
+  else if (curH < 60) { badge.className = 'safety-badge yellow'; safetyText.textContent = '⚠️ 待退潮，請注意'; }
+  else { badge.className = 'safety-badge red'; safetyText.textContent = '🔴 暫停採集，潮位偏高'; }
+}
+
+// ════════════════════════════════════════════════════════════
+// 小旅行彈出視窗
+// ════════════════════════════════════════════════════════════
+let _tripIdx = 0;
+const TRIP_TOTAL = 3;
+
+function tripGoTo(idx) {
+  _tripIdx = (idx + TRIP_TOTAL) % TRIP_TOTAL;
+  const slider = document.getElementById('tripSlider');
+  if (slider) slider.style.transform = 'translateX(-' + (_tripIdx * (100 / TRIP_TOTAL)) + '%)';
+  document.querySelectorAll('.trip-dot').forEach((d, i) => d.classList.toggle('active', i === _tripIdx));
+}
+function tripSlide(dir) { tripGoTo(_tripIdx + dir); }
+
+let _tripTimer = null;
+function startTripAuto() { stopTripAuto(); _tripTimer = setInterval(() => tripSlide(1), 3200); }
+function stopTripAuto() { if (_tripTimer) { clearInterval(_tripTimer); _tripTimer = null; } }
+
+function initTripSwipe() {
+  const poster = document.querySelector('.trip-poster');
+  if (!poster) return;
+  let sx = 0;
+  poster.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stopTripAuto(); }, { passive: true });
+  poster.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) tripSlide(dx < 0 ? 1 : -1);
+    startTripAuto();
+  }, { passive: true });
+}
+
+function openTrip() {
+  const overlay = document.getElementById('tripOverlay');
+  overlay.style.display = 'flex';
+  overlay.classList.remove('hiding');
+  document.getElementById('tripSheet').classList.remove('hiding');
+  document.body.style.overflow = 'hidden';
+  tripGoTo(0);
+  initTripSwipe();
+  startTripAuto();
+}
+
+function closeTrip() {
+  const overlay = document.getElementById('tripOverlay');
+  const sheet   = document.getElementById('tripSheet');
+  overlay.classList.add('hiding');
+  sheet.classList.add('hiding');
+  stopTripAuto();
+  setTimeout(() => { overlay.style.display = 'none'; document.body.style.overflow = ''; }, 350);
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('tripOverlay')) closeTrip();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const seen = sessionStorage.getItem('trip_popup_seen');
+  if (!seen) {
+    setTimeout(() => { openTrip(); sessionStorage.setItem('trip_popup_seen', '1'); }, 3000);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadWeather();
+  loadTides();
+  setInterval(tickTide, 60000);
+  // 確保 canvas 在首次渲染時已取得正確寬度後，立刻補畫一次標線
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (_tidePts && _viewDate === todayStr()) {
+        const nowMin = nowCSTHour() * 60 + nowCSTMinute();
+        drawTideChart(_tidePts, nowMin, _cwaCache ? (_cwaCache[todayStr()] || null) : null);
+      }
+    });
+  });
+  trackEvent('頁面瀏覽', 'page_view', '首頁-天氣動態');
+  if (!sessionStorage.getItem('ws_visited')) {
+    sessionStorage.setItem('ws_visited', '1');
+    trackEvent('訪客', 'session_start', '新 Session');
+  }
+});
+</script>
+</body>
+</html>
